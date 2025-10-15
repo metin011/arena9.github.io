@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<title>Arena9 - Ana Sayfa</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#22c55e",
+        "background-light": "#f8fafc",
+        "background-dark": "#000000",
+        "card-light": "#ffffff",
+        "card-dark": "#1a1a1a",
+        "text-light": "#0f172a",
+        "text-dark": "#f8fafc",
+        "text-muted-light": "#64748b",
+        "text-muted-dark": "#94a3b8",
+        "border-dark": "#262626"
+      },
+      fontFamily: {
+        "display": ["Space Grotesk"]
+      },
+      borderRadius: {
+        "DEFAULT": "0.75rem",
+        "lg": "1rem",
+        "xl": "1.5rem",
+        "full": "9999px"
+      },
+    },
+  },
+}
+</script>
+<style>
+body {
+  min-height: max(884px, 100dvh);
+}
+</style>
+</head>
+<body class="bg-background-dark font-display text-text-dark">
+<div class="relative min-h-screen">
+<div class="fixed inset-y-0 left-0 z-50 w-64 bg-background-dark p-6 transform -translate-x-full transition-transform duration-300 ease-in-out peer-checked:translate-x-0 lg:translate-x-0 lg:w-20 xl:w-64">
+<h3 class="text-2xl font-bold text-text-dark mb-8 xl:block hidden">Arena9</h3>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-4 rounded-lg bg-primary/20 p-3 text-primary font-bold" href="{{ url_for('dashboard') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
+</svg>
+<span class="xl:inline hidden">Ana Sayfa</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 text-text-muted-dark hover:bg-primary/20 hover:text-primary font-medium" href="{{ url_for('matches') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z"></path>
+</svg>
+<span class="xl:inline hidden">Maçlar</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 text-text-muted-dark hover:bg-primary/20 hover:text-primary font-medium" href="{{ url_for('players') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+</svg>
+<span class="xl:inline hidden">Oyuncular</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 text-text-muted-dark hover:bg-primary/20 hover:text-primary font-medium" href="{{ url_for('leaderboard') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M240.26,186.1,152.81,34.23h0a28.74,28.74,0,0,0-49.62,0L15.74,186.1a27.45,27.45,0,0,0,0,27.71A28.31,28.31,0,0,0,40.55,228h174.9a28.31,28.31,0,0,0,24.79-14.19A27.45,27.45,0,0,0,240.26,186.1Zm-20.8,15.7a12.32,12.32,0,0,1-10.91,6.2H40.55a12.32,12.32,0,0,1-10.91-6.2,11.46,11.46,0,0,1,0-11.49L117.09,38.22a12.75,12.75,0,0,1,21.82,0l87.45,152.09A11.46,11.46,0,0,1,219.46,201.8Z"></path>
+</svg>
+<span>İstatistikler</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 text-text-muted-dark hover:bg-primary/20 hover:text-primary font-medium" href="{{ url_for('teams') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"></path>
+</svg>
+<span class="xl:inline hidden">Takımlar</span>
+</a>
+</nav>
+</div>
+<div class="flex flex-col min-h-screen lg:pl-20 xl:pl-64">
+<header class="flex items-center justify-between p-4 border-b border-border-dark">
+<div class="flex items-center">
+<input class="peer hidden" id="nav-toggle" type="checkbox"/>
+<label class="cursor-pointer lg:hidden" for="nav-toggle">
+<svg class="text-text-dark" fill="currentColor" height="28" viewBox="0 0 256 256" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,88H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path></svg>
+</label>
+<h1 class="text-xl font-bold text-text-dark ml-4 lg:ml-0">Ana Sayfa</h1>
+</div>
+<button class="relative rounded-full p-2 hover:bg-gray-800">
+<svg class="text-text-dark" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path></svg>
+<span class="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background-dark"></span>
+</button>
+</header>
+<main class="flex-1 p-6 space-y-8">
+<div>
+<h2 class="text-2xl font-bold text-text-dark mb-4">Son Maçlar</h2>
+<div class="grid gap-6 sm:grid-cols-2">
+{% if matches %}
+  {% for match in matches[:2] %}
+  <a href="{{ url_for('match_detail', match_id=match.id) }}" class="bg-card-dark rounded-xl p-4 flex gap-4 items-center shadow-md hover:bg-card-dark/80 transition-colors">
+    <div class="flex-1 space-y-2">
+      <p class="text-sm text-text-muted-dark font-medium">{{ match.name or 'Maç' }}</p>
+      <p class="text-lg font-bold text-text-dark">{{ match.home_team }} vs. {{ match.away_team }}</p>
+      <p class="text-sm text-text-muted-dark font-medium">{{ match.home_score }}-{{ match.away_score }}</p>
+      <button class="mt-2 text-sm font-semibold text-white bg-primary hover:bg-primary/80 rounded-lg px-4 py-2 transition-colors">Detayları Gör</button>
+    </div>
+    <div class="w-24 h-24 rounded-lg bg-cover bg-center" style="background-image: url('{{ match.image_url or "https://via.placeholder.com/150" }}');"></div>
+  </a>
+  {% endfor %}
+{% else %}
+  <p class="text-text-muted-dark col-span-2">Henüz maç eklenmemiş.</p>
+{% endif %}
+</div>
+</div>
+<div>
+<h2 class="text-2xl font-bold text-text-dark mb-4">Gol Kralları</h2>
+<div class="grid gap-6 sm:grid-cols-2">
+{% if players %}
+  {% for player in players[:2] %}
+  <a href="{{ url_for('player_profile', player_id=player.id) }}" class="bg-card-dark rounded-xl p-4 flex gap-4 items-center shadow-md hover:bg-card-dark/80 transition-colors">
+    <div class="flex-1 space-y-2">
+      <p class="text-lg font-bold text-text-dark">{{ player.name }}</p>
+      <p class="text-sm text-text-muted-dark font-medium">{{ player.overall_rating }} OVR</p>
+      <button class="mt-2 text-sm font-semibold text-white bg-primary hover:bg-primary/80 rounded-lg px-4 py-2 transition-colors">Profili Görüntüle</button>
+    </div>
+    <div class="w-24 h-24 rounded-lg bg-cover bg-center" style="background-image: url('{{ player.photo_url or "https://via.placeholder.com/150" }}');"></div>
+  </a>
+  {% endfor %}
+{% else %}
+  <p class="text-text-muted-dark col-span-2">Henüz oyuncu eklenmemiş.</p>
+{% endif %}
+</div>
+</div>
+</main>
+<nav class="sticky bottom-0 bg-background-dark border-t border-border-dark p-2 lg:hidden">
+<div class="flex justify-around">
+<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-primary" href="{{ url_for('dashboard') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
+</svg>
+<span class="text-xs font-bold">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-text-muted-dark hover:text-primary" href="{{ url_for('matches') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path>
+</svg>
+<span class="text-xs font-medium">Maçlar</span>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-text-muted-dark hover:text-primary" href="{{ url_for('players') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+</svg>
+<span class="text-xs font-medium">Oyuncular</span>
+</a>
+<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-text-muted-dark hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"></path>
+</svg>
+<span class="text-xs font-medium">Takımlar</span>
+</a>
+</div>
+</nav>
+</div>
+</div>
+</body>
+</html>

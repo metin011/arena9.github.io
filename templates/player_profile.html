@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ player.name }} - Arena9</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#00F08C',
+          dark: '#00C270'
+        },
+        'background-dark': '#000000',
+        'surface-dark': '#1A1A1A',
+        'text-dark-primary': '#FFFFFF',
+        'text-dark-secondary': '#A0A0A0',
+        'border-dark': '#2E2E2E',
+      },
+      fontFamily: {
+        display: ['Space Grotesk'],
+      },
+      borderRadius: { 
+        DEFAULT: '0.75rem', 
+        lg: '1rem', 
+        xl: '1.5rem', 
+        '2xl': '2rem',
+        full: '9999px' 
+      },
+    },
+  },
+};
+</script>
+<style>
+.position-marker {
+  transition: all 0.3s ease;
+}
+.position-marker:hover {
+  transform: scale(1.1);
+}
+body {
+  min-height: max(884px, 100dvh);
+}
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="flex items-center justify-between p-4">
+<a href="{{ url_for('players') }}" class="rounded-full p-2 hover:bg-slate-200 dark:hover:bg-slate-800">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</a>
+<button onclick="window.print()" class="rounded-full p-2 hover:bg-slate-200 dark:hover:bg-slate-800">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M229.66,109.66l-48,48a8,8,0,0,1-11.32-11.32L204.69,112H165a88,88,0,0,0-85.23,66,8,8,0,0,1-15.5-4A103.94,103.94,0,0,1,165,96h39.71L170.34,61.66a8,8,0,0,1,11.32-11.32l48,48A8,8,0,0,1,229.66,109.66ZM192,208H40V88a8,8,0,0,0-16,0V208a16,16,0,0,0,16,16H192a8,8,0,0,0,0-16Z"></path>
+</svg>
+</button>
+</div>
+</header>
+
+<main class="flex-grow px-4 pb-4">
+<div class="flex flex-col items-center gap-4 pt-4 text-center">
+<div class="relative">
+<div class="absolute -inset-1 rounded-full bg-primary animate-pulse"></div>
+<img alt="{{ player.name }}" class="relative w-32 h-32 rounded-full border-4 border-background-light dark:border-background-dark object-cover" src="{{ player.photo_url or 'https://via.placeholder.com/150' }}"/>
+</div>
+<div>
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white">{{ player.name }}</h1>
+<p class="text-slate-600 dark:text-slate-400">{{ player.position }} | #{{ player.jersey_number }} | {{ player.team }}</p>
+</div>
+</div>
+
+<div class="mt-8 grid grid-cols-3 gap-4 text-center">
+<div class="rounded-lg bg-slate-200/50 dark:bg-slate-800/50 p-3">
+<p class="text-3xl font-bold text-primary">{{ player.overall_rating }}</p>
+<p class="text-sm text-slate-600 dark:text-slate-400">OVR</p>
+</div>
+<div class="rounded-lg bg-slate-200/50 dark:bg-slate-800/50 p-3">
+<p class="text-3xl font-bold text-slate-900 dark:text-white">{{ player.age }}</p>
+<p class="text-sm text-slate-600 dark:text-slate-400">Yaş</p>
+</div>
+<div class="rounded-lg bg-slate-200/50 dark:bg-slate-800/50 p-3">
+<p class="text-3xl font-bold text-slate-900 dark:text-white">{{ player.jersey_number }}</p>
+<p class="text-sm text-slate-600 dark:text-slate-400">Forma</p>
+</div>
+</div>
+
+<div class="mt-10 flex flex-col md:flex-row gap-4">
+<div class="flex-1">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Mevki Haritası</h2>
+<div class="mt-4 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-4">
+<div class="relative aspect-[2/3] bg-no-repeat bg-center bg-contain" style="background-image: url('data:image/svg+xml,%3csvg width=\'200\' height=\'300\' viewBox=\'0 0 200 300\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3e%3crect width=\'200\' height=\'300\' fill=\'%23006400\'/%3e%3ccircle cx=\'100\' cy=\'150\' r=\'40\' stroke=\'white\' stroke-opacity=\'0.5\' stroke-width=\'2\'/%3e%3cline x1=\'0\' y1=\'150\' x2=\'200\' y2=\'150\' stroke=\'white\' stroke-opacity=\'0.5\' stroke-width=\'2\'/%3e%3cline x1=\'100\' y1=\'0\' x2=\'100\' y2=\'300\' stroke=\'white\' stroke-opacity=\'0.5\' stroke-width=\'2\'/%3e%3crect x=\'70\' y=\'0\' width=\'60\' height=\'20\' stroke=\'white\' stroke-opacity=\'0.5\' stroke-width=\'2\' fill=\'none\'/%3e%3crect x=\'40\' y=\'0\' width=\'120\' height=\'60\' stroke=\'white\' stroke-opacity=\'0.5\' stroke-width=\'2\' fill=\'none\'/%3e%3c/svg%3e')">
+<div class="absolute inset-0">
+{% if position_map %}
+  {% for pos, color in position_map.items() %}
+    {% set positions = {
+      'GK': {'top': '5%', 'left': '50%'},
+      'LB': {'top': '20%', 'left': '15%'}, 'LCB': {'top': '20%', 'left': '35%'}, 'CB': {'top': '20%', 'left': '50%'}, 'RCB': {'top': '20%', 'left': '65%'}, 'RB': {'top': '20%', 'left': '85%'},
+      'LWB': {'top': '35%', 'left': '10%'}, 'LDM': {'top': '40%', 'left': '35%'}, 'CDM': {'top': '40%', 'left': '50%'}, 'RDM': {'top': '40%', 'left': '65%'}, 'RWB': {'top': '35%', 'left': '90%'},
+      'LM': {'top': '50%', 'left': '15%'}, 'LCM': {'top': '55%', 'left': '35%'}, 'CM': {'top': '55%', 'left': '50%'}, 'RCM': {'top': '55%', 'left': '65%'}, 'RM': {'top': '50%', 'left': '85%'},
+      'LAM': {'top': '70%', 'left': '35%'}, 'CAM': {'top': '70%', 'left': '50%'}, 'RAM': {'top': '70%', 'left': '65%'},
+      'LW': {'top': '75%', 'left': '15%'}, 'LF': {'top': '80%', 'left': '35%'}, 'CF': {'top': '80%', 'left': '50%'}, 'RF': {'top': '80%', 'left': '65%'}, 'RW': {'top': '75%', 'left': '85%'},
+      'LS': {'top': '90%', 'left': '35%'}, 'ST': {'top': '90%', 'left': '50%'}, 'RS': {'top': '90%', 'left': '65%'}
+    } %}
+    {% if pos in positions %}
+      {% set pos_data = positions[pos] %}
+      {% set bg_color = 'bg-green-500' if color == 'green' else ('bg-green-300' if color == 'light-green' else 'bg-yellow-400') %}
+      <div class="position-marker absolute transform -translate-x-1/2 -translate-y-1/2" style="top: {{ pos_data.top }}; left: {{ pos_data.left }};">
+        <div class="w-10 h-10 {{ bg_color }} rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white shadow-lg">
+          {{ pos }}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% else %}
+  <div class="flex items-center justify-center h-full">
+    <p class="text-slate-500 dark:text-slate-400 text-sm">Mevki bilgisi yok</p>
+  </div>
+{% endif %}
+</div>
+</div>
+<div class="mt-4 flex justify-center gap-4 text-xs">
+<div class="flex items-center gap-1">
+<div class="w-3 h-3 bg-green-500 rounded-full"></div>
+<span>Ana Mevki</span>
+</div>
+<div class="flex items-center gap-1">
+<div class="w-3 h-3 bg-green-300 rounded-full"></div>
+<span>İyi Oynuyor</span>
+</div>
+<div class="flex items-center gap-1">
+<div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+<span>Oynayabilir</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="flex-1">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Ana Yetenekler</h2>
+<div class="mt-4 grid grid-cols-1 gap-2">
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-2 text-center">
+<h3 class="font-bold text-primary text-sm">Hız</h3>
+<p class="text-lg font-bold text-slate-900 dark:text-white">{{ player.pace }}</p>
+</div>
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-2 text-center">
+<h3 class="font-bold text-primary text-sm">Şut</h3>
+<p class="text-lg font-bold text-slate-900 dark:text-white">{{ player.shooting }}</p>
+</div>
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-2 text-center">
+<h3 class="font-bold text-primary text-sm">Pas</h3>
+<p class="text-lg font-bold text-slate-900 dark:text-white">{{ player.passing }}</p>
+</div>
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-2 text-center">
+<h3 class="font-bold text-primary text-sm">Dribling</h3>
+<p class="text-lg font-bold text-slate-900 dark:text-white">{{ player.dribbling }}</p>
+</div>
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-2 text-center">
+<h3 class="font-bold text-primary text-sm">Savunma</h3>
+<p class="text-lg font-bold text-slate-900 dark:text-white">{{ player.defending }}</p>
+</div>
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-2 text-center">
+<h3 class="font-bold text-primary text-sm">Fiziksel</h3>
+<p class="text-lg font-bold text-slate-900 dark:text-white">{{ player.physical }}</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="mt-10">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Detaylı Yetenekler</h2>
+<div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+{% if detailed_skills.pace %}
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-4">
+<h3 class="font-bold text-primary">Hız</h3>
+<ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+<li class="flex justify-between"><span>Hızlanma</span> <span>{{ detailed_skills.pace.acceleration }}</span></li>
+<li class="flex justify-between"><span>Sprint Hızı</span> <span>{{ detailed_skills.pace.sprint_speed }}</span></li>
+</ul>
+</div>
+{% endif %}
+
+{% if detailed_skills.shooting %}
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-4">
+<h3 class="font-bold text-primary">Şut</h3>
+<ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+<li class="flex justify-between"><span>Bitiricilik</span> <span>{{ detailed_skills.shooting.finishing }}</span></li>
+<li class="flex justify-between"><span>Uzaktan Şut</span> <span>{{ detailed_skills.shooting.long_shots }}</span></li>
+<li class="flex justify-between"><span>Şut Gücü</span> <span>{{ detailed_skills.shooting.shot_power }}</span></li>
+<li class="flex justify-between"><span>Pozisyon Alma</span> <span>{{ detailed_skills.shooting.positioning }}</span></li>
+<li class="flex justify-between"><span>Vole Vuruşu</span> <span>{{ detailed_skills.shooting.volleys }}</span></li>
+<li class="flex justify-between"><span>Penaltı</span> <span>{{ detailed_skills.shooting.penalties }}</span></li>
+</ul>
+</div>
+{% endif %}
+
+{% if detailed_skills.passing %}
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-4">
+<h3 class="font-bold text-primary">Pas</h3>
+<ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+<li class="flex justify-between"><span>Kısa Pas</span> <span>{{ detailed_skills.passing.short_pass }}</span></li>
+<li class="flex justify-between"><span>Uzun Pas</span> <span>{{ detailed_skills.passing.long_pass }}</span></li>
+<li class="flex justify-between"><span>Görüş</span> <span>{{ detailed_skills.passing.vision }}</span></li>
+<li class="flex justify-between"><span>Orta</span> <span>{{ detailed_skills.passing.crossing }}</span></li>
+<li class="flex justify-between"><span>Falso</span> <span>{{ detailed_skills.passing.curve }}</span></li>
+<li class="flex justify-between"><span>Serbest Vuruş</span> <span>{{ detailed_skills.passing.free_kick }}</span></li>
+</ul>
+</div>
+{% endif %}
+
+{% if detailed_skills.dribbling %}
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-4">
+<h3 class="font-bold text-primary">Dribling</h3>
+<ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+<li class="flex justify-between"><span>Top Sürme</span> <span>{{ detailed_skills.dribbling.dribbling }}</span></li>
+<li class="flex justify-between"><span>Denge</span> <span>{{ detailed_skills.dribbling.balance }}</span></li>
+<li class="flex justify-between"><span>Çeviklik</span> <span>{{ detailed_skills.dribbling.agility }}</span></li>
+<li class="flex justify-between"><span>Tepkime</span> <span>{{ detailed_skills.dribbling.reactions }}</span></li>
+<li class="flex justify-between"><span>Top Kontrolü</span> <span>{{ detailed_skills.dribbling.ball_control }}</span></li>
+</ul>
+</div>
+{% endif %}
+
+{% if detailed_skills.defending %}
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-4">
+<h3 class="font-bold text-primary">Savunma</h3>
+<ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+<li class="flex justify-between"><span>Adam Markajı</span> <span>{{ detailed_skills.defending.man_marking }}</span></li>
+<li class="flex justify-between"><span>Ayakta Mücadele</span> <span>{{ detailed_skills.defending.standing_tackle }}</span></li>
+<li class="flex justify-between"><span>Farkındalık</span> <span>{{ detailed_skills.defending.interceptions }}</span></li>
+<li class="flex justify-between"><span>Kafa</span> <span>{{ detailed_skills.defending.heading }}</span></li>
+</ul>
+</div>
+{% endif %}
+
+{% if detailed_skills.physical %}
+<div class="rounded-xl bg-slate-200/50 dark:bg-slate-800/50 p-4">
+<h3 class="font-bold text-primary">Fiziksel</h3>
+<ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+<li class="flex justify-between"><span>Güç</span> <span>{{ detailed_skills.physical.strength }}</span></li>
+<li class="flex justify-between"><span>Saldırganlık</span> <span>{{ detailed_skills.physical.aggression }}</span></li>
+<li class="flex justify-between"><span>Zıplama</span> <span>{{ detailed_skills.physical.jumping }}</span></li>
+<li class="flex justify-between"><span>Dayanıklılık</span> <span>{{ detailed_skills.physical.stamina }}</span></li>
+</ul>
+</div>
+{% endif %}
+</div>
+</div>
+
+<div class="mt-10">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">Sezonluk Performans</h2>
+<div class="mt-4 overflow-x-auto rounded-xl bg-slate-200/50 dark:bg-slate-800/50">
+<table class="w-full text-left text-sm">
+<thead class="text-slate-600 dark:text-slate-400">
+<tr>
+<th class="p-4 font-medium">Sezon</th>
+<th class="p-4 font-medium text-center">Maç</th>
+<th class="p-4 font-medium text-center">Gol</th>
+<th class="p-4 font-medium text-center">Asist</th>
+</tr>
+</thead>
+<tbody class="text-slate-900 dark:text-white">
+{% if season_stats %}
+  {% for stat in season_stats %}
+  <tr class="border-t border-slate-300 dark:border-slate-700">
+    <td class="p-4 font-medium">{{ stat.season }}</td>
+    <td class="p-4 text-center">{{ stat.matches }}</td>
+    <td class="p-4 text-center">{{ stat.goals }}</td>
+    <td class="p-4 text-center">{{ stat.assists }}</td>
+  </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="4" class="p-4 text-center text-slate-500">Sezon istatistiği yok</td>
+  </tr>
+{% endif %}
+</tbody>
+</table>
+</div>
+</div>
+</main>
+
+<nav class="sticky bottom-0 z-10 border-t border-slate-200 dark:border-slate-800 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm">
+<div class="flex justify-around py-2">
+<a class="flex flex-col items-center justify-end gap-1 w-full text-slate-500 dark:text-slate-400 hover:text-primary transition-colors" href="{{ url_for('index') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path></svg>
+<span class="text-xs font-medium">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-end gap-1 w-full text-slate-500 dark:text-slate-400 hover:text-primary transition-colors" href="{{ url_for('matches') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path></svg>
+<span class="text-xs font-medium">Maçlar</span>
+</a>
+<a class="flex flex-col items-center justify-end gap-1 w-full text-primary transition-colors" href="{{ url_for('players') }}">
+<div class="relative w-full flex justify-center">
+<div class="absolute -bottom-1 h-1 w-8 bg-primary rounded-full"></div>
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Z"></path></svg>
+</div>
+<span class="text-xs font-medium">Oyuncular</span>
+</a>
+{% if session.get('is_admin') %}
+<a class="flex flex-col items-center justify-end gap-1 w-full text-slate-500 dark:text-slate-400 hover:text-primary transition-colors" href="{{ url_for('admin_panel') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8Z"></path></svg>
+<span class="text-xs font-medium">Admin</span>
+</a>
+{% endif %}
+</div>
+</nav>
+</div>
+</body>
+</html>

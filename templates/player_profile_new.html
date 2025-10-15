@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ player.name }} - Arena9</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#00F08C',
+          dark: '#00C270'
+        },
+        'background-dark': '#000000',
+        'surface-dark': '#1A1A1A',
+        'text-dark-primary': '#FFFFFF',
+        'text-dark-secondary': '#A0A0A0',
+        'border-dark': '#2E2E2E',
+      },
+      fontFamily: {
+        display: ['Space Grotesk'],
+      },
+      borderRadius: { 
+        DEFAULT: '0.75rem', 
+        lg: '1rem', 
+        xl: '1.5rem', 
+        '2xl': '2rem',
+        full: '9999px' 
+      },
+    },
+  },
+};
+</script>
+<style>
+body {
+  min-height: max(884px, 100dvh);
+}
+</style>
+</head>
+<body class="bg-background-dark font-display text-text-dark-primary">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 bg-background-dark/80 backdrop-blur-sm">
+<div class="flex items-center justify-between p-4">
+<a href="{{ url_for('players') }}" class="rounded-full p-2.5 bg-surface-dark shadow-sm hover:bg-gray-800 border border-border-dark">
+<svg class="text-text-dark-secondary" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</a>
+<button onclick="window.print()" class="rounded-full p-2.5 bg-surface-dark shadow-sm hover:bg-gray-800 border border-border-dark">
+<svg class="text-text-dark-secondary" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M229.66,109.66l-48,48a8,8,0,0,1-11.32-11.32L204.69,112H165a88,88,0,0,0-85.23,66,8,8,0,0,1-15.5-4A103.94,103.94,0,0,1,165,96h39.71L170.34,61.66a8,8,0,0,1,11.32-11.32l48,48A8,8,0,0,1,229.66,109.66ZM192,208H40V88a8,8,0,0,0-16,0V208a16,16,0,0,0,16,16H192a8,8,0,0,0,0-16Z"></path>
+</svg>
+</button>
+</div>
+</header>
+<main class="flex-grow px-4 pb-4">
+<div class="flex flex-col items-center gap-4 pt-4 text-center">
+<div class="relative">
+<div class="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-primary to-green-500 animate-pulse"></div>
+<img alt="{{ player.name }}" class="relative w-32 h-32 rounded-full border-4 border-background-dark object-cover" src="{{ player.photo_url or 'https://via.placeholder.com/150' }}"/>
+</div>
+<div>
+<h1 class="text-3xl font-bold text-text-dark-primary">{{ player.name }}</h1>
+<p class="text-text-dark-secondary">{{ player.position }} | #{{ player.jersey_number }} | {{ player.team }}</p>
+</div>
+</div>
+<div class="mt-8 grid grid-cols-3 gap-4 text-center">
+<div class="rounded-xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+<p class="text-3xl font-bold text-primary">{{ player.overall_rating or 0 }}</p>
+<p class="text-sm text-text-dark-secondary">GEN</p>
+</div>
+<div class="rounded-xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+<p class="text-3xl font-bold text-text-dark-primary">{{ player.age or 0 }}</p>
+<p class="text-sm text-text-dark-secondary">Yaş</p>
+</div>
+<div class="rounded-xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+<p class="text-3xl font-bold text-text-dark-primary">{{ player.jersey_number or 0 }}</p>
+<p class="text-sm text-text-dark-secondary">Forma</p>
+</div>
+</div>
+<div class="mt-10 flex gap-4">
+<div class="flex-1">
+<h2 class="text-xl font-bold text-text-dark-primary">Mevki Haritası</h2>
+<div class="mt-4 rounded-2xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+<div class="aspect-square bg-no-repeat bg-center bg-contain" style="background-image: url('data:image/svg+xml,%3csvg width=\'200\' height=\'300\' viewBox=\'0 0 200 300\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3e%3cpath d=\'M100 0C44.77 0 0 44.77 0 100V300H200V100C200 44.77 155.23 0 100 0Z\' fill=\'%2300F08C\' fill-opacity=\'0.1\'/%3e%3ccircle cx=\'100\' cy=\'150\' r=\'40\' stroke=\'white\' stroke-opacity=\'0.1\' stroke-width=\'2\'/%3e%3cpath d=\'M40 300V100C40 66.86 66.86 40 100 40C133.14 40 160 66.86 160 100V300\' stroke=\'white\' stroke-opacity=\'0.1\' stroke-width=\'2\'/%3e%3cpath d=\'M0 100C0 44.77 44.77 0 100 0C155.23 0 200 44.77 200 100\' stroke=\'white\' stroke-opacity=\'0.1\' stroke-width=\'2\'/%3e%3c/svg%3e')">
+<div class="w-full h-full flex justify-center items-start pt-4">
+<div class="w-12 h-12 bg-primary/90 rounded-full flex items-center justify-center text-black font-bold text-base border-2 border-white shadow-lg" style="transform: translateY(15%);">{{ player.position[:3].upper() }}</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1">
+<h2 class="text-xl font-bold text-text-dark-primary">Yetenekler</h2>
+<div class="mt-4 grid grid-cols-1 gap-3">
+<div class="rounded-xl bg-surface-dark p-3 text-center shadow-sm border border-border-dark">
+<h3 class="font-bold text-primary text-sm">Hız</h3>
+<p class="text-lg font-bold text-text-dark-primary">{{ player.pace or 0 }}</p>
+</div>
+<div class="rounded-xl bg-surface-dark p-3 text-center shadow-sm border border-border-dark">
+<h3 class="font-bold text-primary text-sm">Şut</h3>
+<p class="text-lg font-bold text-text-dark-primary">{{ player.shooting or 0 }}</p>
+</div>
+<div class="rounded-xl bg-surface-dark p-3 text-center shadow-sm border border-border-dark">
+<h3 class="font-bold text-primary text-sm">Pas</h3>
+<p class="text-lg font-bold text-text-dark-primary">{{ player.passing or 0 }}</p>
+</div>
+<div class="rounded-xl bg-surface-dark p-3 text-center shadow-sm border border-border-dark">
+<h3 class="font-bold text-primary text-sm">Dribling</h3>
+<p class="text-lg font-bold text-text-dark-primary">{{ player.dribbling or 0 }}</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-10">
+<h2 class="text-xl font-bold text-text-dark-primary">Detaylı Yetenekler</h2>
+<div class="mt-4 grid grid-cols-2 gap-4">
+{% if detailed_skills %}
+  {% if detailed_skills.pace %}
+  <div class="rounded-2xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+    <h3 class="font-bold text-primary">Hız</h3>
+    <ul class="mt-2 space-y-1.5 text-sm text-text-dark-secondary">
+      <li class="flex justify-between"><span>Hızlanma</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.pace.acceleration or 0 }}</span></li>
+      <li class="flex justify-between"><span>Sprint Hızı</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.pace.sprint_speed or 0 }}</span></li>
+    </ul>
+  </div>
+  {% endif %}
+  {% if detailed_skills.shooting %}
+  <div class="rounded-2xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+    <h3 class="font-bold text-primary">Şut</h3>
+    <ul class="mt-2 space-y-1.5 text-sm text-text-dark-secondary">
+      <li class="flex justify-between"><span>Bitiricilik</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.shooting.finishing or 0 }}</span></li>
+      <li class="flex justify-between"><span>Uzak Şutlar</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.shooting.long_shots or 0 }}</span></li>
+      <li class="flex justify-between"><span>Şut Gücü</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.shooting.shot_power or 0 }}</span></li>
+      <li class="flex justify-between"><span>Pozisyon Alma</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.shooting.positioning or 0 }}</span></li>
+      <li class="flex justify-between"><span>Voleler</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.shooting.volleys or 0 }}</span></li>
+      <li class="flex justify-between"><span>Penaltılar</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.shooting.penalties or 0 }}</span></li>
+    </ul>
+  </div>
+  {% endif %}
+  {% if detailed_skills.passing %}
+  <div class="rounded-2xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+    <h3 class="font-bold text-primary">Pas</h3>
+    <ul class="mt-2 space-y-1.5 text-sm text-text-dark-secondary">
+      <li class="flex justify-between"><span>Kısa Pas</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.passing.short_pass or 0 }}</span></li>
+      <li class="flex justify-between"><span>Uzun Pas</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.passing.long_pass or 0 }}</span></li>
+      <li class="flex justify-between"><span>Görüş</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.passing.vision or 0 }}</span></li>
+      <li class="flex justify-between"><span>Orta Açma</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.passing.crossing or 0 }}</span></li>
+      <li class="flex justify-between"><span>Falso</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.passing.curve or 0 }}</span></li>
+      <li class="flex justify-between"><span>Serbest Vuruş</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.passing.free_kick or 0 }}</span></li>
+    </ul>
+  </div>
+  {% endif %}
+  {% if detailed_skills.dribbling %}
+  <div class="rounded-2xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+    <h3 class="font-bold text-primary">Dribling</h3>
+    <ul class="mt-2 space-y-1.5 text-sm text-text-dark-secondary">
+      <li class="flex justify-between"><span>Dribling</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.dribbling.dribbling or 0 }}</span></li>
+      <li class="flex justify-between"><span>Denge</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.dribbling.balance or 0 }}</span></li>
+      <li class="flex justify-between"><span>Çeviklik</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.dribbling.agility or 0 }}</span></li>
+      <li class="flex justify-between"><span>Tepkiler</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.dribbling.reactions or 0 }}</span></li>
+      <li class="flex justify-between"><span>Top Kontrolü</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.dribbling.ball_control or 0 }}</span></li>
+    </ul>
+  </div>
+  {% endif %}
+  {% if detailed_skills.defending %}
+  <div class="rounded-2xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+    <h3 class="font-bold text-primary">Defans</h3>
+    <ul class="mt-2 space-y-1.5 text-sm text-text-dark-secondary">
+      <li class="flex justify-between"><span>Adam Markajı</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.defending.man_marking or 0 }}</span></li>
+      <li class="flex justify-between"><span>Ayakta Müdahale</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.defending.standing_tackle or 0 }}</span></li>
+      <li class="flex justify-between"><span>Top Kesme</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.defending.interceptions or 0 }}</span></li>
+      <li class="flex justify-between"><span>Kafa Vuruşu</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.defending.heading or 0 }}</span></li>
+    </ul>
+  </div>
+  {% endif %}
+  {% if detailed_skills.physical %}
+  <div class="rounded-2xl bg-surface-dark p-4 shadow-sm border border-border-dark">
+    <h3 class="font-bold text-primary">Fiziksel</h3>
+    <ul class="mt-2 space-y-1.5 text-sm text-text-dark-secondary">
+      <li class="flex justify-between"><span>Güç</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.physical.strength or 0 }}</span></li>
+      <li class="flex justify-between"><span>Saldırganlık</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.physical.aggression or 0 }}</span></li>
+      <li class="flex justify-between"><span>Zıplama</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.physical.jumping or 0 }}</span></li>
+      <li class="flex justify-between"><span>Dayanıklılık</span> <span class="font-medium text-text-dark-primary">{{ detailed_skills.physical.stamina or 0 }}</span></li>
+    </ul>
+  </div>
+  {% endif %}
+{% endif %}
+</div>
+</div>
+<div class="mt-10">
+<h2 class="text-xl font-bold text-text-dark-primary">Sezon Performansı</h2>
+<div class="mt-4 overflow-hidden rounded-2xl bg-surface-dark shadow-sm border border-border-dark">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="text-text-dark-secondary bg-black/20">
+<tr>
+<th class="p-4 font-medium">Sezon</th>
+<th class="p-4 font-medium text-center">Maçlar</th>
+<th class="p-4 font-medium text-center">Goller</th>
+<th class="p-4 font-medium text-center">Asistler</th>
+</tr>
+</thead>
+<tbody class="text-text-dark-primary divide-y divide-border-dark">
+{% if season_stats %}
+  {% for stat in season_stats %}
+  <tr>
+    <td class="p-4 font-medium">{{ stat.season }}</td>
+    <td class="p-4 text-center">{{ stat.matches_played }}</td>
+    <td class="p-4 text-center">{{ stat.goals }}</td>
+    <td class="p-4 text-center">{{ stat.assists }}</td>
+  </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="4" class="p-4 text-center text-text-dark-secondary">Henüz sezon verisi yok</td>
+  </tr>
+{% endif %}
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<nav class="sticky bottom-0 z-10 border-t border-border-dark bg-background-dark/90 backdrop-blur-sm">
+<div class="flex justify-around py-2">
+<a class="flex flex-col items-center justify-end gap-1 w-full text-text-dark-secondary hover:text-primary transition-colors" href="{{ url_for('dashboard') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path></svg>
+<span class="text-xs font-medium">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-end gap-1 w-full text-text-dark-secondary hover:text-primary transition-colors" href="{{ url_for('matches') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z"></path></svg>
+<span class="text-xs font-medium">Maçlar</span>
+</a>
+<a class="flex flex-col items-center justify-end gap-1 w-full text-primary" href="{{ url_for('players') }}">
+<div class="relative w-full flex justify-center">
+<div class="absolute -bottom-1 h-1 w-8 bg-primary rounded-full"></div>
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path></svg>
+</div>
+<span class="text-xs font-medium">Oyuncular</span>
+</a>
+<a class="flex flex-col items-center justify-end gap-1 w-full text-text-dark-secondary hover:text-primary transition-colors" href="{{ url_for('teams') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"></path></svg>
+<span class="text-xs font-medium">Takımlar</span>
+</a>
+</div>
+</nav>
+</div>
+</body>
+</html>

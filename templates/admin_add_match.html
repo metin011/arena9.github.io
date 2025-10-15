@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arena9 - Maç Ekle</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1dc962",
+        "background-light": "#f6f8f7",
+        "background-dark": "#112117",
+      },
+      fontFamily: {
+        display: ["Space Grotesk"],
+      },
+      borderRadius: {
+        DEFAULT: "0.5rem",
+        lg: "1rem",
+        xl: "1.5rem",
+        full: "9999px",
+      },
+    },
+  },
+};
+</script>
+<style>
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231dc962' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+body {
+  min-height: max(884px, 100dvh);
+}
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col justify-between">
+<div class="flex-grow">
+<header class="flex items-center justify-between p-4 bg-background-light dark:bg-background-dark sticky top-0 z-10">
+<a href="{{ url_for('matches') }}" class="text-white">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</a>
+<h1 class="text-lg font-bold flex-1 text-center">Maç Ekle</h1>
+<div class="w-6"></div>
+</header>
+<main class="p-4 space-y-6">
+<form method="POST" action="{{ url_for('admin_add_match') }}">
+<section class="space-y-4">
+<h2 class="text-xl font-bold">Maç Detayları</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="name">Maç Adı</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="name" name="name" type="text" required/>
+</div>
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="match_date">Tarih</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="match_date" name="match_date" type="date" required/>
+</div>
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="match_time">Saat</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="match_time" name="match_time" type="time" required/>
+</div>
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="stadium">Stadyum</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="stadium" name="stadium" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="home_team">Ev Sahibi Takım</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="home_team" name="home_team" type="text" required/>
+</div>
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="away_team">Deplasman Takımı</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="away_team" name="away_team" type="text" required/>
+</div>
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="home_score">Ev Sahibi Skor</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="home_score" name="home_score" type="number" value="0" required/>
+</div>
+<div>
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="away_score">Deplasman Skor</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="away_score" name="away_score" type="number" value="0" required/>
+</div>
+<div class="sm:col-span-2">
+<label class="block text-sm font-medium text-white/80 dark:text-white/60 mb-1" for="image_url">Maç Görseli URL</label>
+<input class="w-full bg-primary/20 dark:bg-primary/10 text-white rounded-lg border-none focus:ring-2 focus:ring-primary h-12 px-4" id="image_url" name="image_url" type="url" placeholder="https://..."/>
+</div>
+</div>
+</section>
+<button type="submit" class="w-full rounded-lg h-12 text-center font-bold bg-primary text-background-dark hover:bg-primary/90 transition-colors">Maçı Kaydet</button>
+</form>
+</main>
+</div>
+</div>
+</body>
+</html>

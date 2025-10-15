@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arena9 - İstatistikler</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#10b981",
+        "background-light": "#f1f5f9",
+        "background-dark": "#111827",
+        "card-light": "#ffffff",
+        "card-dark": "#1f2937",
+        "text-light": "#0f172a",
+        "text-dark": "#f9fafb",
+        "text-secondary-light": "#64748b",
+        "text-secondary-dark": "#9ca3af",
+      },
+      fontFamily: { display: ["Space Grotesk"] },
+      borderRadius: { DEFAULT: "0.75rem", lg: "1rem", xl: "1.5rem", full: "9999px" },
+    },
+  },
+};
+</script>
+<style>
+body { min-height: max(884px, 100dvh); }
+</style>
+</head>
+<body class="bg-background-dark font-display">
+<div class="flex h-full min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 bg-background-dark/80 px-4 py-3 backdrop-blur-sm">
+<div class="flex items-center">
+<a href="{{ url_for('dashboard') }}" class="rounded-full p-2 text-text-dark transition-colors hover:bg-gray-800">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</a>
+<h1 class="flex-1 text-center text-xl font-bold text-text-dark">İstatistikler</h1>
+<div class="w-10"></div>
+</div>
+<div class="border-b border-gray-800 mt-3">
+<nav class="-mb-px flex space-x-8">
+<button onclick="showTab('goals')" id="tab-goals" class="tab-button border-b-2 border-primary px-1 py-3 text-sm font-bold text-primary">
+Gol Krallığı
+</button>
+<button onclick="showTab('assists')" id="tab-assists" class="tab-button border-b-2 border-transparent px-1 py-3 text-sm font-medium text-gray-400 hover:text-gray-300">
+Asist Krallığı
+</button>
+</nav>
+</div>
+</header>
+
+<main class="flex-1 overflow-y-auto pb-24">
+<!-- Gol Krallığı -->
+<div id="goals-content" class="tab-content">
+<ul class="divide-y divide-gray-800">
+{% if top_scorers %}
+  {% for item in top_scorers %}
+  <li class="flex items-center gap-4 px-4 py-3">
+<span class="text-sm font-medium text-gray-400 w-6 text-center">{{ loop.index }}</span>
+<div class="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+  {% if item.player.photo_url %}
+  <img alt="{{ item.player.name }}" class="h-full w-full object-cover" src="{{ item.player.photo_url }}"/>
+  {% else %}
+  <span class="text-xl text-primary">⚽</span>
+  {% endif %}
+</div>
+<div class="flex-1">
+  <p class="font-medium text-text-dark">{{ item.player.name }}</p>
+  <p class="text-sm text-gray-400">{{ item.goals }} Gol</p>
+</div>
+{% if loop.index == 1 %}
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20">
+  <svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg" class="text-primary">
+<path d="M240.26,186.1,152.81,34.23h0a28.74,28.74,0,0,0-49.62,0L15.74,186.1a27.45,27.45,0,0,0,0,27.71A28.31,28.31,0,0,0,40.55,228h174.9a28.31,28.31,0,0,0,24.79-14.19A27.45,27.45,0,0,0,240.26,186.1Zm-20.8,15.7a12.32,12.32,0,0,1-10.91,6.2H40.55a12.32,12.32,0,0,1-10.91-6.2,11.46,11.46,0,0,1,0-11.49L117.09,38.22a12.75,12.75,0,0,1,21.82,0l87.45,152.09A11.46,11.46,0,0,1,219.46,201.8Z"></path>
+  </svg>
+</div>
+{% endif %}
+  </li>
+  {% endfor %}
+{% else %}
+  <li class="px-4 py-8 text-center text-gray-400">
+Henüz gol kaydı yok
+  </li>
+{% endif %}
+</ul>
+</div>
+
+<!-- Asist Krallığı -->
+<div id="assists-content" class="tab-content hidden">
+<ul class="divide-y divide-gray-800">
+{% if top_assists %}
+  {% for item in top_assists %}
+  <li class="flex items-center gap-4 px-4 py-3">
+<span class="text-sm font-medium text-gray-400 w-6 text-center">{{ loop.index }}</span>
+<div class="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+  {% if item.player.photo_url %}
+  <img alt="{{ item.player.name }}" class="h-full w-full object-cover" src="{{ item.player.photo_url }}"/>
+  {% else %}
+  <span class="text-xl text-primary">🎯</span>
+  {% endif %}
+</div>
+<div class="flex-1">
+  <p class="font-medium text-text-dark">{{ item.player.name }}</p>
+  <p class="text-sm text-gray-400">{{ item.assists }} Asist</p>
+</div>
+{% if loop.index == 1 %}
+<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20">
+  <svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg" class="text-primary">
+<path d="M240.26,186.1,152.81,34.23h0a28.74,28.74,0,0,0-49.62,0L15.74,186.1a27.45,27.45,0,0,0,0,27.71A28.31,28.31,0,0,0,40.55,228h174.9a28.31,28.31,0,0,0,24.79-14.19A27.45,27.45,0,0,0,240.26,186.1Zm-20.8,15.7a12.32,12.32,0,0,1-10.91,6.2H40.55a12.32,12.32,0,0,1-10.91-6.2,11.46,11.46,0,0,1,0-11.49L117.09,38.22a12.75,12.75,0,0,1,21.82,0l87.45,152.09A11.46,11.46,0,0,1,219.46,201.8Z"></path>
+  </svg>
+</div>
+{% endif %}
+  </li>
+  {% endfor %}
+{% else %}
+  <li class="px-4 py-8 text-center text-gray-400">
+Henüz asist kaydı yok
+  </li>
+{% endif %}
+</ul>
+</div>
+</main>
+
+<nav class="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-background-dark/90 pb-safe-bottom backdrop-blur-lg">
+<div class="flex h-16 justify-around">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-text-secondary-dark" href="{{ url_for('dashboard') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+</svg>
+<span class="text-xs font-medium">Ana Sayfa</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-text-secondary-dark" href="{{ url_for('matches') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path>
+</svg>
+<span class="text-xs font-medium">Maçlar</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-text-secondary-dark" href="{{ url_for('players') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+</svg>
+<span class="text-xs font-medium">Oyuncular</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="{{ url_for('leaderboard') }}">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M240.26,186.1,152.81,34.23h0a28.74,28.74,0,0,0-49.62,0L15.74,186.1a27.45,27.45,0,0,0,0,27.71A28.31,28.31,0,0,0,40.55,228h174.9a28.31,28.31,0,0,0,24.79-14.19A27.45,27.45,0,0,0,240.26,186.1Zm-20.8,15.7a12.32,12.32,0,0,1-10.91,6.2H40.55a12.32,12.32,0,0,1-10.91-6.2,11.46,11.46,0,0,1,0-11.49L117.09,38.22a12.75,12.75,0,0,1,21.82,0l87.45,152.09A11.46,11.46,0,0,1,219.46,201.8Z"></path>
+</svg>
+<span class="text-xs font-medium">İstatistikler</span>
+</a>
+</div>
+</nav>
+</div>
+
+<script>
+function showTab(tab) {
+  // Hide all content
+  document.querySelectorAll('.tab-content').forEach(content => {
+content.classList.add('hidden');
+  });
+  
+  // Remove active state from all tabs
+  document.querySelectorAll('.tab-button').forEach(button => {
+button.classList.remove('border-primary', 'text-primary', 'font-bold');
+button.classList.add('border-transparent', 'text-gray-400', 'font-medium');
+  });
+  
+  // Show selected content
+  if (tab === 'goals') {
+document.getElementById('goals-content').classList.remove('hidden');
+document.getElementById('tab-goals').classList.add('border-primary', 'text-primary', 'font-bold');
+document.getElementById('tab-goals').classList.remove('border-transparent', 'text-gray-400', 'font-medium');
+  } else if (tab === 'assists') {
+document.getElementById('assists-content').classList.remove('hidden');
+document.getElementById('tab-assists').classList.add('border-primary', 'text-primary', 'font-bold');
+document.getElementById('tab-assists').classList.remove('border-transparent', 'text-gray-400', 'font-medium');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Futbol İstatistikleri{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .navbar-menu a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .navbar-menu a:hover {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-admin {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-admin:hover {
+            background: #e67e22;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .flash-messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 2000;
+            max-width: 400px;
+        }
+
+        .flash {
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            color: white;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .flash-success {
+            background: #27ae60;
+        }
+
+        .flash-error {
+            background: #e74c3c;
+        }
+
+        .flash-info {
+            background: #3498db;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-badge {
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .admin-badge {
+            background: #f39c12;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-menu {
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('index') }}" class="navbar-brand">⚽ Futbol İstatistikleri</a>
+            <ul class="navbar-menu">
+                <li><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
+                <li><a href="{{ url_for('matches') }}">Maçlar</a></li>
+                <li><a href="{{ url_for('players') }}">Oyuncular</a></li>
+                
+                {% if session.get('user_id') %}
+                    {% if session.get('is_admin') %}
+                        <li><a href="{{ url_for('admin_panel') }}" class="btn btn-admin">Admin Panel</a></li>
+                    {% endif %}
+                    <li>
+                        <div class="user-info">
+                            <span class="user-badge {% if session.get('is_admin') %}admin-badge{% endif %}">
+                                {{ session.get('username') }}
+                            </span>
+                            <a href="{{ url_for('logout') }}" class="btn btn-danger">Çıkış</a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn btn-primary">Giriş Yap</a></li>
+                    <li><a href="{{ url_for('register') }}" class="btn btn-primary">Kayıt Ol</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash');
+            flashes.forEach(flash => {
+                flash.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => flash.remove(), 300);
+            });
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

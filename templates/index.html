@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Ana Sayfa - Futbol İstatistikleri{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        color: white;
+        padding: 3rem 0;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .matches-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .match-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .match-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .match-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .match-date {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+    }
+
+    .match-status {
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-scheduled {
+        background: #3498db;
+        color: white;
+    }
+
+    .status-live {
+        background: #e74c3c;
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    .status-finished {
+        background: #95a5a6;
+        color: white;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .match-teams {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 1.5rem 0;
+    }
+
+    .team {
+        text-align: center;
+        flex: 1;
+    }
+
+    .team-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .score {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .vs {
+        font-size: 1.2rem;
+        color: #95a5a6;
+        font-weight: bold;
+    }
+
+    .stadium {
+        text-align: center;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+    }
+
+    .players-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .player-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .player-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .player-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+    }
+
+    .player-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .player-position {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+    }
+
+    .player-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #ecf0f1;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: white;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>⚽ Futbol İstatistikleri</h1>
+    <p>Maçları takip edin, oyuncu istatistiklerini görüntüleyin</p>
+</div>
+
+<h2 class="section-title">Son Maçlar</h2>
+{% if matches %}
+<div class="matches-grid">
+    {% for match in matches %}
+    <div class="match-card">
+        <div class="match-header">
+            <span class="match-date">{{ match.match_date.strftime('%d.%m.%Y %H:%M') }}</span>
+            <span class="match-status status-{{ match.status }}">
+                {% if match.status == 'scheduled' %}Planlandı
+                {% elif match.status == 'live' %}CANLI
+                {% else %}Bitti{% endif %}
+            </span>
+        </div>
+        <div class="match-teams">
+            <div class="team">
+                <div class="team-name">{{ match.home_team }}</div>
+                <div class="score">{{ match.home_score }}</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="team">
+                <div class="team-name">{{ match.away_team }}</div>
+                <div class="score">{{ match.away_score }}</div>
+            </div>
+        </div>
+        {% if match.stadium %}
+        <div class="stadium">📍 {{ match.stadium }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">Henüz maç eklenmemiş.</div>
+{% endif %}
+
+<h2 class="section-title">En İyi Oyuncular</h2>
+{% if players %}
+<div class="players-grid">
+    {% for player in players %}
+    <div class="player-card">
+        <div class="player-photo">⚽</div>
+        <div class="player-name">{{ player.name }}</div>
+        <div class="player-position">{{ player.position }} - {{ player.team }}</div>
+        <div class="player-stats">
+            <div class="stat">
+                <div class="stat-value">{{ player.goals }}</div>
+                <div class="stat-label">Gol</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{ player.assists }}</div>
+                <div class="stat-label">Asist</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{ player.matches_played }}</div>
+                <div class="stat-label">Maç</div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">Henüz oyuncu eklenmemiş.</div>
+{% endif %}
+{% endblock %}

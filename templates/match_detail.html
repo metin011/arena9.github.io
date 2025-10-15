@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<title>Arena9 - Maç Detayları</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                "primary": {"DEFAULT": "#22c55e", "50": "#f0fdf4", "600": "#16a34a", "700": "#15803d"},
+                "background-dark": "#0a1a0f",
+                "card-dark": "#102a18",
+                "text-light": "#e0f2e7",
+                "text-dark": "#a3d3b3",
+                "border-dark": "#1a4a2b"
+            },
+            fontFamily: {"display": ["Space Grotesk"]},
+            borderRadius: {"DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+        },
+    },
+}
+</script>
+<style>
+body {
+  min-height: max(884px, 100dvh);
+}
+</style>
+</head>
+<body class="bg-background-dark font-display text-text-dark">
+<div class="flex flex-col min-h-screen">
+<header class="sticky top-0 z-10 bg-background-dark/80 backdrop-blur-sm border-b border-border-dark">
+<div class="flex items-center p-4">
+<a href="{{ url_for('matches') }}" class="p-2 -ml-2 rounded-full hover:bg-green-900/50 transition-colors">
+<svg class="w-6 h-6 text-text-light" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<polyline points="15 18 9 12 15 6"></polyline>
+</svg>
+</a>
+<h1 class="flex-1 text-lg font-bold text-center text-text-light">Maç Detayları</h1>
+<div class="w-6"></div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto">
+<div class="p-4">
+<div class="relative min-h-[220px] bg-cover bg-center rounded-xl overflow-hidden flex flex-col justify-end" style='background-image: linear-gradient(0deg, rgba(10, 26, 15, 0.9) 0%, rgba(10, 26, 15, 0.3) 50%), url("{{ match.image_url or 'https://via.placeholder.com/600x300' }}");'>
+<div class="p-6">
+<h2 class="text-3xl font-bold text-white">Maç Sonucu: {{ match.home_score }}-{{ match.away_score }}</h2>
+<p class="text-lg font-medium text-text-light">{{ match.home_team }} vs. {{ match.away_team }}</p>
+</div>
+</div>
+</div>
+<div class="px-4 pb-4">
+<h3 class="text-xl font-bold text-text-light mb-4">Zaman Çizelgesi</h3>
+<div class="relative pl-6 space-y-8 border-l-2 border-border-dark">
+{% if match.goals %}
+  {% for goal in match.goals %}
+  <div class="flex items-start gap-4">
+    <div class="absolute w-4 h-4 -left-[9px] mt-1.5 bg-primary rounded-full ring-8 ring-background-dark"></div>
+    <div>
+      <p class="font-semibold text-text-light">Gol, <a href="{{ url_for('player_profile', player_id=goal.scorer.id) }}" class="text-primary hover:underline">{{ goal.scorer.name }}</a> ({{ 'Ev Sahibi' if goal.team == 'home' else 'Deplasman' }})</p>
+      <p class="text-sm text-text-dark">{{ goal.minute }}</p>
+      {% if goal.assist %}
+      <p class="text-xs text-text-dark">Asist: <a href="{{ url_for('player_profile', player_id=goal.assist.id) }}" class="text-primary hover:underline">{{ goal.assist.name }}</a></p>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <p class="text-text-dark">Henüz gol kaydı yok.</p>
+{% endif %}
+</div>
+</div>
+{% if match.mvp %}
+<div class="px-4 pb-4">
+<h3 class="text-xl font-bold text-text-light mb-4">Maçın Oyuncusu</h3>
+<a href="{{ url_for('player_profile', player_id=match.mvp.id) }}" class="flex items-center gap-4 p-4 rounded-xl bg-card-dark border border-border-dark hover:bg-card-dark/80 transition-colors">
+<img alt="{{ match.mvp.name }}" class="w-16 h-16 rounded-full object-cover border-2 border-primary-600" src="{{ match.mvp.photo_url or 'https://via.placeholder.com/150' }}"/>
+<div class="flex-1">
+<p class="text-lg font-bold text-text-light">{{ match.mvp.name }}</p>
+<p class="text-text-dark">{{ match.mvp.position }}, {{ match.mvp.team }}</p>
+</div>
+<div class="text-primary">
+<svg fill="currentColor" height="32" viewBox="0 0 256 256" width="32" xmlns="http://www.w3.org/2000/svg">
+<path d="M239.3,95.07,166.09,84.15,132.61,17.4a12,12,0,0,0-21.22,0L77.91,84.15,5.7,95.07a12,12,0,0,0-6.6,20.81l52.32,50.13-12.39,72.78a12,12,0,0,0,17.43,12.66L128,217.15l61.54,34.3a12,12,0,0,0,17.43-12.66l-12.39-72.78,52.32-50.13A12,12,0,0,0,239.3,95.07Z"></path>
+</svg>
+</div>
+</a>
+</div>
+{% endif %}
+</main>
+<footer class="sticky bottom-0 border-t border-border-dark bg-background-dark/80 backdrop-blur-sm">
+<nav class="flex justify-around py-2">
+<a class="flex flex-col items-center justify-center w-full gap-1 text-text-dark hover:text-primary transition-colors" href="{{ url_for('dashboard') }}">
+<svg class="w-6 h-6" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+<polyline points="9 22 9 12 15 12 15 22"></polyline>
+</svg>
+<span class="text-xs font-medium">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full gap-1 text-primary" href="{{ url_for('matches') }}">
+<svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2ZM4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8-8-3.59-8-8Z" fill-rule="evenodd"></path>
+</svg>
+<span class="text-xs font-medium">Maçlar</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full gap-1 text-text-dark hover:text-primary transition-colors" href="{{ url_for('players') }}">
+<svg class="w-6 h-6" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+<span class="text-xs font-medium">Oyuncular</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full gap-1 text-text-dark hover:text-primary transition-colors" href="#">
+<svg class="w-6 h-6" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+<span class="text-xs font-medium">Takımlar</span>
+</a>
+</nav>
+</footer>
+</div>
+</body>
+</html>

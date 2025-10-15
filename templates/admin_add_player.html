@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<title>Arena9 - Oyuncu Ekle</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#1dc962",
+        "background-light": "#f6f8f7",
+        "background-dark": "#112117",
+      },
+      fontFamily: {"display": ["Space Grotesk"]},
+      borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+    },
+  },
+}
+</script>
+<style>
+body {
+  min-height: max(884px, 100dvh);
+}
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 bg-background-light dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="flex items-center px-4 py-3">
+<a href="{{ url_for('players') }}" class="flex items-center justify-center w-10 h-10 text-black dark:text-white">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</a>
+<h1 class="text-xl font-bold text-center text-black dark:text-white flex-1 -ml-10">Yeni Oyuncu Ekle</h1>
+</div>
+</header>
+<main class="flex-1 px-4 py-6">
+<form method="POST" action="{{ url_for('admin_add_player') }}" class="space-y-6">
+<div class="p-4 rounded-lg bg-primary/10 dark:bg-primary/20 space-y-4">
+<h2 class="text-lg font-bold text-primary mb-3">Oyuncu Bilgileri</h2>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-1 text-sm">Adı</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="name" type="text" placeholder="Oyuncu adı" required/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-1 text-sm">Yaş</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="age" type="number" placeholder="25" value="25"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-1 text-sm">Pozisyon</label>
+<select class="form-select w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="position">
+<option value="Forvet">Forvet</option>
+<option value="Orta Saha">Orta Saha</option>
+<option value="Defans">Defans</option>
+<option value="Kaleci">Kaleci</option>
+</select>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-1 text-sm">Forma No</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="jersey_number" type="number" placeholder="10" value="10"/>
+</div>
+<div class="col-span-2">
+<label class="text-black dark:text-white/70 mb-1 text-sm">Takım</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="team" type="text" placeholder="Arena9 FC" value="Arena9 FC"/>
+</div>
+<div class="col-span-2">
+<label class="text-black dark:text-white/70 mb-1 text-sm">Fotoğraf URL (İsteğe bağlı)</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="photo_url" type="url" placeholder="https://example.com/photo.jpg"/>
+</div>
+</div>
+</div>
+<div>
+<h2 class="text-lg font-bold text-primary mb-3">Genel Değerlendirme</h2>
+<div class="grid grid-cols-1 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">OVR (Genel)</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="overall_rating" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="text-lg font-bold text-primary mb-3">Hız (PAC)</h2>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Hızlanma</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="acceleration" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Depar Hızı</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="sprint_speed" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="text-lg font-bold text-primary mb-3">Şut (SHO)</h2>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Pozisyon Alma</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="positioning" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Bitiricilik</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="finishing" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Şut Gücü</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="shot_power" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Uzak Şutlar</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="long_shots" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Voleler</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="volleys" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Penaltılar</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="penalties" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="text-lg font-bold text-primary mb-3">Pas (PAS)</h2>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Görüş</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="vision" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Orta Açma</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="crossing" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Frikik İsabeti</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="free_kick" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Kısa Pas</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="short_pass" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Uzun Pas</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="long_pass" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Falso</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="curve" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="text-lg font-bold text-primary mb-3">Dribling (DRI)</h2>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Çeviklik</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="agility" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Denge</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="balance" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Reaksiyonlar</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="reactions" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Top Kontrolü</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="ball_control" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Dribling</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="dribbling_skill" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="text-lg font-bold text-primary mb-3">Savunma (DEF)</h2>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Top Kesme</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="interceptions" type="number" min="0" max="99" placeholder="50" value="50"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Kafa Vuruşu</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="heading" type="number" min="0" max="99" placeholder="50" value="50"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Adam Markajı</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="man_marking" type="number" min="0" max="99" placeholder="50" value="50"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Ayakta Müdahale</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="standing_tackle" type="number" min="0" max="99" placeholder="50" value="50"/>
+</div>
+</div>
+</div>
+
+<div>
+<h2 class="text-lg font-bold text-primary mb-3">Fizik (PHY)</h2>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Zıplama</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="jumping" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Dayanıklılık</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="stamina" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Güç</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="strength" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+<div>
+<label class="text-black dark:text-white/70 mb-2 text-sm">Saldırganlık</label>
+<input class="form-input w-full rounded-lg border-0 bg-primary/20 dark:bg-primary/30 text-black dark:text-white h-12 px-4" name="aggression" type="number" min="0" max="99" placeholder="75" value="75"/>
+</div>
+</div>
+</div>
+<button type="submit" class="w-full flex items-center justify-center rounded-xl h-12 px-5 bg-primary text-background-dark font-bold text-base hover:bg-primary/90 transition-colors">
+Oyuncu Ekle
+</button>
+</form>
+</main>
+</div>
+</body>
+</html>

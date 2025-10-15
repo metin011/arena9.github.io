@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arena9 - Maç Ekle</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1dc962",
+        "background-dark": "#0a1f12",
+        "surface-dark": "#1a2f22",
+      },
+      fontFamily: { display: ["Space Grotesk"] },
+    },
+  },
+};
+</script>
+<style>
+body { min-height: 100vh; background: #0a1f12; }
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231dc962' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+</style>
+</head>
+<body class="font-display text-white">
+<div class="min-h-screen flex flex-col">
+<header class="sticky top-0 z-10 bg-background-dark/95 backdrop-blur-sm p-4">
+<div class="flex items-center gap-4">
+<a href="{{ url_for('matches') }}" class="w-10 h-10 rounded-full bg-surface-dark flex items-center justify-center hover:bg-surface-dark/80">
+<svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</a>
+<h1 class="text-xl font-bold">Maç Ekle</h1>
+</div>
+</header>
+
+<main class="flex-1 p-4 space-y-4 pb-24">
+<form method="POST" action="{{ url_for('admin_add_match') }}" id="matchForm">
+<!-- Maç Detayları -->
+<div class="space-y-3">
+<div class="relative">
+<input class="w-full bg-surface-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-14 pl-12 pr-4" 
+       name="name" type="text" placeholder="Maç Tarihi" required/>
+<svg class="absolute left-4 top-4 text-gray-400" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path>
+</svg>
+</div>
+
+<div class="relative">
+<input class="w-full bg-surface-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-14 pl-12 pr-4" 
+       name="match_time" type="time" placeholder="Maç Saati" required/>
+<svg class="absolute left-4 top-4 text-gray-400" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
+</svg>
+</div>
+
+<div class="relative">
+<input class="w-full bg-surface-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-14 pl-12 pr-4" 
+       name="stadium" type="text" placeholder="Konum"/>
+<svg class="absolute left-4 top-4 text-gray-400" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
+</svg>
+</div>
+
+<div>
+<label class="block text-sm text-gray-400 mb-2">Takım 1</label>
+<input class="w-full bg-surface-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-14 px-4" 
+       name="home_team" type="text" placeholder="Takım 1 adını yazın" required/>
+</div>
+
+<div>
+<label class="block text-sm text-gray-400 mb-2">Takım 2</label>
+<input class="w-full bg-surface-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-14 px-4" 
+       name="away_team" type="text" placeholder="Takım 2 adını yazın" required/>
+</div>
+</div>
+
+<!-- Oyuncular Bölümü -->
+<div class="mt-6 space-y-4">
+<h2 class="text-lg font-bold">Oyuncular</h2>
+
+<div>
+<h3 class="text-sm text-gray-400 mb-2">1. Takım</h3>
+<button type="button" onclick="openPlayerModal('team1')" class="w-full bg-surface-dark text-white rounded-xl h-14 flex items-center justify-between px-4 hover:bg-surface-dark/80">
+<span id="team1_count">1. Takım</span>
+<svg class="text-primary" fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
+</svg>
+</button>
+<div id="team1_selected" class="mt-2 space-y-1"></div>
+</div>
+
+<div>
+<h3 class="text-sm text-gray-400 mb-2">2. Takım</h3>
+<button type="button" onclick="openPlayerModal('team2')" class="w-full bg-surface-dark text-white rounded-xl h-14 flex items-center justify-between px-4 hover:bg-surface-dark/80">
+<span id="team2_count">2. Takım</span>
+<svg class="text-primary" fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
+</svg>
+</button>
+<div id="team2_selected" class="mt-2 space-y-1"></div>
+</div>
+</div>
+
+<!-- Skorlar -->
+<div class="mt-6 grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm text-gray-400 mb-2">Ev Sahibi Skor</label>
+<input class="w-full bg-surface-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-12 px-4" 
+       name="home_score" type="number" value="0" id="home_score" readonly/>
+</div>
+<div>
+<label class="block text-sm text-gray-400 mb-2">Deplasman Skor</label>
+<input class="w-full bg-surface-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-12 px-4" 
+       name="away_score" type="number" value="0" id="away_score" readonly/>
+</div>
+</div>
+
+<!-- Goller Listesi -->
+<div class="mt-6">
+<h2 class="text-lg font-bold mb-3">Goller</h2>
+<div id="goals_list" class="space-y-2">
+<!-- Goller buraya eklenecek -->
+</div>
+</div>
+
+<!-- Gol Ekle -->
+<div class="mt-6 bg-surface-dark rounded-xl p-4 space-y-3">
+<h3 class="text-base font-bold text-primary mb-3">Gol Ekle</h3>
+
+<div>
+<label class="block text-sm text-gray-400 mb-2">Dakika</label>
+<input class="w-full bg-background-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-12 px-4" 
+       type="text" id="goal_minute" placeholder="Örn: 45+2'"/>
+</div>
+
+<div>
+<label class="block text-sm text-gray-400 mb-2">Gol Atan Oyuncu</label>
+<select class="form-select w-full bg-background-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-12 px-4" 
+        id="goal_scorer">
+<option value="">Oyuncu Seç</option>
+{% if players %}
+  {% for player in players %}
+  <option value="{{ player.id }}">{{ player.name }}</option>
+  {% endfor %}
+{% endif %}
+</select>
+</div>
+
+<div>
+<label class="block text-sm text-gray-400 mb-2">Asist Yapan Oyuncu (İsteğe bağlı)</label>
+<select class="form-select w-full bg-background-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-12 px-4" 
+        id="goal_assist">
+<option value="">Oyuncu Seç (İsteğe bağlı)</option>
+{% if players %}
+  {% for player in players %}
+  <option value="{{ player.id }}">{{ player.name }}</option>
+  {% endfor %}
+{% endif %}
+</select>
+</div>
+
+<div>
+<label class="block text-sm text-gray-400 mb-2">Gol Atan Takım</label>
+<select class="form-select w-full bg-background-dark text-white rounded-xl border-none focus:ring-2 focus:ring-primary h-12 px-4" 
+        id="goal_team">
+<option value="home">Ev Sahibi</option>
+<option value="away">Deplasman</option>
+</select>
+</div>
+
+<button type="button" onclick="addGoal()" class="w-full bg-primary text-background-dark font-bold rounded-xl h-12 hover:bg-primary/90 transition-colors">
+Kaydet
+</button>
+</div>
+
+<input type="hidden" name="match_date" id="match_date_hidden"/>
+<input type="hidden" name="goals_data" id="goals_data"/>
+</form>
+</main>
+
+<footer class="fixed bottom-0 left-0 right-0 bg-background-dark/95 backdrop-blur-sm p-4">
+<button type="submit" form="matchForm" class="w-full bg-primary text-background-dark font-bold rounded-2xl h-14 hover:bg-primary/90 transition-colors">
+Maç Ekle
+</button>
+</footer>
+</div>
+
+<!-- Oyuncu Seçim Modal -->
+<div id="playerModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-end">
+<div class="bg-surface-dark w-full rounded-t-3xl max-h-[80vh] flex flex-col">
+<div class="p-4 border-b border-gray-700 flex items-center justify-between">
+<h3 class="text-lg font-bold">Oyuncu Seç</h3>
+<button type="button" onclick="closePlayerModal()" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+<svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path>
+</svg>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-2" id="playerList">
+{% if players %}
+  {% for player in players %}
+  <div class="bg-background-dark rounded-xl p-4 flex items-center justify-between cursor-pointer hover:bg-background-dark/80" 
+       onclick="togglePlayer('{{ player.id }}', '{{ player.name }}', this)">
+    <span>{{ player.name }}</span>
+    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center player-icon" data-player-id="{{ player.id }}">
+      <svg class="text-primary hidden" fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+      </svg>
+      <svg class="text-primary" fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+      </svg>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+</div>
+<div class="p-4">
+<button type="button" onclick="closePlayerModal()" class="w-full bg-primary text-background-dark font-bold rounded-2xl h-14 hover:bg-primary/90">
+Ekle
+</button>
+</div>
+</div>
+</div>
+
+<script>
+// Bugünün tarixini set et
+document.getElementById('match_date_hidden').value = new Date().toISOString().split('T')[0];
+
+let currentTeam = '';
+let team1Players = [];
+let team2Players = [];
+let goals = [];
+
+function openPlayerModal(team) {
+  currentTeam = team;
+  document.getElementById('playerModal').classList.remove('hidden');
+  updateModalSelection();
+}
+
+function closePlayerModal() {
+  document.getElementById('playerModal').classList.add('hidden');
+  updateTeamDisplay();
+}
+
+function togglePlayer(playerId, playerName, element) {
+  const selectedPlayers = currentTeam === 'team1' ? team1Players : team2Players;
+  const index = selectedPlayers.findIndex(p => p.id === playerId);
+  
+  if (index > -1) {
+    selectedPlayers.splice(index, 1);
+  } else {
+    selectedPlayers.push({ id: playerId, name: playerName });
+  }
+  
+  if (currentTeam === 'team1') {
+    team1Players = selectedPlayers;
+  } else {
+    team2Players = selectedPlayers;
+  }
+  
+  updateModalSelection();
+}
+
+function updateModalSelection() {
+  const selectedPlayers = currentTeam === 'team1' ? team1Players : team2Players;
+  document.querySelectorAll('.player-icon').forEach(icon => {
+    const playerId = icon.dataset.playerId;
+    const isSelected = selectedPlayers.some(p => p.id === playerId);
+    const plusIcon = icon.querySelector('svg:last-child');
+    const checkIcon = icon.querySelector('svg:first-child');
+    
+    if (isSelected) {
+      icon.classList.remove('bg-primary/20');
+      icon.classList.add('bg-primary');
+      plusIcon.classList.add('hidden');
+      checkIcon.classList.remove('hidden');
+      checkIcon.innerHTML = '<path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path>';
+    } else {
+      icon.classList.add('bg-primary/20');
+      icon.classList.remove('bg-primary');
+      plusIcon.classList.remove('hidden');
+      checkIcon.classList.add('hidden');
+    }
+  });
+}
+
+function updateTeamDisplay() {
+  // Team 1
+  const team1Count = document.getElementById('team1_count');
+  const team1Selected = document.getElementById('team1_selected');
+  team1Count.textContent = team1Players.length > 0 ? `${team1Players.length} oyuncu seçildi` : '1. Takım';
+  team1Selected.innerHTML = team1Players.map(p => 
+    `<div class="text-sm text-gray-400">• ${p.name}</div>`
+  ).join('');
+  
+  // Team 2
+  const team2Count = document.getElementById('team2_count');
+  const team2Selected = document.getElementById('team2_selected');
+  team2Count.textContent = team2Players.length > 0 ? `${team2Players.length} oyuncu seçildi` : '2. Takım';
+  team2Selected.innerHTML = team2Players.map(p => 
+    `<div class="text-sm text-gray-400">• ${p.name}</div>`
+  ).join('');
+}
+
+function addGoal() {
+  const minute = document.getElementById('goal_minute').value;
+  const scorerId = document.getElementById('goal_scorer').value;
+  const scorerName = document.getElementById('goal_scorer').options[document.getElementById('goal_scorer').selectedIndex].text;
+  const assistId = document.getElementById('goal_assist').value;
+  const assistName = assistId ? document.getElementById('goal_assist').options[document.getElementById('goal_assist').selectedIndex].text : '';
+  const team = document.getElementById('goal_team').value;
+  
+  if (!minute || !scorerId) {
+    alert('Lütfen dakika ve gol atan oyuncuyu seçin!');
+    return;
+  }
+  
+  // Golü ekle
+  goals.push({
+    minute: minute,
+    scorer_id: scorerId,
+    scorer_name: scorerName,
+    assist_id: assistId,
+    assist_name: assistName,
+    team: team
+  });
+  
+  // Skorları güncelle
+  updateScores();
+  
+  // Goller listesini güncelle
+  updateGoalsList();
+  
+  // Formu temizle
+  document.getElementById('goal_minute').value = '';
+  document.getElementById('goal_scorer').value = '';
+  document.getElementById('goal_assist').value = '';
+  
+  // Hidden input'a JSON olarak kaydet
+  document.getElementById('goals_data').value = JSON.stringify(goals);
+}
+
+function updateScores() {
+  let homeScore = 0;
+  let awayScore = 0;
+  
+  goals.forEach(goal => {
+    if (goal.team === 'home') {
+      homeScore++;
+    } else {
+      awayScore++;
+    }
+  });
+  
+  document.getElementById('home_score').value = homeScore;
+  document.getElementById('away_score').value = awayScore;
+}
+
+function updateGoalsList() {
+  const goalsList = document.getElementById('goals_list');
+  
+  if (goals.length === 0) {
+    goalsList.innerHTML = '<p class="text-sm text-gray-400">Henüz gol eklenmedi</p>';
+    return;
+  }
+  
+  // Skorları hesapla
+  let homeScore = 0;
+  let awayScore = 0;
+  
+  goalsList.innerHTML = goals.map((goal, index) => {
+    // Bu gole kadar olan skoru hesapla
+    if (goal.team === 'home') {
+      homeScore++;
+    } else {
+      awayScore++;
+    }
+    
+    const currentScore = `${homeScore}-${awayScore}`;
+    const assistText = goal.assist_name ? ` (Asist: ${goal.assist_name})` : '';
+    
+    return `
+      <div class="bg-surface-dark rounded-xl p-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <span class="text-xs font-bold text-primary">${goal.minute}</span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">${goal.scorer_name}</p>
+            <p class="text-xs text-gray-400">${assistText}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-bold text-primary">${currentScore}</span>
+          <button type="button" onclick="removeGoal(${index})" class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center hover:bg-red-500/30">
+            <svg class="text-red-500" fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function removeGoal(index) {
+  goals.splice(index, 1);
+  updateScores();
+  updateGoalsList();
+  document.getElementById('goals_data').value = JSON.stringify(goals);
+}
+</script>
+</body>
+</html>

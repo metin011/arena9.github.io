@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Maçlar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .matches-list {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .match-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .match-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .match-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .match-date {
+        font-size: 1rem;
+        color: #7f8c8d;
+        font-weight: 600;
+    }
+
+    .match-status {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-scheduled {
+        background: #3498db;
+        color: white;
+    }
+
+    .status-live {
+        background: #e74c3c;
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    .status-finished {
+        background: #95a5a6;
+        color: white;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .match-teams {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2rem 0;
+    }
+
+    .team {
+        text-align: center;
+        flex: 1;
+    }
+
+    .team-name {
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+    }
+
+    .score {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .vs {
+        font-size: 1.5rem;
+        color: #95a5a6;
+        font-weight: bold;
+        padding: 0 2rem;
+    }
+
+    .stadium {
+        text-align: center;
+        color: #7f8c8d;
+        font-size: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 2px solid #ecf0f1;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: white;
+        border-radius: 15px;
+        color: #7f8c8d;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">⚽ Tüm Maçlar</h1>
+</div>
+
+{% if matches %}
+<div class="matches-list">
+    {% for match in matches %}
+    <div class="match-card">
+        <div class="match-header">
+            <span class="match-date">📅 {{ match.match_date.strftime('%d %B %Y, %H:%M') }}</span>
+            <span class="match-status status-{{ match.status }}">
+                {% if match.status == 'scheduled' %}⏰ Planlandı
+                {% elif match.status == 'live' %}🔴 CANLI
+                {% else %}✅ Bitti{% endif %}
+            </span>
+        </div>
+        <div class="match-teams">
+            <div class="team">
+                <div class="team-name">{{ match.home_team }}</div>
+                <div class="score">{{ match.home_score }}</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="team">
+                <div class="team-name">{{ match.away_team }}</div>
+                <div class="score">{{ match.away_score }}</div>
+            </div>
+        </div>
+        {% if match.stadium %}
+        <div class="stadium">📍 {{ match.stadium }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>Henüz maç eklenmemiş</h2>
+    <p>Admin panelinden maç ekleyebilirsiniz.</p>
+</div>
+{% endif %}
+{% endblock %}

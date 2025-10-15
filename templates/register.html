@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kayıt Ol - League</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#1173d4",
+                    "background-light": "#f6f7f8",
+                    "background-dark": "#101922",
+                },
+                fontFamily: {
+                    "display": ["Space Grotesk"]
+                },
+                borderRadius: {
+                    "DEFAULT": "0.5rem",
+                    "lg": "1rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+                },
+            },
+        },
+    }
+</script>
+<style>
+    body {
+        min-height: max(884px, 100dvh);
+    }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex flex-col h-screen">
+    <header class="flex items-center justify-center pt-16 pb-8">
+        <div class="flex items-center gap-3">
+            <svg class="text-primary" fill="currentColor" height="36" viewBox="0 0 256 256" width="36" xmlns="http://www.w3.org/2000/svg">
+                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z"></path>
+            </svg>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">League</h1>
+        </div>
+    </header>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-4 right-4 z-50 max-w-md">
+                {% for category, message in messages %}
+                    <div class="mb-2 p-4 rounded-lg {% if category == 'success' %}bg-green-500{% elif category == 'error' %}bg-red-500{% else %}bg-blue-500{% endif %} text-white shadow-lg">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <main class="flex-grow flex flex-col items-center justify-center px-4 text-center">
+        <div class="max-w-md w-full">
+            <div class="mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 dark:text-white">Kayıt Ol</h2>
+                <p class="mt-3 text-lg text-gray-600 dark:text-gray-400">Yeni hesap oluşturun</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('register') }}" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="username">Kullanıcı Adı</label>
+                    <input type="text" id="username" name="username" required minlength="3"
+                           class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 dark:text-white">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="password">Şifre (min. 6 karakter)</label>
+                    <input type="password" id="password" name="password" required minlength="6"
+                           class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 dark:text-white">
+                </div>
+                
+                <button type="submit" class="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all duration-300">
+                    <span>Kayıt Ol</span>
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-600 dark:text-gray-400">
+                    Zaten hesabınız var mı? <a href="{{ url_for('login') }}" class="text-primary font-semibold hover:underline">Giriş Yap</a>
+                </p>
+            </div>
+            
+            <div class="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-left">
+                <p class="font-semibold text-yellow-900 dark:text-yellow-300 mb-2">⚠️ Not:</p>
+                <p class="text-yellow-800 dark:text-yellow-400">Kayıt olan kullanıcılar sadece görüntüleme yetkisine sahiptir. Düzenleme için admin hesabı gereklidir.</p>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

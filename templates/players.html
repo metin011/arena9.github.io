@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Oyuncular{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .players-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+
+    .player-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .player-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .player-photo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: white;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .player-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+
+    .player-position {
+        color: #7f8c8d;
+        font-size: 1rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .player-team {
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .player-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #ecf0f1;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-top: 0.3rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: white;
+        border-radius: 15px;
+        color: #7f8c8d;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">👥 Oyuncular</h1>
+</div>
+
+{% if players %}
+<div class="players-grid">
+    {% for player in players %}
+    <a href="{{ url_for('player_profile', player_id=player.id) }}" style="text-decoration: none; color: inherit;">
+    <div class="player-card">
+        <div class="player-photo">⚽</div>
+        <div class="player-name">{{ player.name }}</div>
+        <div class="player-position">{{ player.position }}</div>
+        <div class="player-team">{{ player.team }}</div>
+        <div class="player-stats">
+            <div class="stat">
+                <div class="stat-value">{{ player.overall_rating or 0 }}</div>
+                <div class="stat-label">OVR</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{ player.age or 0 }}</div>
+                <div class="stat-label">Yaş</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">{{ player.jersey_number or 0 }}</div>
+                <div class="stat-label">Forma</div>
+            </div>
+        </div>
+    </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>Henüz oyuncu eklenmemiş</h2>
+    <p>Admin panelinden oyuncu ekleyebilirsiniz.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arena9 - Hoş Geldiniz</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?display=swap&family=Space+Grotesk:wght@400;500;700" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": {
+          DEFAULT: "#10B981",
+          dark: "#059669"
+        },
+        "background-light": "#F9FAFB",
+        "background-dark": "#111827",
+        "card-dark": "#1F2937",
+        "text-light": "#F9FAFB",
+        "text-dark": "#9CA3AF"
+      },
+      fontFamily: {
+        "display": ["Space Grotesk"]
+      },
+      borderRadius: {
+        "DEFAULT": "0.75rem",
+        "lg": "1rem",
+        "xl": "1.5rem",
+        "2xl": "2rem",
+        "full": "9999px"
+      },
+    },
+  },
+}
+</script>
+<style>
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+}
+body {
+  min-height: max(884px, 100dvh);
+}
+</style>
+</head>
+<body class="bg-background-dark font-display text-text-light">
+<div class="flex flex-col h-screen">
+<header class="flex items-center justify-center pt-16 pb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-size: 36px;">sports_soccer</span>
+<h1 class="text-3xl font-bold text-white">Arena9</h1>
+</div>
+</header>
+<main class="flex-grow flex flex-col items-center justify-center px-4 text-center">
+<div class="max-w-md w-full bg-card-dark p-8 rounded-2xl shadow-lg">
+<div class="mb-10">
+<h2 class="text-4xl font-bold text-white">Tekrar Hoş Geldiniz!</h2>
+<p class="mt-3 text-lg text-text-dark">Yönetici veya Oyuncu olarak giriş yapın.</p>
+</div>
+<div class="space-y-4">
+<a href="{{ url_for('login', role='admin') }}" class="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:bg-primary-dark focus:outline-none focus:ring-4 focus:ring-primary/50 transition-all duration-300 transform hover:scale-105">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+<span>Yönetici Olarak Giriş Yap</span>
+</a>
+<a href="{{ url_for('dashboard') }}" class="w-full flex items-center justify-center gap-3 bg-gray-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-600/50 transition-all duration-300 transform hover:scale-105">
+<span class="material-symbols-outlined">person</span>
+<span>Oyuncu Olarak Devam Et</span>
+</a>
+</div>
+</div>
+</main>
+<footer class="py-8 px-4 text-center">
+<div class="w-full max-w-sm mx-auto h-48 bg-contain bg-center bg-no-repeat" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCKlFWkJ64QZfbI2254YV6sE5heCDeeJJf2bb1TYnSMe0jnGoEvKCjaTiLTW6W-cgw5h0mip6tWkY0BkWPBYZ2ruvLBCOFFAeF0F6vqTqq-9ZmzSljYdbD2kc3YoYkpWtKKOGhDldW9CVzE6DPEfxgxXuHfEs1lpp9kCflcxKjOW7quUE316hInubLb_Ou3hnj7uhfMFbE_aUyEjjzu9hcKaQBVodYVyM6oVCR1stLShU6y7cns83R4sLdAEDOk1ic0zbClQE3g2LtV')"></div>
+</footer>
+</div>
+</body>
+</html>
