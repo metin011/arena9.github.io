@@ -99,9 +99,27 @@ Production üçün:
 
 ---
 
+## 🐘 PostgreSQL Əlavə Etmək
+
+Məlumatlarınızı qorumaq üçün PostgreSQL əlavə edin!
+
+### ⚡ TƏZ TƏLIMAT (3 dəqiqə):
+📖 **[POSTGRESQL_TƏZ.md](POSTGRESQL_TƏZ.md)** - Sürətli quraşdırma
+
+### 📖 ƏTRAΦLI TƏLIMAT:
+📖 **[POSTGRESQL_QURAŞDIRMA.md](POSTGRESQL_QURAŞDIRMA.md)** - Tam guide + problem həlli
+
+**Üstünlükləri:**
+- ✅ Məlumatlar qorunur (deploy-da silinmir)
+- ✅ 1GB pulsuz (Render.com)
+- ✅ Daha sürətli və güclü
+- ✅ Professional
+
+---
+
 ## 🌟 Növbəti Addımlar
 
-1. ✅ PostgreSQL əlavə et
+1. ✅ **PostgreSQL əlavə et** ← [POSTGRESQL_TƏZ.md](POSTGRESQL_TƏZ.md)
 2. ✅ UptimeRobot qur (həmişə sürətli)
 3. ✅ Öz domenini bağla
 4. ✅ Google Analytics qur
