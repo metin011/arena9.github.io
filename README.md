@@ -1,138 +1,128 @@
-# ⚽ Futbol İstatistikleri Web Uygulaması
+# ⚽ Arena9 - Futbol Liqa Meneceri
 
-Modern ve güvenli bir futbol istatistik yönetim sistemi. Admin paneli ile maç ve oyuncu yönetimi, normal kullanıcılar için görüntüleme modu.
+**Arena9** - futbol liqalarını idarə etmək, oyunçuları izləmək və statistik analiz aparmaq üçün müasir veb tətbiq.
 
-🌐 **LIVE DEMO:** Deploy sonrası buraya link eklenecek
+🌐 **Canlı Demo:** https://arena9.onrender.com
 
-## 🎯 Özellikler
+---
 
-### 👤 Kullanıcı Rolleri
-- **Admin Kullanıcılar**: Tüm verileri ekleyebilir, düzenleyebilir ve silebilir
-- **Normal Kullanıcılar**: Sadece verileri görüntüleyebilir
+## 🚀 Xüsusiyyətlər
 
-### ⚽ Maç Yönetimi
-- Maç ekleme, düzenleme ve silme (Admin)
-- Maç durumu: Planlandı, Canlı, Bitti
-- Skor takibi
-- Stadyum bilgisi
-- Tarih ve saat bilgisi
+- ⚽ **Oyunçu İdarəetməsi** - Oyunçu əlavə et, redaktə et, sil və detallı profillərə bax
+- 🏆 **Maç İdarəetməsi** - Maç əlavə et, nəticələri qeyd et, tarixçəyə bax
+- 📊 **Statistik Analiz** - Oyunçu reytinqləri, qol kralları, komanda statistikaları
+- 👥 **İki Rejim:**
+  - **Admin** - Tam nəzarət (əlavə et, redaktə et, sil)
+  - **İzləyici** - Yalnız baxış (məlumat görüntüləmə)
+- 🌙 **Qaranlıq Tema** - Müasir və gözəl UI
+- 📱 **Responsive** - Mobil və masaüstü uyğun
 
-### 👥 Oyuncu Yönetimi
-- Oyuncu profili ekleme, düzenleme ve silme (Admin)
-- İstatistikler: Gol, Asist, Oynanan Maç
-- Pozisyon ve takım bilgisi
+---
 
-### 🔐 Güvenlik
-- Şifreli kullanıcı sistemi (bcrypt)
-- Session-based authentication
-- Admin/User rol kontrolü
-- CSRF koruması
+## 🛠️ Texnologiyalar
 
-## 🚀 Kurulum
+- **Backend:** Python, Flask, SQLAlchemy
+- **Frontend:** HTML, Tailwind CSS, JavaScript
+- **Database:** PostgreSQL (production) / SQLite (local)
+- **Hosting:** Render.com
+- **Font:** Space Grotesk
 
-### Gereksinimler
-- Python 3.8+
-- pip
+---
 
-### Adımlar
+## 🎯 Quraşdırma (Lokal)
 
-1. **Bağımlılıkları yükleyin:**
+### 1️⃣ Repo-nu klonlayın
+
 ```bash
-cd C:\Users\agaza\CascadeProjects\football-stats-app
+git clone https://github.com/metin011/arena9.github.io.git
+cd arena9.github.io
+```
+
+### 2️⃣ Virtual mühit yaradın
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+
+### 3️⃣ Paketləri quraşdırın
+
+```bash
 pip install -r requirements.txt
 ```
 
-2. **Uygulamayı başlatın:**
+### 4️⃣ Çalışdırın
+
 ```bash
 python app.py
 ```
 
-3. **Tarayıcınızda açın:**
-```
-http://localhost:5000
-```
-
-## 👨‍💼 Varsayılan Admin Hesabı
-
-İlk çalıştırmada otomatik olarak bir admin hesabı oluşturulur:
-
-- **Kullanıcı Adı:** `admin`
-- **Şifre:** `admin123`
-
-⚠️ **Önemli:** Güvenlik için admin şifresini ilk girişten sonra değiştirin!
-
-## 📖 Kullanım
-
-### Normal Kullanıcı
-1. "Kayıt Ol" butonuna tıklayın
-2. Kullanıcı adı ve şifre belirleyin
-3. Giriş yapın
-4. Maçları ve oyuncuları görüntüleyin
-
-### Admin Kullanıcı
-1. Admin hesabı ile giriş yapın
-2. "Admin Panel" butonuna tıklayın
-3. Maçlar, Oyuncular ve Kullanıcılar sekmelerinden yönetim yapın
-
-#### Maç Ekleme
-- Ev sahibi ve deplasman takımlarını girin
-- Skorları belirleyin
-- Tarih ve saat seçin
-- Stadyum bilgisi ekleyin (opsiyonel)
-- Maç durumunu seçin
-
-#### Oyuncu Ekleme
-- Oyuncu adını girin
-- Pozisyon ve takım bilgisi ekleyin
-- İstatistikleri girin (gol, asist, maç sayısı)
-
-## 🗂️ Proje Yapısı
-
-```
-football-stats-app/
-├── app.py                 # Ana uygulama dosyası
-├── requirements.txt       # Python bağımlılıkları
-├── README.md             # Dokümantasyon
-├── football_stats.db     # SQLite veritabanı (otomatik oluşturulur)
-└── templates/            # HTML şablonları
-    ├── base.html         # Ana şablon
-    ├── index.html        # Ana sayfa
-    ├── login.html        # Giriş sayfası
-    ├── register.html     # Kayıt sayfası
-    ├── matches.html      # Maçlar sayfası
-    ├── players.html      # Oyuncular sayfası
-    └── admin.html        # Admin panel
-```
-
-## 🛠️ Teknolojiler
-
-- **Backend:** Flask (Python)
-- **Database:** SQLite + SQLAlchemy ORM
-- **Authentication:** Werkzeug Security
-- **Frontend:** HTML5, CSS3, JavaScript
-- **Design:** Modern gradient UI, responsive tasarım
-
-## 📱 Responsive Tasarım
-
-Uygulama mobil, tablet ve masaüstü cihazlarda sorunsuz çalışır.
-
-## 🔒 Güvenlik Notları
-
-1. Production ortamında `SECRET_KEY`'i değiştirin
-2. Admin şifresini güçlü bir şifre ile değiştirin
-3. HTTPS kullanın
-4. Düzenli yedekleme yapın
-
-## 📝 Lisans
-
-Bu proje eğitim amaçlı geliştirilmiştir.
-
-## 🤝 Katkıda Bulunma
-
-Önerileriniz ve katkılarınız için teşekkürler!
+Brauzerə gedin: **http://localhost:5000**
 
 ---
 
-**Geliştirici:** Cascade AI
-**Versiyon:** 1.0.0
-**Tarih:** 2024
+## 🔐 Admin Girişi
+
+- **Username:** `admin`
+- **Password:** `admin123`
+
+---
+
+## 📦 Deploy (Render.com)
+
+Detallı deploy təlimatı: [DEPLOY_AZƏRBAYCAN.md](DEPLOY_AZƏRBAYCAN.md)
+
+---
+
+## 🌐 SEO & Google İndeksləşdirmə
+
+Arena9 SEO üçün optimallaşdırılmışdır:
+
+- ✅ **robots.txt** - `/robots.txt`
+- ✅ **sitemap.xml** - `/sitemap.xml`
+- ✅ **Meta SEO tag-ları** - Title, Description, Keywords
+- ✅ **Open Graph tag-ları** - Sosial paylaşım üçün
+- ✅ **Canonical URL-lər** - Duplicate content qarşısını alır
+
+### 📍 Google Search Console Əlavə Et
+
+1. Git: https://search.google.com/search-console
+2. Add Property → URL prefix seç
+3. Yaz: `https://arena9.onrender.com`
+4. Verification kodunu əlavə et (`templates/dashboard.html` və ya `templates/welcome.html` faylında)
+5. `sitemap.xml` əlavə et: https://arena9.onrender.com/sitemap.xml
+
+---
+
+## 📱 Sosial Media
+
+Link-ləri paylaşın:
+
+- 🎥 YouTube: [Kanal Bio-da]
+- 📸 Instagram: [Profil Linkində]
+- 🎵 TikTok: [Bio-da]
+- 💻 GitHub: [Bu Repo]
+
+---
+
+## 🤝 Kömək & Dəstək
+
+Problem tapdınız? Issue açın və ya pull request göndərin!
+
+---
+
+## 📄 Lisenziya
+
+MIT License - açıq mənbə proyekt
+
+---
+
+## 🌟 Arena9-u bəyəndiniz?
+
+⭐ **Star verin!** GitHub-da bu repo-ya ulduz qoyun!
+
+🔗 **Paylaşın!** Dostlarınıza göndərin!
+
+---
+
+**Arena9** - Futbolun Rəqəmsal Evi 🏟️⚽

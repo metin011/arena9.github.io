@@ -652,6 +652,77 @@ def init_db():
             db.session.commit()
             print("Sample player and season stats created!")
 
+# ===== SEO ROUTES =====
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Google bot üçün robots.txt"""
+    robots_content = """User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://arena9.onrender.com/sitemap.xml"""
+    
+    return robots_content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    """Google üçün sitemap.xml - saytın bütün səhifələri"""
+    
+    # Base URL
+    base_url = "https://arena9.onrender.com"
+    
+    # Sitemap başlığı
+    sitemap = ['<?xml version="1.0" encoding="UTF-8"?>']
+    sitemap.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    
+    # Əsas səhifələr
+    pages = [
+        {'loc': '/', 'priority': '1.00', 'changefreq': 'daily'},
+        {'loc': '/dashboard', 'priority': '1.00', 'changefreq': 'daily'},
+        {'loc': '/players', 'priority': '0.90', 'changefreq': 'daily'},
+        {'loc': '/matches', 'priority': '0.90', 'changefreq': 'daily'},
+        {'loc': '/teams', 'priority': '0.80', 'changefreq': 'weekly'},
+        {'loc': '/leaderboard', 'priority': '0.80', 'changefreq': 'weekly'},
+    ]
+    
+    for page in pages:
+        sitemap.append('  <url>')
+        sitemap.append(f'    <loc>{base_url}{page["loc"]}</loc>')
+        sitemap.append(f'    <priority>{page["priority"]}</priority>')
+        sitemap.append(f'    <changefreq>{page["changefreq"]}</changefreq>')
+        sitemap.append('  </url>')
+    
+    # Dinamik oyunçu səhifələri (son 50 oyunçu)
+    try:
+        players = Player.query.order_by(Player.created_at.desc()).limit(50).all()
+        for player in players:
+            sitemap.append('  <url>')
+            sitemap.append(f'    <loc>{base_url}/player/{player.id}</loc>')
+            sitemap.append('    <priority>0.70</priority>')
+            sitemap.append('    <changefreq>weekly</changefreq>')
+            sitemap.append('  </url>')
+    except Exception as e:
+        print(f"Sitemap player error: {e}")
+    
+    # Dinamik maç səhifələri (son 50 maç)
+    try:
+        matches = Match.query.order_by(Match.match_date.desc()).limit(50).all()
+        for match in matches:
+            sitemap.append('  <url>')
+            sitemap.append(f'    <loc>{base_url}/match/{match.id}</loc>')
+            sitemap.append('    <priority>0.70</priority>')
+            sitemap.append('    <changefreq>weekly</changefreq>')
+            sitemap.append('  </url>')
+    except Exception as e:
+        print(f"Sitemap match error: {e}")
+    
+    sitemap.append('</urlset>')
+    
+    return '\n'.join(sitemap), 200, {'Content-Type': 'application/xml; charset=utf-8'}
+
 # Database initialize et (həm lokal, həm production üçün)
 try:
     init_db()
