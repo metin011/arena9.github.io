@@ -156,7 +156,7 @@ def login():
 @app.route('/admin/match/add', methods=['GET', 'POST'])
 def admin_add_match():
     if not session.get('is_admin'):
-        flash('Bu sayfaya erişim yetkiniz yok!', 'error')
+        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
         return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
@@ -207,7 +207,7 @@ def admin_add_match():
 @app.route('/admin/player/add', methods=['GET', 'POST'])
 def admin_add_player():
     if not session.get('is_admin'):
-        flash('Bu sayfaya erişim yetkiniz yok!', 'error')
+        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
         return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
@@ -428,7 +428,7 @@ def admin_panel():
 @app.route('/admin/player/edit/<int:player_id>', methods=['GET', 'POST'])
 def admin_edit_player(player_id):
     if not session.get('is_admin'):
-        flash('Bu səhifəyə giriş icazəniz yoxdur!', 'error')
+        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
         return redirect(url_for('dashboard'))
     
     player = Player.query.get_or_404(player_id)
