@@ -112,8 +112,8 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
-    # Eğer session yoksa, guest olarak işaretle
-    if 'user_id' not in session:
+    # Yalnız ilk dəfə session yoxdursa guest olaraq təyin et
+    if 'user_id' not in session and 'is_admin' not in session:
         session['is_admin'] = False
         session['username'] = 'Misafir'
     
