@@ -281,34 +281,7 @@ def admin_add_player():
     
     return render_template('admin_add_player.html')
 
-@app.route('/admin/player/edit/<int:player_id>', methods=['GET', 'POST'])
-def admin_edit_player(player_id):
-    if not session.get('is_admin'):
-        flash('Bu sayfaya erişim yetkiniz yok!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    player = Player.query.get_or_404(player_id)
-    
-    if request.method == 'POST':
-        data = request.form
-        player.name = data.get('name')
-        player.age = int(data.get('age', 0))
-        player.position = data.get('position')
-        player.jersey_number = int(data.get('jersey_number', 0))
-        player.team = data.get('team')
-        player.overall_rating = int(data.get('overall_rating', 0))
-        player.pace = int(data.get('pace', 0))
-        player.shooting = int(data.get('shooting', 0))
-        player.passing = int(data.get('passing', 0))
-        player.dribbling = int(data.get('dribbling', 0))
-        player.defending = int(data.get('defending', 0))
-        player.physical = int(data.get('physical', 0))
-        
-        db.session.commit()
-        flash('Oyuncu güncellendi!', 'success')
-        return redirect(url_for('players'))
-    
-    return render_template('admin_edit_player.html', player=player)
+# Oyunçu redaktə route - edit_player funksiyasında birləşdirildi
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -430,10 +403,10 @@ def admin_panel():
 # Removed old add_player route - now using admin_add_player with dedicated page
 
 @app.route('/admin/player/edit/<int:player_id>', methods=['GET', 'POST'])
-def edit_player(player_id):
+def admin_edit_player(player_id):
     if not session.get('is_admin'):
-        flash('Bu sayfaya erişim yetkiniz yok!', 'error')
-        return redirect(url_for('index'))
+        flash('Bu səhifəyə giriş icazəniz yoxdur!', 'error')
+        return redirect(url_for('dashboard'))
     
     player = Player.query.get_or_404(player_id)
     
@@ -483,11 +456,15 @@ def edit_player(player_id):
             }
         }
         
+        # Ana məlumatları yenilə
         player.name = data.get('name')
         player.position = data.get('position')
         player.team = data.get('team')
         player.jersey_number = int(data.get('jersey_number', 0))
         player.age = int(data.get('age', 0))
+        player.photo_url = data.get('photo_url', '')
+        
+        # Reytinqləri yenilə
         player.overall_rating = int(data.get('overall_rating', 0))
         player.pace = int(data.get('pace', 0))
         player.shooting = int(data.get('shooting', 0))
@@ -495,19 +472,19 @@ def edit_player(player_id):
         player.dribbling = int(data.get('dribbling', 0))
         player.defending = int(data.get('defending', 0))
         player.physical = int(data.get('physical', 0))
-        player.photo_url = data.get('photo_url')
-        player.position_map = data.get('position_map', '{}')
+        
+        # Detaylı bacarıqları yenilə
         player.detailed_skills = json.dumps(detailed_skills)
         
         db.session.commit()
-        flash('Oyuncu güncellendi!', 'success')
-        return redirect(url_for('admin_panel'))
+        flash('✅ Oyunçu uğurla yeniləndi!', 'success')
+        return redirect(url_for('player_profile', player_id=player.id))
     
-    # GET isteği için düzenleme formu
+    # GET isteği - redaktə formu göstər
     position_map = json.loads(player.position_map) if player.position_map else {}
     detailed_skills = json.loads(player.detailed_skills) if player.detailed_skills else {}
     
-    return render_template('edit_player.html', 
+    return render_template('player_edit_full.html', 
                          player=player, 
                          position_map=position_map,
                          detailed_skills=detailed_skills)
@@ -515,14 +492,18 @@ def edit_player(player_id):
 @app.route('/admin/player/delete/<int:player_id>', methods=['POST'])
 def delete_player(player_id):
     if not session.get('is_admin'):
-        return jsonify({'error': 'Unauthorized'}), 403
+        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
+        return redirect(url_for('dashboard'))
     
     player = Player.query.get_or_404(player_id)
+    player_name = player.name
+    
+    # Bütün əlaqəli məlumatları sil (cascade ilə avtomatik silinir)
     db.session.delete(player)
     db.session.commit()
     
-    flash('Oyuncu silindi!', 'success')
-    return redirect(url_for('admin_panel'))
+    flash(f'🗑️ {player_name} oyunçusu uğurla silindi!', 'success')
+    return redirect(url_for('players'))
 
 @app.route('/admin/season-stats/add', methods=['POST'])
 def add_season_stats():

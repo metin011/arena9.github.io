@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ player.name }} - Redaktə Et - Arena9</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#00F08C',
+          dark: '#00C270'
+        },
+        'background-dark': '#000000',
+        'surface-dark': '#1A1A1A',
+        'text-dark-primary': '#FFFFFF',
+        'text-dark-secondary': '#A0A0A0',
+        'border-dark': '#2E2E2E',
+      },
+      fontFamily: {
+        display: ['Space Grotesk'],
+      },
+      borderRadius: { 
+        DEFAULT: '0.75rem', 
+        lg: '1rem', 
+        xl: '1.5rem', 
+        '2xl': '2rem',
+        full: '9999px' 
+      },
+    },
+  },
+};
+</script>
+<style>
+body {
+  min-height: max(884px, 100dvh);
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+</style>
+</head>
+<body class="bg-background-dark font-display text-text-dark-primary">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 bg-background-dark/80 backdrop-blur-sm border-b border-border-dark">
+<div class="flex items-center justify-between p-4">
+<a href="{{ url_for('player_profile', player_id=player.id) }}" class="rounded-full p-2.5 bg-surface-dark shadow-sm hover:bg-gray-800 border border-border-dark">
+<svg class="text-text-dark-secondary" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</a>
+<h1 class="text-lg font-bold text-center flex-1 -ml-10">Oyunçu Redaktə Et</h1>
+</div>
+</header>
+<main class="flex-grow px-4 pb-20">
+<form method="POST" action="{{ url_for('admin_edit_player', player_id=player.id) }}" class="space-y-6 py-6">
+<!-- Əsas Məlumatlar -->
+<div class="rounded-2xl bg-surface-dark p-6 shadow-sm border border-border-dark">
+<h2 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+<svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+</svg>
+Əsas Məlumatlar
+</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="col-span-2">
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">Ad Soyad</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="name" type="text" value="{{ player.name }}" required/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">Yaş</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="age" type="number" value="{{ player.age }}" min="15" max="50"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">Forma №</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="jersey_number" type="number" value="{{ player.jersey_number }}" min="1" max="99"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">Mövqe</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="position" type="text" value="{{ player.position }}" placeholder="Forward, Midfielder, Defender..."/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">Komanda</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="team" type="text" value="{{ player.team }}"/>
+</div>
+<div class="col-span-2">
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">Şəkil URL</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="photo_url" type="url" value="{{ player.photo_url }}" placeholder="https://..."/>
+</div>
+</div>
+</div>
+
+<!-- Ana Reytinqlər -->
+<div class="rounded-2xl bg-surface-dark p-6 shadow-sm border border-border-dark">
+<h2 class="text-xl font-bold text-primary mb-4">⭐ Ana Reytinqlər</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">GEN (Overall)</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center text-xl font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="overall_rating" type="number" value="{{ player.overall_rating }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">🏃 Hız</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="pace" type="number" value="{{ player.pace }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">⚽ Şut</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="shooting" type="number" value="{{ player.shooting }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">🎯 Pas</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="passing" type="number" value="{{ player.passing }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">💫 Dribling</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="dribbling" type="number" value="{{ player.dribbling }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">🛡️ Müdafiə</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="defending" type="number" value="{{ player.defending }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-text-dark-secondary mb-2">💪 Fiziki</label>
+<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="physical" type="number" value="{{ player.physical }}" min="40" max="99"/>
+</div>
+</div>
+</div>
+
+<!-- Detaylı Yetenekler -->
+{% set ds = detailed_skills or {} %}
+<div class="rounded-2xl bg-surface-dark p-6 shadow-sm border border-border-dark">
+<h2 class="text-xl font-bold text-primary mb-4">📊 Detaylı Yeteneklər</h2>
+<div class="space-y-6">
+<!-- Hız -->
+<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
+<h3 class="font-bold text-primary mb-3">🏃 Hız</h3>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Hızlanma</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="acceleration" type="number" value="{{ ds.pace.acceleration if ds.pace else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Sprint Hızı</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="sprint_speed" type="number" value="{{ ds.pace.sprint_speed if ds.pace else 0 }}" min="40" max="99"/>
+</div>
+</div>
+</div>
+
+<!-- Şut -->
+<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
+<h3 class="font-bold text-primary mb-3">⚽ Şut</h3>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Bitirmə</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="finishing" type="number" value="{{ ds.shooting.finishing if ds.shooting else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Uzaq Şutlar</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="long_shots" type="number" value="{{ ds.shooting.long_shots if ds.shooting else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Şut Gücü</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="shot_power" type="number" value="{{ ds.shooting.shot_power if ds.shooting else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Pozisiya Alma</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="positioning" type="number" value="{{ ds.shooting.positioning if ds.shooting else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Vole Vurular</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="volleys" type="number" value="{{ ds.shooting.volleys if ds.shooting else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Penaltı</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="penalties" type="number" value="{{ ds.shooting.penalties if ds.shooting else 0 }}" min="40" max="99"/>
+</div>
+</div>
+</div>
+
+<!-- Pas -->
+<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
+<h3 class="font-bold text-primary mb-3">🎯 Pas</h3>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Qısa Pas</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="short_pass" type="number" value="{{ ds.passing.short_pass if ds.passing else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Uzun Pas</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="long_pass" type="number" value="{{ ds.passing.long_pass if ds.passing else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Görüş</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="vision" type="number" value="{{ ds.passing.vision if ds.passing else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Kross</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="crossing" type="number" value="{{ ds.passing.crossing if ds.passing else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Ayrılma</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="curve" type="number" value="{{ ds.passing.curve if ds.passing else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Azad Zərbə</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="free_kick" type="number" value="{{ ds.passing.free_kick if ds.passing else 0 }}" min="40" max="99"/>
+</div>
+</div>
+</div>
+
+<!-- Dribling -->
+<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
+<h3 class="font-bold text-primary mb-3">💫 Dribling</h3>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Dribling</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="dribbling_skill" type="number" value="{{ ds.dribbling.dribbling if ds.dribbling else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Balans</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="balance" type="number" value="{{ ds.dribbling.balance if ds.dribbling else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Çeviklik</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="agility" type="number" value="{{ ds.dribbling.agility if ds.dribbling else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Reaksiya</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="reactions" type="number" value="{{ ds.dribbling.reactions if ds.dribbling else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Top Kontrolu</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="ball_control" type="number" value="{{ ds.dribbling.ball_control if ds.dribbling else 0 }}" min="40" max="99"/>
+</div>
+</div>
+</div>
+
+<!-- Müdafiə -->
+<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
+<h3 class="font-bold text-primary mb-3">🛡️ Müdafiə</h3>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Markaj</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="man_marking" type="number" value="{{ ds.defending.man_marking if ds.defending else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Müdaxilə</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="standing_tackle" type="number" value="{{ ds.defending.standing_tackle if ds.defending else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Top Kəsmə</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="interceptions" type="number" value="{{ ds.defending.interceptions if ds.defending else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Başla Vuruş</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="heading" type="number" value="{{ ds.defending.heading if ds.defending else 0 }}" min="40" max="99"/>
+</div>
+</div>
+</div>
+
+<!-- Fiziki -->
+<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
+<h3 class="font-bold text-primary mb-3">💪 Fiziki</h3>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Güc</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="strength" type="number" value="{{ ds.physical.strength if ds.physical else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Aqressivlik</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="aggression" type="number" value="{{ ds.physical.aggression if ds.physical else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Tullanma</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="jumping" type="number" value="{{ ds.physical.jumping if ds.physical else 0 }}" min="40" max="99"/>
+</div>
+<div>
+<label class="block text-xs text-text-dark-secondary mb-1">Davamlılıq</label>
+<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="stamina" type="number" value="{{ ds.physical.stamina if ds.physical else 0 }}" min="40" max="99"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Yadda Saxla Butonları -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-dark/95 backdrop-blur-sm border-t border-border-dark">
+<div class="flex gap-3 max-w-2xl mx-auto">
+<a href="{{ url_for('player_profile', player_id=player.id) }}" class="flex-1 rounded-xl py-3 px-4 bg-surface-dark text-text-dark-secondary font-bold text-center hover:bg-gray-800 transition-colors border border-border-dark">
+Ləğv Et
+</a>
+<button type="submit" class="flex-1 rounded-xl py-3 px-4 bg-primary text-background-dark font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+💾 Yadda Saxla
+</button>
+</div>
+</div>
+</form>
+</main>
+</div>
+</body>
+</html>

@@ -52,13 +52,43 @@ body {
 <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
 </svg>
 </a>
+<div class="flex gap-2">
+{% if is_admin %}
+<!-- Redaktə Butonu -->
+<a href="{{ url_for('admin_edit_player', player_id=player.id) }}" class="rounded-full p-2.5 bg-surface-dark shadow-sm hover:bg-primary border border-border-dark transition-colors" title="Oyunçunu Redaktə Et">
+<svg class="text-text-dark-secondary hover:text-background-dark" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path>
+</svg>
+</a>
+<!-- Silmə Butonu -->
+<button onclick="deletePlayer({{ player.id }}, '{{ player.name }}')" class="rounded-full p-2.5 bg-red-900/30 shadow-sm hover:bg-red-600 border border-red-800 transition-colors" title="Oyunçunu Sil">
+<svg class="text-red-400 hover:text-white" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path>
+</svg>
+</button>
+{% endif %}
 <button onclick="window.print()" class="rounded-full p-2.5 bg-surface-dark shadow-sm hover:bg-gray-800 border border-border-dark">
 <svg class="text-text-dark-secondary" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
 <path d="M229.66,109.66l-48,48a8,8,0,0,1-11.32-11.32L204.69,112H165a88,88,0,0,0-85.23,66,8,8,0,0,1-15.5-4A103.94,103.94,0,0,1,165,96h39.71L170.34,61.66a8,8,0,0,1,11.32-11.32l48,48A8,8,0,0,1,229.66,109.66ZM192,208H40V88a8,8,0,0,0-16,0V208a16,16,0,0,0,16,16H192a8,8,0,0,0,0-16Z"></path>
 </svg>
 </button>
 </div>
+</div>
 </header>
+
+<!-- Silmə funksiyası üçün JavaScript -->
+<script>
+function deletePlayer(playerId, playerName) {
+  if (confirm('⚠️ Əminsiniz?\n\n' + playerName + ' oyunçusunu silmək istədiyinizə əminsiniz?\n\nBu əməliyyat geri qaytarıla bilməz!')) {
+    // Form yaradırıq və göndəririk
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/admin/player/delete/' + playerId;
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+</script>
 <main class="flex-grow px-4 pb-4">
 <div class="flex flex-col items-center gap-4 pt-4 text-center">
 <div class="relative">
