@@ -117,8 +117,15 @@ def dashboard():
         session['is_admin'] = False
         session['username'] = 'Misafir'
     
-    matches = Match.query.order_by(Match.match_date.desc()).limit(10).all()
-    players = Player.query.order_by(Player.overall_rating.desc()).limit(8).all()
+    try:
+        matches = Match.query.order_by(Match.match_date.desc()).limit(10).all()
+        players = Player.query.order_by(Player.overall_rating.desc()).limit(8).all()
+    except Exception as e:
+        print(f"Dashboard error: {e}")
+        # Əgər database error varsa, boş siyahı göndər
+        matches = []
+        players = []
+    
     is_admin = session.get('is_admin', False)
     return render_template('dashboard.html', matches=matches, players=players, is_admin=is_admin)
 
@@ -129,16 +136,20 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        user = User.query.filter_by(username=username).first()
-        
-        if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id
-            session['username'] = user.username
-            session['is_admin'] = user.is_admin
-            flash('Giriş başarılı!', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Kullanıcı adı veya şifre hatalı!', 'error')
+        try:
+            user = User.query.filter_by(username=username).first()
+            
+            if user and check_password_hash(user.password, password):
+                session['user_id'] = user.id
+                session['username'] = user.username
+                session['is_admin'] = user.is_admin
+                flash('✅ Giriş uğurlu oldu!', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                flash('❌ İstifadəçi adı və ya şifrə yanlışdır!', 'error')
+        except Exception as e:
+            print(f"Login error: {e}")
+            flash('⚠️ Giriş zamanı xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', 'error')
     
     return render_template('login.html', role=role)
 
@@ -311,7 +322,11 @@ def logout():
 
 @app.route('/matches')
 def matches():
-    all_matches = Match.query.order_by(Match.match_date.desc()).all()
+    try:
+        all_matches = Match.query.order_by(Match.match_date.desc()).all()
+    except Exception as e:
+        print(f"Matches error: {e}")
+        all_matches = []
     is_admin = session.get('is_admin', False)
     return render_template('matches_list.html', matches=all_matches, is_admin=is_admin)
 
@@ -323,13 +338,21 @@ def match_detail(match_id):
 
 @app.route('/players')
 def players():
-    all_players = Player.query.order_by(Player.overall_rating.desc()).all()
+    try:
+        all_players = Player.query.order_by(Player.overall_rating.desc()).all()
+    except Exception as e:
+        print(f"Players error: {e}")
+        all_players = []
     is_admin = session.get('is_admin', False)
     return render_template('players_new.html', players=all_players, is_admin=is_admin)
 
 @app.route('/teams')
 def teams():
-    all_teams = Team.query.all()
+    try:
+        all_teams = Team.query.all()
+    except Exception as e:
+        print(f"Teams error: {e}")
+        all_teams = []
     return render_template('teams.html', teams=all_teams)
 
 @app.route('/leaderboard')
@@ -629,6 +652,11 @@ def init_db():
             db.session.commit()
             print("Sample player and season stats created!")
 
-if __name__ == '__main__':
+# Database initialize et (həm lokal, həm production üçün)
+try:
     init_db()
+except Exception as e:
+    print(f"Database initialization error: {e}")
+
+if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
