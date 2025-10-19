@@ -684,8 +684,7 @@ def sitemap_xml():
         {'loc': '/dashboard', 'priority': '1.00', 'changefreq': 'daily'},
         {'loc': '/players', 'priority': '0.90', 'changefreq': 'daily'},
         {'loc': '/matches', 'priority': '0.90', 'changefreq': 'daily'},
-        {'loc': '/teams', 'priority': '0.80', 'changefreq': 'weekly'},
-        {'loc': '/leaderboard', 'priority': '0.80', 'changefreq': 'weekly'},
+        {'loc': '/leaderboard', 'priority': '0.90', 'changefreq': 'weekly'},
     ]
     
     for page in pages:
