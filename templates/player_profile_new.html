@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ player.name }} - Oyunçu Profili{% endblock %}
+{% block title %}{{ player.name }} - Oyuncu Profili{% endblock %}
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -71,7 +71,7 @@
       <a href="{{ url_for('admin_edit_player', player_id=player.id) }}"
         class="h-10 px-4 flex items-center justify-center rounded-full glass-card hover:bg-white/10 active:scale-90 transition-all group gap-2">
         <span class="material-symbols-outlined text-primary text-xl">edit</span>
-        <span class="text-xs font-bold text-white group-hover:text-primary transition-colors">REDAKTƏ</span>
+        <span class="text-xs font-bold text-white group-hover:text-primary transition-colors">DÜZENLE</span>
       </a>
       {% endif %}
       <button
@@ -424,7 +424,7 @@
               {% endfor %}
               {% else %}
               <tr>
-                <td colspan="5" class="p-5 text-center text-gray-500 italic">Hələ ki məlumat yoxdur</td>
+                <td colspan="5" class="p-5 text-center text-gray-500 italic">Henüz veri yok</td>
               </tr>
               {% endif %}
             </tbody>

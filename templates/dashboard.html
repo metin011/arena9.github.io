@@ -11,7 +11,7 @@
       <a class="group flex items-center gap-4 rounded-xl bg-primary/10 p-4 text-primary transition-all duration-300 border border-primary/20 shadow-neon"
         href="{{ url_for('dashboard') }}">
         <span class="material-symbols-outlined text-[24px]">dashboard</span>
-        <span class="font-semibold text-lg">Ana Menyu</span>
+        <span class="font-semibold text-lg">Ana Menü</span>
       </a>
       <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
         href="{{ url_for('matches') }}">
@@ -22,19 +22,19 @@
       <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
         href="{{ url_for('players') }}">
         <span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">groups</span>
-        <span class="font-medium text-lg">Oyunçular</span>
+        <span class="font-medium text-lg">Oyuncular</span>
       </a>
       <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
         href="{{ url_for('leaderboard') }}">
         <span
           class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">emoji_events</span>
-        <span class="font-medium text-lg">Liderlik Lövhəsi</span>
+        <span class="font-medium text-lg">Liderlik Tablosu</span>
       </a>
       <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
         href="{{ url_for('compare_players') }}">
         <span
           class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">compare_arrows</span>
-        <span class="font-medium text-lg">Müqayisə</span>
+        <span class="font-medium text-lg">Karşılaştır</span>
       </a>
     </nav>
 
@@ -46,7 +46,7 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-white">{{ session.get('username', 'Misafir') }}</p>
-          <p class="text-xs text-text-muted-dark">{{ 'Admin' if session.get('is_admin') else 'İstifadəçi' }}</p>
+          <p class="text-xs text-text-muted-dark">{{ 'Yönetici' if session.get('is_admin') else 'Kullanıcı' }}</p>
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@
     <header
       class="sticky top-0 z-40 bg-background-dark/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Xoş gəldin 👋</h1>
+        <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Hoş Geldiniz 👋</h1>
       </div>
       <div class="flex items-center gap-4">
         <button
@@ -87,7 +87,7 @@
                 class="text-xs text-primary font-semibold px-3 py-1 rounded-full bg-primary/10 border border-primary/20">Aktiv</span>
             </div>
             <h3 class="text-3xl font-bold text-white mb-1">{{ total_players }}</h3>
-            <p class="text-sm text-text-muted-dark">Toplam Oyunçular</p>
+            <p class="text-sm text-text-muted-dark">Toplam Oyuncu</p>
           </div>
 
           <div

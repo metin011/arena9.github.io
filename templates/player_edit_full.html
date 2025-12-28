@@ -384,7 +384,7 @@
                   class="w-full h-1.5 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
               </div>
               <div class="grid grid-cols-2 gap-4">
-                {% for key, label in [('strength', 'Güç'), ('aggression', 'Aqressiya')] %}
+                {% for key, label in [('strength', 'Güç'), ('aggression', 'Agresiflik')] %}
                 <div class="space-y-2">
                   <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
                     <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('physical', {}).get(key, 75)
@@ -415,7 +415,7 @@
         <!-- Advanced Metrics Section -->
         <div class="glass-card rounded-[2rem] p-8 space-y-8 border-primary/10">
           <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-            <span class="material-symbols-outlined text-xs">analytics</span> Gelişmiş Metriklər
+            <span class="material-symbols-outlined text-xs">analytics</span> Gelişmiş Metrikler
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="space-y-3">
@@ -444,9 +444,10 @@
             Sil
           </button>
         </form>
-        <a href="{{ url_for('player_profile', player_id=player.id) }}"
-          class="flex-1 rounded-2xl h-14 flex items-center justify-center font-bold text-[10px] bg-transparent text-gray-500 border border-white/10 hover:bg-white/5 hover:text-white transition-all uppercase tracking-widest">Ləğv
-          Et</a>
+        class="flex-1 rounded-2xl h-14 flex items-center justify-center font-bold text-[10px] bg-transparent
+        text-gray-500 border border-white/10 hover:bg-white/5 hover:text-white transition-all uppercase
+        tracking-widest">İptal
+        Et</a>
         <button type="submit"
           class="flex-2 rounded-2xl h-14 px-12 text-center font-bold text-[10px] bg-primary text-black shadow-neon hover:bg-white transition-all duration-300 uppercase tracking-widest">Yadda
           Saxla</button>

@@ -407,7 +407,7 @@ def login():
 @app.route('/admin/match/add', methods=['GET', 'POST'])
 def admin_add_match():
     if not session.get('is_admin'):
-        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
+        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
         return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
@@ -495,7 +495,7 @@ def admin_add_match():
 @app.route('/admin/player/add', methods=['GET', 'POST'])
 def admin_add_player():
     if not session.get('is_admin'):
-        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
+        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
         return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
@@ -603,7 +603,7 @@ def admin_add_player():
             details={'name': new_player.name, 'team': new_player.team}
         )
         
-        flash('✅ Oyunçu uğurla əlavə edildi!', 'success')
+        flash('✅ Oyuncu başarıyla eklendi!', 'success')
         return redirect(url_for('players'))
     
     return render_template('admin_add_player.html')
@@ -941,7 +941,7 @@ def api_dashboard_stats():
 @app.route('/admin/player/edit/<int:player_id>', methods=['GET', 'POST'])
 def admin_edit_player(player_id):
     if not session.get('is_admin'):
-        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
+        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
         return redirect(url_for('dashboard'))
     
     player = Player.query.get_or_404(player_id)
@@ -1041,7 +1041,7 @@ def admin_edit_player(player_id):
             details={'name': player.name}
         )
         
-        flash('✅ Oyunçu uğurla yeniləndi!', 'success')
+        flash('✅ Oyuncu başarıyla güncellendi!', 'success')
         return redirect(url_for('player_profile', player_id=player.id))
     
     # GET isteği - redaktə formu göstər
@@ -1228,7 +1228,7 @@ def admin_bulk_delete():
 @app.route('/admin/player/delete/<int:player_id>', methods=['POST'])
 def delete_player(player_id):
     if not session.get('is_admin'):
-        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
+        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
         return redirect(url_for('dashboard'))
     
     player = Player.query.get_or_404(player_id)
@@ -1254,7 +1254,7 @@ def delete_player(player_id):
         # Log action
         log_action(session.get('user_id'), 'DELETE', 'Player', player_id, {'name': player_name})
         
-        flash(f'✅ {player_name} uğurla silindi!', 'success')
+        flash(f'✅ {player_name} başarıyla silindi!', 'success')
     except Exception as e:
         db.session.rollback()
         print(f"Delete Error: {e}")
@@ -1478,7 +1478,7 @@ def sitemap_xml():
 @app.route('/admin/recalculate-stats')
 def admin_recalculate_stats():
     if not session.get('is_admin'):
-        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
+        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
         return redirect(url_for('login'))
         
     try:
