@@ -1235,12 +1235,13 @@ def delete_player(player_id):
     player_name = player.name
     
     try:
-        # Manually delete related records to avoid ForeignKey errors if cascade is missing
-        # 1. Delete Stats
-        MatchStats.query.filter_by(player_id=player_id).delete()
-        # 2. Delete Goals & Assists
-        Goal.query.filter_by(player_id=player_id).delete()
-        Assist.query.filter_by(player_id=player_id).delete()
+        # Manually delete related records to avoid ForeignKey errors
+        # 1. Delete Goals (Scorer)
+        Goal.query.filter_by(scorer_id=player_id).delete()
+        # 2. Delete Goals (Assist)
+        Goal.query.filter_by(assist_id=player_id).delete()
+        
+        # MatchStats and Assist tables do not exist separately, so skipping.
         # 3. Delete Logs references
         # AuditLog usually references target_id but not with FK constraint, so it's fine.
         
@@ -1494,9 +1495,13 @@ def admin_bulk_delete():
                 player = Player.query.get(pid)
                 if player:
                     # Manually cleanup related records
-                    MatchStats.query.filter_by(player_id=pid).delete()
-                    Goal.query.filter_by(player_id=pid).delete()
-                    Assist.query.filter_by(player_id=pid).delete()
+                    # MatchStats table does not exist in current schema, skipping.
+                    # Assist table does not exist (handled in Goal), skipping.
+                    
+                    # Delete Goals where player is scorer
+                    Goal.query.filter_by(scorer_id=pid).delete()
+                    # Delete Goals where player is assister
+                    Goal.query.filter_by(assist_id=pid).delete()
                     
                     db.session.delete(player)
                     count += 1
