@@ -1169,8 +1169,8 @@ def admin_edit_match(match_id):
             
     return render_template('admin_edit_match.html', match=match, players=all_players, teams=unique_teams)
 
-@app.route('/admin/bulk-delete', methods=['POST'])
-def admin_bulk_delete():
+@app.route('/admin/bulk-import', methods=['POST'])
+def admin_bulk_import():
     if not session.get('is_admin'):
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
         
