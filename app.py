@@ -1475,6 +1475,42 @@ def sitemap_xml():
     
     return '\n'.join(sitemap), 200, {'Content-Type': 'application/xml; charset=utf-8'}
 
+@app.route('/admin/bulk-delete', methods=['POST'])
+def admin_bulk_delete():
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Yetkisiz erişim'}), 403
+    
+    try:
+        data = request.json
+        item_type = data.get('type')
+        ids = data.get('ids', [])
+        
+        if not ids:
+            return jsonify({'success': False, 'message': 'Seçili öğe yok'}), 400
+            
+        count = 0
+        if item_type == 'player':
+            for pid in ids:
+                player = Player.query.get(pid)
+                if player:
+                    # Manually cleanup related records
+                    MatchStats.query.filter_by(player_id=pid).delete()
+                    Goal.query.filter_by(player_id=pid).delete()
+                    Assist.query.filter_by(player_id=pid).delete()
+                    
+                    db.session.delete(player)
+                    count += 1
+        elif item_type == 'match':
+            # Implement match bulk delete if needed
+            pass
+            
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'{count} öğe başarıyla silindi'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @app.route('/admin/recalculate-stats')
 def admin_recalculate_stats():
     if not session.get('is_admin'):
