@@ -1,311 +1,449 @@
-<!DOCTYPE html>
-<html class="dark" lang="tr">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>{{ player.name }} - Redaktə Et - Arena9</title>
-<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
-<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          DEFAULT: '#2ECC71',
-          dark: '#27AE60'
-        },
-        'background-dark': '#000000',
-        'surface-dark': '#1A1A1A',
-        'text-dark-primary': '#FFFFFF',
-        'text-dark-secondary': '#A0A0A0',
-        'border-dark': '#2E2E2E',
-      },
-      fontFamily: {
-        display: ['Space Grotesk'],
-      },
-      borderRadius: { 
-        DEFAULT: '0.75rem', 
-        lg: '1rem', 
-        xl: '1.5rem', 
-        '2xl': '2rem',
-        full: '9999px' 
-      },
-    },
-  },
-};
-</script>
+{% extends "base.html" %}
+
+{% block title %}Arena9 - {{ player.name }} Redaktə Et{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+  rel="stylesheet">
 <style>
-body {
-  min-height: max(884px, 100dvh);
-}
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+  :root {
+    --primary: #00F08C;
+    --background: #050505;
+    --card-bg: rgba(255, 255, 255, 0.03);
+  }
+
+  body {
+    background-color: var(--background);
+    color: white;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #fff 0%, #00F08C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .shadow-neon {
+    box-shadow: 0 0 20px rgba(0, 240, 140, 0.2);
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 240, 140, 0.5);
+    border: 3px solid #050505;
+  }
 </style>
-</head>
-<body class="bg-background-dark font-display text-text-dark-primary">
-<div class="relative flex min-h-screen w-full flex-col">
-<header class="sticky top-0 z-10 bg-background-dark/80 backdrop-blur-sm border-b border-border-dark">
-<div class="flex items-center justify-between p-4">
-<a href="{{ url_for('player_profile', player_id=player.id) }}" class="rounded-full p-2.5 bg-surface-dark shadow-sm hover:bg-gray-800 border border-border-dark">
-<svg class="text-text-dark-secondary" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
-</svg>
-</a>
-<h1 class="text-lg font-bold text-center flex-1 -ml-10">Oyunçu Redaktə Et</h1>
-</div>
-</header>
-<main class="flex-grow px-4 pb-20">
-<form method="POST" action="{{ url_for('admin_edit_player', player_id=player.id) }}" class="space-y-6 py-6">
-<!-- Əsas Məlumatlar -->
-<div class="rounded-2xl bg-surface-dark p-6 shadow-sm border border-border-dark">
-<h2 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-<svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
-<path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
-</svg>
-Əsas Məlumatlar
-</h2>
-<div class="grid grid-cols-2 gap-4">
-<div class="col-span-2">
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">Ad Soyad</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="name" type="text" value="{{ player.name }}" required/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">Yaş</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="age" type="number" value="{{ player.age }}" min="15" max="50"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">Forma №</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="jersey_number" type="number" value="{{ player.jersey_number }}" min="1" max="99"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">Mövqe</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="position" type="text" value="{{ player.position }}" placeholder="Forward, Midfielder, Defender..."/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">Komanda</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="team" type="text" value="{{ player.team }}"/>
-</div>
-<div class="col-span-2">
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">Şəkil URL</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary focus:border-primary focus:ring-1 focus:ring-primary" name="photo_url" type="url" value="{{ player.photo_url }}" placeholder="https://..."/>
-</div>
-</div>
-</div>
+{% endblock %}
 
-<!-- Ana Reytinqlər -->
-<div class="rounded-2xl bg-surface-dark p-6 shadow-sm border border-border-dark">
-<h2 class="text-xl font-bold text-primary mb-4">⭐ Ana Reytinqlər</h2>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">GEN (Overall)</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center text-xl font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="overall_rating" type="number" value="{{ player.overall_rating }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">🏃 Hız</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="pace" type="number" value="{{ player.pace }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">⚽ Şut</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="shooting" type="number" value="{{ player.shooting }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">🎯 Pas</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="passing" type="number" value="{{ player.passing }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">💫 Dribling</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="dribbling" type="number" value="{{ player.dribbling }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">🛡️ Müdafiə</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="defending" type="number" value="{{ player.defending }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-sm font-medium text-text-dark-secondary mb-2">💪 Fiziki</label>
-<input class="w-full rounded-lg bg-black/30 border border-border-dark px-4 py-3 text-text-dark-primary text-center font-bold focus:border-primary focus:ring-1 focus:ring-primary" name="physical" type="number" value="{{ player.physical }}" min="40" max="99"/>
-</div>
-</div>
-</div>
+{% block content %}
+<main class="min-h-screen pb-40">
+  <header class="px-6 py-8 flex items-center justify-between max-w-5xl mx-auto">
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('player_profile', player_id=player.id) }}"
+        class="w-10 h-10 flex items-center justify-center rounded-full glass-card hover:bg-white/10 transition-all">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+      </a>
+      <div>
+        <h1 class="text-2xl font-black text-white uppercase tracking-tighter">Oyunçunu <span
+            class="text-primary italic">Redaktə Et</span></h1>
+        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">{{ player.name }}</p>
+      </div>
+    </div>
+  </header>
 
-<!-- Detaylı Yetenekler -->
-{% set ds = detailed_skills or {} %}
-<div class="rounded-2xl bg-surface-dark p-6 shadow-sm border border-border-dark">
-<h2 class="text-xl font-bold text-primary mb-4">📊 Detaylı Yeteneklər</h2>
-<div class="space-y-6">
-<!-- Hız -->
-<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
-<h3 class="font-bold text-primary mb-3">🏃 Hız</h3>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Hızlanma</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="acceleration" type="number" value="{{ ds.pace.acceleration if ds.pace else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Sprint Hızı</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="sprint_speed" type="number" value="{{ ds.pace.sprint_speed if ds.pace else 0 }}" min="40" max="99"/>
-</div>
-</div>
-</div>
+  <form method="POST" action="{{ url_for('admin_edit_player', player_id=player.id) }}" enctype="multipart/form-data"
+    class="max-w-5xl mx-auto px-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-<!-- Şut -->
-<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
-<h3 class="font-bold text-primary mb-3">⚽ Şut</h3>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Bitirmə</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="finishing" type="number" value="{{ ds.shooting.finishing if ds.shooting else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Uzaq Şutlar</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="long_shots" type="number" value="{{ ds.shooting.long_shots if ds.shooting else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Şut Gücü</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="shot_power" type="number" value="{{ ds.shooting.shot_power if ds.shooting else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Pozisiya Alma</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="positioning" type="number" value="{{ ds.shooting.positioning if ds.shooting else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Vole Vurular</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="volleys" type="number" value="{{ ds.shooting.volleys if ds.shooting else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Penaltı</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="penalties" type="number" value="{{ ds.shooting.penalties if ds.shooting else 0 }}" min="40" max="99"/>
-</div>
-</div>
-</div>
+      <!-- Left Column: Basic Info & Stats Overview -->
+      <div class="lg:col-span-4 space-y-8">
+        <!-- Profile Card -->
+        <section class="glass-card rounded-[2.5rem] p-8 text-center relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-6">
+            <div class="text-[10px] font-black text-primary/40 uppercase tracking-widest italic">Arena9 ID: #{{
+              player.id }}</div>
+          </div>
 
-<!-- Pas -->
-<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
-<h3 class="font-bold text-primary mb-3">🎯 Pas</h3>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Qısa Pas</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="short_pass" type="number" value="{{ ds.passing.short_pass if ds.passing else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Uzun Pas</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="long_pass" type="number" value="{{ ds.passing.long_pass if ds.passing else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Görüş</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="vision" type="number" value="{{ ds.passing.vision if ds.passing else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Kross</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="crossing" type="number" value="{{ ds.passing.crossing if ds.passing else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Ayrılma</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="curve" type="number" value="{{ ds.passing.curve if ds.passing else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Azad Zərbə</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="free_kick" type="number" value="{{ ds.passing.free_kick if ds.passing else 0 }}" min="40" max="99"/>
-</div>
-</div>
-</div>
+          <div class="relative w-32 h-32 mx-auto mb-6 group">
+            <div class="absolute inset-0 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/40 transition-all">
+            </div>
+            <img src="{{ player.photo_url or 'https://via.placeholder.com/150' }}" alt="Player"
+              class="relative w-full h-full object-cover rounded-full border-2 border-primary/20 shadow-2xl">
+            <label
+              class="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full border-4 border-background flex items-center justify-center cursor-pointer hover:scale-110 transition-all">
+              <span class="material-symbols-outlined text-black text-sm font-bold">photo_camera</span>
+              <input type="file" name="photo" class="hidden" accept="image/*">
+            </label>
+          </div>
 
-<!-- Dribling -->
-<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
-<h3 class="font-bold text-primary mb-3">💫 Dribling</h3>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Dribling</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="dribbling_skill" type="number" value="{{ ds.dribbling.dribbling if ds.dribbling else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Balans</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="balance" type="number" value="{{ ds.dribbling.balance if ds.dribbling else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Çeviklik</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="agility" type="number" value="{{ ds.dribbling.agility if ds.dribbling else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Reaksiya</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="reactions" type="number" value="{{ ds.dribbling.reactions if ds.dribbling else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Top Kontrolu</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="ball_control" type="number" value="{{ ds.dribbling.ball_control if ds.dribbling else 0 }}" min="40" max="99"/>
-</div>
-</div>
-</div>
+          <div class="space-y-4">
+            <input type="text" name="name" value="{{ player.name }}" placeholder="AD SOYAD"
+              class="w-full bg-background/50 border border-white/5 rounded-2xl px-4 py-3 text-center text-sm font-bold text-white focus:border-primary transition-all uppercase">
 
-<!-- Müdafiə -->
-<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
-<h3 class="font-bold text-primary mb-3">🛡️ Müdafiə</h3>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Markaj</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="man_marking" type="number" value="{{ ds.defending.man_marking if ds.defending else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Müdaxilə</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="standing_tackle" type="number" value="{{ ds.defending.standing_tackle if ds.defending else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Top Kəsmə</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="interceptions" type="number" value="{{ ds.defending.interceptions if ds.defending else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Başla Vuruş</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="heading" type="number" value="{{ ds.defending.heading if ds.defending else 0 }}" min="40" max="99"/>
-</div>
-</div>
-</div>
+            <div class="grid grid-cols-2 gap-3">
+              <input type="text" name="team" value="{{ player.team }}" placeholder="KOMANDA"
+                class="bg-background/50 border border-white/5 rounded-xl px-4 py-3 text-center text-[10px] font-black tracking-widest text-primary focus:border-primary transition-all uppercase">
+              <input type="number" name="jersey_number" value="{{ player.jersey_number }}" placeholder="NO"
+                class="bg-background/50 border border-white/5 rounded-xl px-4 py-3 text-center text-[10px] font-black tracking-widest text-white focus:border-primary transition-all">
+            </div>
 
-<!-- Fiziki -->
-<div class="p-4 rounded-xl bg-black/30 border border-border-dark/50">
-<h3 class="font-bold text-primary mb-3">💪 Fiziki</h3>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Güc</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="strength" type="number" value="{{ ds.physical.strength if ds.physical else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Aqressivlik</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="aggression" type="number" value="{{ ds.physical.aggression if ds.physical else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Tullanma</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="jumping" type="number" value="{{ ds.physical.jumping if ds.physical else 0 }}" min="40" max="99"/>
-</div>
-<div>
-<label class="block text-xs text-text-dark-secondary mb-1">Davamlılıq</label>
-<input class="w-full rounded bg-black/50 border border-border-dark px-3 py-2 text-text-dark-primary focus:border-primary" name="stamina" type="number" value="{{ ds.physical.stamina if ds.physical else 0 }}" min="40" max="99"/>
-</div>
-</div>
-</div>
-</div>
-</div>
+            <select name="position"
+              class="w-full bg-background/50 border border-white/5 rounded-xl px-4 py-3 text-center text-[10px] font-black tracking-widest text-gray-400 focus:text-white focus:border-primary transition-all appearance-none uppercase">
+              <option value="ST" {{ 'selected' if player.position=='ST' }}>HÜCUMÇU (ST)</option>
+              <option value="CF" {{ 'selected' if player.position=='CF' }}>SAXTA 9 (CF)</option>
+              <option value="LW" {{ 'selected' if player.position=='LW' }}>SOL KANAT (LW)</option>
+              <option value="RW" {{ 'selected' if player.position=='RW' }}>SAĞ KANAT (RW)</option>
+              <option value="CAM" {{ 'selected' if player.position=='CAM' }}>PLEYMEYKER (CAM)</option>
+              <option value="CM" {{ 'selected' if player.position=='CM' }}>MƏRKƏZ (CM)</option>
+              <option value="CDM" {{ 'selected' if player.position=='CDM' }}>DAYAQ (CDM)</option>
+              <option value="CB" {{ 'selected' if player.position=='CB' }}>STOPPER (CB)</option>
+              <option value="LB" {{ 'selected' if player.position=='LB' }}>SOL BEK (LB)</option>
+              <option value="RB" {{ 'selected' if player.position=='RB' }}>SAĞ BEK (RB)</option>
+              <option value="GK" {{ 'selected' if player.position=='GK' }}>QAPICI (GK)</option>
+            </select>
+          </div>
+        </section>
 
-<!-- Yadda Saxla Butonları -->
-<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-dark/95 backdrop-blur-sm border-t border-border-dark">
-<div class="flex gap-3 max-w-2xl mx-auto">
-<a href="{{ url_for('player_profile', player_id=player.id) }}" class="flex-1 rounded-xl py-3 px-4 bg-surface-dark text-text-dark-secondary font-bold text-center hover:bg-gray-800 transition-colors border border-border-dark">
-Ləğv Et
-</a>
-<button type="submit" class="flex-1 rounded-xl py-3 px-4 bg-primary text-background-dark font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-💾 Yadda Saxla
-</button>
-</div>
-</div>
-</form>
+        <!-- Big OVR -->
+        <section class="glass-card rounded-[2.5rem] p-8 flex flex-col items-center justify-center">
+          <label class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Ümumi Reytinq</label>
+          <div class="relative">
+            <div class="absolute inset-0 bg-primary/20 blur-2xl rounded-full"></div>
+            <input type="number" name="overall_rating" value="{{ player.overall_rating or 75 }}" min="1" max="99"
+              class="relative bg-background text-primary text-5xl font-black rounded-[2rem] w-32 h-32 text-center border-2 border-primary/20 focus:border-primary focus:ring-0 transition-all shadow-[inset_0_0_20px_rgba(57,255,20,0.1)]">
+          </div>
+        </section>
+
+        <!-- Physicals -->
+        <section class="glass-card rounded-[2.5rem] p-8 space-y-6">
+          <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+            <span class="material-symbols-outlined text-xs">straighten</span> Fiziki Göstəricilər
+          </h3>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Boy (cm)</label>
+                <input type="number" name="height" value="{{ player.height or 175 }}"
+                  class="w-full bg-background border border-white/5 rounded-xl px-4 py-2 text-sm font-bold text-white focus:border-primary">
+              </div>
+              <div class="space-y-2">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Çəki (kg)</label>
+                <input type="number" name="weight" value="{{ player.weight or 70 }}"
+                  class="w-full bg-background border border-white/5 rounded-xl px-4 py-2 text-sm font-bold text-white focus:border-primary">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Yaş</label>
+                <input type="number" name="age" value="{{ player.age or 25 }}"
+                  class="w-full bg-background border border-white/5 rounded-xl px-4 py-2 text-sm font-bold text-white focus:border-primary">
+              </div>
+              <div class="space-y-2">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Gözəl Ayaq</label>
+                <select name="preferred_foot"
+                  class="w-full bg-background border border-white/5 rounded-xl px-4 py-2 text-[10px] font-bold text-white focus:border-primary appearance-none uppercase">
+                  <option value="Right" {{ 'selected' if player.preferred_foot=='Right' }}>SAĞ</option>
+                  <option value="Left" {{ 'selected' if player.preferred_foot=='Left' }}>SOL</option>
+                  <option value="Both" {{ 'selected' if player.preferred_foot=='Both' }}>HƏR İKİ</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Granular Stats Sliders -->
+      <div class="lg:col-span-8 space-y-8">
+        <!-- Pace & Shooting -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Pace -->
+          <div class="glass-card rounded-[2rem] p-6 space-y-6">
+            <h3 class="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">speed</span> Hız (PAC)
+            </h3>
+            <div class="space-y-5">
+              {% for key, label in [('acceleration', 'Hızlanma'), ('sprint_speed', 'Sürət')] %}
+              <div class="space-y-2">
+                <div class="flex justify-between text-[9px] text-gray-400 font-black uppercase tracking-widest">
+                  <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('pace', {}).get(key, 75)
+                    }}</span>
+                </div>
+                <input type="range" name="{{ key }}" value="{{ detailed_skills.get('pace', {}).get(key, 75) }}" min="1"
+                  max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                  class="w-full h-1.5 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Shooting -->
+          <div class="glass-card rounded-[2rem] p-6 space-y-6">
+            <h3 class="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">adjust</span> Şut (SHO)
+            </h3>
+            <div class="space-y-4">
+              {% for key, label in [('positioning', 'Mövqe Alma'), ('finishing', 'Bitiricilik')] %}
+              <div class="space-y-2">
+                <div class="flex justify-between text-[9px] text-gray-400 font-black uppercase tracking-widest">
+                  <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('shooting', {}).get(key, 75)
+                    }}</span>
+                </div>
+                <input type="range" name="{{ key }}" value="{{ detailed_skills.get('shooting', {}).get(key, 75) }}"
+                  min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                  class="w-full h-1.5 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+              </div>
+              {% endfor %}
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('shot_power', 'Güç'), ('long_shots', 'Uzak Şut')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('shooting', {}).get(key, 75)
+                      }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('shooting', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('volleys', 'Volley'), ('penalties', 'Penaltı')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('shooting', {}).get(key, 75)
+                      }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('shooting', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Passing & Dribbling -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Passing -->
+          <div class="glass-card rounded-[2rem] p-6 space-y-6">
+            <h3 class="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">share</span> Pas (PAS)
+            </h3>
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('short_pass', 'Kısa Pas'), ('long_pass', 'Uzun Pas')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('passing', {}).get(key, 75)
+                      }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('passing', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('vision', 'Görüş'), ('curve', 'Fəlsəfə')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('passing', {}).get(key, 75)
+                      }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('passing', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('crossing', 'Orta'), ('free_kick', 'Cərimə')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('passing', {}).get(key, 75)
+                      }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('passing', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Dribbling -->
+          <div class="glass-card rounded-[2rem] p-6 space-y-6">
+            <h3 class="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">animation</span> Dribling (DRI)
+            </h3>
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <div class="flex justify-between text-[9px] text-gray-400 font-black uppercase tracking-widest">
+                  <span>Dribling</span><span id="val_dribbling">{{ detailed_skills.get('dribbling', {}).get('dribbling',
+                    75) }}</span>
+                </div>
+                <input type="range" name="dribbling"
+                  value="{{ detailed_skills.get('dribbling', {}).get('dribbling', 75) }}" min="1" max="99"
+                  oninput="document.getElementById('val_dribbling').textContent = this.value"
+                  class="w-full h-1.5 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('agility', 'Çeviklik'), ('balance', 'Balance')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('dribbling', {}).get(key,
+                      75) }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('dribbling', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('ball_control', 'Top Kontrol'), ('reactions', 'Reaksiyon')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('dribbling', {}).get(key,
+                      75) }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('dribbling', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Defending & Physical -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Defending -->
+          <div class="glass-card rounded-[2rem] p-6 space-y-6">
+            <h3 class="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">security</span> Defans (DEF)
+            </h3>
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('standing_tackle', 'Müdaxilə'), ('man_marking', 'Markaj')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('defending', {}).get(key,
+                      75) }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('defending', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('heading', 'Kafa'), ('interceptions', 'Kəsmə')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('defending', {}).get(key,
+                      75) }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('defending', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Physical -->
+          <div class="glass-card rounded-[2rem] p-6 space-y-6">
+            <h3 class="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="material-symbols-outlined text-sm">fitness_center</span> Fiziki (PHY)
+            </h3>
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <div class="flex justify-between text-[9px] text-gray-400 font-black uppercase tracking-widest">
+                  <span>Dayanıklılık</span><span id="val_stamina">{{ detailed_skills.get('physical', {}).get('stamina',
+                    75) }}</span>
+                </div>
+                <input type="range" name="stamina" value="{{ detailed_skills.get('physical', {}).get('stamina', 75) }}"
+                  min="1" max="99" oninput="document.getElementById('val_stamina').textContent = this.value"
+                  class="w-full h-1.5 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                {% for key, label in [('strength', 'Güç'), ('aggression', 'Aqressiya')] %}
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>{{ label }}</span><span id="val_{{ key }}">{{ detailed_skills.get('physical', {}).get(key, 75)
+                      }}</span>
+                  </div>
+                  <input type="range" name="{{ key }}" value="{{ detailed_skills.get('physical', {}).get(key, 75) }}"
+                    min="1" max="99" oninput="document.getElementById('val_{{ key }}').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+                {% endfor %}
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[8px] text-gray-500 font-black uppercase tracking-widest">
+                    <span>Zıplama</span><span id="val_jumping">{{ detailed_skills.get('physical', {}).get('jumping', 75)
+                      }}</span>
+                  </div>
+                  <input type="range" name="jumping"
+                    value="{{ detailed_skills.get('physical', {}).get('jumping', 75) }}" min="1" max="99"
+                    oninput="document.getElementById('val_jumping').textContent = this.value"
+                    class="w-full h-1 bg-background rounded-lg appearance-none cursor-pointer accent-primary">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Metrics Section -->
+        <div class="glass-card rounded-[2rem] p-8 space-y-8 border-primary/10">
+          <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+            <span class="material-symbols-outlined text-xs">analytics</span> Gelişmiş Metriklər
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-3">
+              <label class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Karyera xG</label>
+              <input type="number" step="0.1" name="xg_total" value="{{ player.xg_total or 0.0 }}"
+                class="w-full bg-background border border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-white focus:border-primary">
+            </div>
+            <div class="space-y-3">
+              <label class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Pas İsabeti (%)</label>
+              <input type="number" step="0.1" name="pass_accuracy" value="{{ player.pass_accuracy or 85.0 }}"
+                class="w-full bg-background border border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-white focus:border-primary">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Footer Actions -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-xl p-6 border-t border-white/5 z-50">
+      <div class="flex gap-4 max-w-lg mx-auto">
+        <a href="{{ url_for('player_profile', player_id=player.id) }}"
+          class="flex-1 rounded-2xl h-14 flex items-center justify-center font-bold text-[10px] bg-transparent text-gray-500 border border-white/10 hover:bg-white/5 hover:text-white transition-all uppercase tracking-widest">Ləğv
+          Et</a>
+        <button type="submit"
+          class="flex-2 rounded-2xl h-14 px-12 text-center font-bold text-[10px] bg-primary text-black shadow-neon hover:bg-white transition-all duration-300 uppercase tracking-widest">Dəyişiklikləri
+          Yadda Saxla</button>
+      </div>
+    </footer>
+  </form>
 </main>
-</div>
-</body>
-</html>
+{% endblock %}

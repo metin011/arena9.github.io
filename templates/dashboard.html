@@ -1,188 +1,287 @@
-<!DOCTYPE html>
-<html class="dark" lang="az">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Arena9 - Futbol Liqa Meneceri | Oyunçu və Maç İdarəetməsi</title>
-<meta name="description" content="Arena9 - futbol liqalarını idarə edin, oyunçuları izləyin, matç tarixçəsinə baxın və statistik analiz aparın. Müasir futbol menecment sistemi."/>
-<meta name="keywords" content="arena9, futbol, liqa, oyunçu, matç, futbol menecer, football manager, league tracker, statistika, azerbaycan futbol"/>
-<meta name="author" content="Arena9"/>
+{% extends "base.html" %}
 
-<!-- Open Graph / Facebook / WhatsApp -->
-<meta property="og:type" content="website"/>
-<meta property="og:url" content="https://arena9.onrender.com/"/>
-<meta property="og:title" content="Arena9 - Futbol Liqa Meneceri"/>
-<meta property="og:description" content="Futbol liqalarını idarə et, statistikanı izlə və nəticələri paylaş — hamısı Arena9-da!"/>
-<meta property="og:image" content="https://arena9.onrender.com/static/arena9-preview.png"/>
+{% block content %}
+<div class="relative min-h-screen flex flex-col">
+  <!-- Desktop Sidebar -->
+  <div
+    class="fixed inset-y-0 left-0 z-50 w-72 bg-card-dark border-r border-border-dark p-8 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out hidden lg:flex flex-col">
+    <h3 class="text-3xl font-bold text-white mb-10 tracking-tight">Arena9<span class="text-primary">.</span></h3>
 
-<!-- Twitter -->
-<meta property="twitter:card" content="summary_large_image"/>
-<meta property="twitter:url" content="https://arena9.onrender.com/"/>
-<meta property="twitter:title" content="Arena9 - Futbol Liqa Meneceri"/>
-<meta property="twitter:description" content="Futbol liqalarını idarə et, statistikanı izlə və nəticələri paylaş — hamısı Arena9-da!"/>
-<meta property="twitter:image" content="https://arena9.onrender.com/static/arena9-preview.png"/>
+    <nav class="flex flex-col gap-4 flex-1">
+      <a class="group flex items-center gap-4 rounded-xl bg-primary/10 p-4 text-primary transition-all duration-300 border border-primary/20 shadow-neon"
+        href="{{ url_for('dashboard') }}">
+        <span class="material-symbols-outlined text-[24px]">dashboard</span>
+        <span class="font-semibold text-lg">Ana Menyu</span>
+      </a>
+      <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
+        href="{{ url_for('matches') }}">
+        <span
+          class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">sports_soccer</span>
+        <span class="font-medium text-lg">Maçlar</span>
+      </a>
+      <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
+        href="{{ url_for('players') }}">
+        <span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">groups</span>
+        <span class="font-medium text-lg">Oyunçular</span>
+      </a>
+      <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
+        href="{{ url_for('leaderboard') }}">
+        <span
+          class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">emoji_events</span>
+        <span class="font-medium text-lg">Liderlik Lövhəsi</span>
+      </a>
+      <a class="group flex items-center gap-4 rounded-xl p-4 text-text-muted-dark hover:bg-white/5 hover:text-white transition-all duration-200"
+        href="{{ url_for('compare_players') }}">
+        <span
+          class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">compare_arrows</span>
+        <span class="font-medium text-lg">Müqayisə</span>
+      </a>
+    </nav>
 
-<!-- Canonical URL -->
-<link rel="canonical" href="https://arena9.onrender.com/dashboard"/>
+    <div class="mt-auto pt-6 border-t border-white/5">
+      <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors">
+        <div
+          class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-emerald-800 flex items-center justify-center text-white font-bold">
+          {{ session.get('username', 'M')[0].upper() }}
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white">{{ session.get('username', 'Misafir') }}</p>
+          <p class="text-xs text-text-muted-dark">{{ 'Admin' if session.get('is_admin') else 'İstifadəçi' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- Google Site Verification -->
-<meta name="google-site-verification" content="tpPrbTJtiejuG0EVqQXVjBah7f6AIbHNT7oclQj5hS0" />
+  <!-- Main Content -->
+  <div class="flex-1 lg:pl-72 flex flex-col min-w-0">
+    <!-- Header -->
+    <header
+      class="sticky top-0 z-40 bg-background-dark/80 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Xoş gəldin 👋</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          class="relative rounded-full p-2.5 text-text-muted-dark hover:text-white hover:bg-white/5 transition-colors">
+          <span class="material-symbols-outlined">notifications</span>
+          <span
+            class="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background-dark animate-pulse"></span>
+        </button>
+        <button
+          class="rounded-full p-2.5 text-text-muted-dark hover:text-white hover:bg-white/5 transition-colors lg:hidden">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+      </div>
+    </header>
 
-<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
-<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
-<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        "primary": "#2ECC71",
-        "background-light": "#f8fafc",
-        "background-dark": "#000000",
-        "card-light": "#ffffff",
-        "card-dark": "#1a1a1a",
-        "text-light": "#0f172a",
-        "text-dark": "#f8fafc",
-        "text-muted-light": "#64748b",
-        "text-muted-dark": "#94a3b8",
-        "border-dark": "#262626"
-      },
-      fontFamily: {
-        "display": ["Space Grotesk"]
-      },
-      borderRadius: {
-        "DEFAULT": "0.75rem",
-        "lg": "1rem",
-        "xl": "1.5rem",
-        "full": "9999px"
-      },
-    },
-  },
-}
-</script>
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 pb-24 md:p-8 space-y-12 max-w-7xl mx-auto w-full">
+      <!-- Stats Cards -->
+      <section>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            class="bg-card-dark rounded-2xl p-6 border border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-neon">
+            <div class="flex items-center justify-between mb-4">
+              <span class="material-symbols-outlined text-4xl text-primary">groups</span>
+              <span
+                class="text-xs text-primary font-semibold px-3 py-1 rounded-full bg-primary/10 border border-primary/20">Aktiv</span>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">{{ total_players }}</h3>
+            <p class="text-sm text-text-muted-dark">Toplam Oyunçular</p>
+          </div>
+
+          <div
+            class="bg-card-dark rounded-2xl p-6 border border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-neon">
+            <div class="flex items-center justify-between mb-4">
+              <span class="material-symbols-outlined text-4xl text-emerald-500">sports_soccer</span>
+              <span
+                class="text-xs text-emerald-500 font-semibold px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">Canlı</span>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">{{ total_matches }}</h3>
+            <p class="text-sm text-text-muted-dark">Toplam Maçlar</p>
+          </div>
+
+          <div
+            class="bg-card-dark rounded-2xl p-6 border border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-neon">
+            <div class="flex items-center justify-between mb-4">
+              <span class="material-symbols-outlined text-4xl text-yellow-500">emoji_events</span>
+              <span
+                class="text-xs text-yellow-500 font-semibold px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">Rekord</span>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">{{ total_goals }}</h3>
+            <p class="text-sm text-text-muted-dark">Toplam Goller</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Matches -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-1 bg-primary rounded-full shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
+            <h2 class="text-2xl font-semibold text-white tracking-tight">Son Maçlar</h2>
+          </div>
+          <a class="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+            href="{{ url_for('matches') }}">
+            Hamısına bax <span class="material-symbols-outlined text-base">arrow_forward</span>
+          </a>
+        </div>
+
+        <div class="flex overflow-x-auto pb-4 gap-6 scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory">
+          {% if matches %}
+          {% for match in matches %}
+          <div
+            class="min-w-[85vw] md:min-w-[380px] snap-center bg-card-dark rounded-2xl p-5 border border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-neon group relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <span class="material-symbols-outlined text-6xl text-white">sports_soccer</span>
+            </div>
+
+            <div class="flex justify-between items-start mb-6 relative z-10">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-semibold bg-white/5 text-primary border border-primary/20">{{
+                match.name or 'Premyer Liqa' }}</span>
+              <span class="text-xs text-text-muted-dark font-medium">{{ match.match_date.strftime('%d.%m.%Y, %H:%M')
+                }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 mb-6 relative z-10">
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 rounded-full bg-card-dark-hover p-1 ring-1 ring-white/10 shadow-lg">
+                  <img src="{{ match.image_url or '/static/img/default_match.jpg' }}" alt="{{ match.home_team }}"
+                    class="w-full h-full rounded-full object-cover">
+                </div>
+                <span class="text-sm font-semibold text-white">{{ match.home_team }}</span>
+              </div>
+
+              <div class="flex flex-col items-center">
+                <div
+                  class="text-3xl font-bold text-white tracking-widest bg-white/5 px-4 py-1 rounded-lg border border-white/5">
+                  {{ match.home_score }} - {{ match.away_score }}
+                </div>
+                <span
+                  class="text-xs {% if match.status == 'Bitdi' %}text-primary{% else %}text-text-muted-dark{% endif %} mt-2 font-medium">{{
+                  match.status }}</span>
+              </div>
+
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 rounded-full bg-card-dark-hover p-1 ring-1 ring-white/10 shadow-lg">
+                  <img src="{{ match.image_url or '/static/img/default_match.jpg' }}" alt="{{ match.away_team }}"
+                    class="w-full h-full rounded-full object-cover {% if match.home_score > match.away_score %}grayscale opacity-80{% endif %}">
+                </div>
+                <span class="text-sm font-semibold text-white">{{ match.away_team }}</span>
+              </div>
+            </div>
+
+            <a href="{{ url_for('match_detail', match_id=match.id) }}"
+              class="block w-full py-3 rounded-xl bg-white/5 text-sm font-medium text-white hover:bg-primary hover:text-black transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] relative z-10 text-center">
+              Detallara Bax
+            </a>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="w-full text-center py-12 text-text-muted-dark">
+            Hələ ki maç yoxdur
+          </div>
+          {% endif %}
+          <div class="min-w-[20px] md:hidden"></div>
+        </div>
+      </section>
+
+      <!-- Top Scorers -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-1 bg-primary rounded-full shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
+            <h2 class="text-2xl font-semibold text-white tracking-tight">Bombardirlər</h2>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% if top_scorers %}
+          {% for player, goal_count in top_scorers[:3] %}
+          <div
+            class="bg-card-dark rounded-2xl p-1 relative group overflow-hidden transition-all duration-300 hover:-translate-y-1">
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            </div>
+            <div
+              class="bg-card-dark rounded-xl h-full p-5 border border-white/5 group-hover:border-primary/30 relative z-10 flex items-center gap-5">
+              <div class="relative">
+                <div class="w-20 h-20 rounded-2xl bg-cover bg-center shadow-lg"
+                  style="background-image: url('{{ player.photo_url or 'https://via.placeholder.com/150' }}');"></div>
+                <div
+                  class="absolute -bottom-2 -right-2 {% if loop.index == 1 %}bg-black text-primary border border-primary/30 shadow-neon{% else %}bg-black text-white/70 border border-white/10{% endif %} text-xs font-bold px-2 py-1 rounded-lg">
+                  #{{ loop.index }}</div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="text-lg font-bold text-white truncate">{{ player.name }}</h4>
+                <p class="text-sm text-text-muted-dark mb-3">{{ player.position or 'Hücumçu' }}</p>
+                <div class="flex items-center gap-2">
+                  <span
+                    class="text-2xl font-bold {% if loop.index == 1 %}text-primary{% else %}text-white{% endif %}">{{
+                    goal_count }}</span>
+                  <span class="text-xs font-medium text-text-muted-dark uppercase tracking-wider">Qol</span>
+                </div>
+              </div>
+              <a href="{{ url_for('player_profile', player_id=player.id) }}"
+                class="self-center p-2 rounded-full text-text-muted-dark hover:text-primary hover:bg-white/5 transition-colors">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="col-span-full text-center py-12 text-text-muted-dark">
+            Hələ ki məlumat yoxdur
+          </div>
+          {% endif %}
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav
+    class="fixed bottom-0 inset-x-0 bg-card-dark/95 backdrop-blur-xl border-t border-white/10 pb-safe pt-2 lg:hidden z-50">
+    <div class="flex justify-around items-center px-2">
+      <a class="flex flex-col items-center gap-1 p-2 rounded-xl text-primary transition-colors w-16"
+        href="{{ url_for('dashboard') }}">
+        <span class="material-symbols-outlined text-[26px]">dashboard</span>
+        <span class="text-[10px] font-bold">Ana</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 p-2 rounded-xl text-text-muted-dark hover:text-white transition-colors w-16"
+        href="{{ url_for('matches') }}">
+        <span class="material-symbols-outlined text-[26px]">sports_soccer</span>
+        <span class="text-[10px] font-medium">Maçlar</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 p-2 rounded-xl text-text-muted-dark hover:text-white transition-colors w-16"
+        href="{{ url_for('players') }}">
+        <span class="material-symbols-outlined text-[26px]">groups</span>
+        <span class="text-[10px] font-medium">Oyunçular</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 p-2 rounded-xl text-text-muted-dark hover:text-white transition-colors w-16"
+        href="{{ url_for('leaderboard') }}">
+        <span class="material-symbols-outlined text-[26px]">emoji_events</span>
+        <span class="text-[10px] font-medium">Liderlik</span>
+      </a>
+      <a class="flex flex-col items-center gap-1 p-2 rounded-xl text-text-muted-dark hover:text-white transition-colors w-16"
+        href="{{ url_for('compare_players') }}">
+        <span class="material-symbols-outlined text-[26px]">compare_arrows</span>
+        <span class="text-[10px] font-medium">Müqayisə</span>
+      </a>
+    </div>
+    <div class="h-6 w-full"></div>
+  </nav>
+</div>
+
 <style>
-body {
-  min-height: max(884px, 100dvh);
-}
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 </style>
-</head>
-<body class="bg-background-dark font-display text-text-dark">
-<div class="relative min-h-screen">
-<div class="fixed inset-y-0 left-0 z-50 w-64 bg-background-dark p-6 transform -translate-x-full transition-transform duration-300 ease-in-out peer-checked:translate-x-0 lg:translate-x-0 lg:w-20 xl:w-64">
-<h3 class="text-2xl font-bold text-text-dark mb-8 xl:block hidden">Arena9</h3>
-<nav class="flex flex-col gap-2">
-<a class="flex items-center gap-4 rounded-lg bg-primary/20 p-3 text-primary font-bold" href="{{ url_for('dashboard') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
-</svg>
-<span class="xl:inline hidden">Ana Sayfa</span>
-</a>
-<a class="flex items-center gap-4 rounded-lg p-3 text-text-muted-dark hover:bg-primary/20 hover:text-primary font-medium" href="{{ url_for('matches') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z"></path>
-</svg>
-<span class="xl:inline hidden">Maçlar</span>
-</a>
-<a class="flex items-center gap-4 rounded-lg p-3 text-text-muted-dark hover:bg-primary/20 hover:text-primary font-medium" href="{{ url_for('players') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
-</svg>
-<span class="xl:inline hidden">Oyuncular</span>
-</a>
-<a class="flex items-center gap-4 rounded-lg p-3 text-text-muted-dark hover:bg-primary/20 hover:text-primary font-medium" href="{{ url_for('leaderboard') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M240.26,186.1,152.81,34.23h0a28.74,28.74,0,0,0-49.62,0L15.74,186.1a27.45,27.45,0,0,0,0,27.71A28.31,28.31,0,0,0,40.55,228h174.9a28.31,28.31,0,0,0,24.79-14.19A27.45,27.45,0,0,0,240.26,186.1Zm-20.8,15.7a12.32,12.32,0,0,1-10.91,6.2H40.55a12.32,12.32,0,0,1-10.91-6.2,11.46,11.46,0,0,1,0-11.49L117.09,38.22a12.75,12.75,0,0,1,21.82,0l87.45,152.09A11.46,11.46,0,0,1,219.46,201.8Z"></path>
-</svg>
-<span class="xl:inline hidden">Statistika</span>
-</a>
-</nav>
-</div>
-<div class="flex flex-col min-h-screen lg:pl-20 xl:pl-64">
-<header class="flex items-center justify-between p-4 border-b border-border-dark">
-<div class="flex items-center">
-<input class="peer hidden" id="nav-toggle" type="checkbox"/>
-<label class="cursor-pointer lg:hidden" for="nav-toggle">
-<svg class="text-text-dark" fill="currentColor" height="28" viewBox="0 0 256 256" width="28" xmlns="http://www.w3.org/2000/svg"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,88H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path></svg>
-</label>
-<h1 class="text-xl font-bold text-text-dark ml-4 lg:ml-0">Ana Sayfa</h1>
-</div>
-<button class="relative rounded-full p-2 hover:bg-gray-800">
-<svg class="text-text-dark" fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path></svg>
-<span class="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background-dark"></span>
-</button>
-</header>
-<main class="flex-1 p-6 space-y-8">
-<div>
-<h2 class="text-2xl font-bold text-text-dark mb-4">Son Maçlar</h2>
-<div class="grid gap-6 sm:grid-cols-2">
-{% if matches %}
-  {% for match in matches[:2] %}
-  <a href="{{ url_for('match_detail', match_id=match.id) }}" class="bg-card-dark rounded-xl p-4 flex gap-4 items-center shadow-md hover:bg-card-dark/80 transition-colors">
-    <div class="flex-1 space-y-2">
-      <p class="text-sm text-text-muted-dark font-medium">{{ match.name or 'Maç' }}</p>
-      <p class="text-lg font-bold text-text-dark">{{ match.home_team }} vs. {{ match.away_team }}</p>
-      <p class="text-sm text-text-muted-dark font-medium">{{ match.home_score }}-{{ match.away_score }}</p>
-      <button class="mt-2 text-sm font-semibold text-white bg-primary hover:bg-primary/80 rounded-lg px-4 py-2 transition-colors">Detayları Gör</button>
-    </div>
-    <div class="w-24 h-24 rounded-lg bg-cover bg-center" style="background-image: url('{{ match.image_url or "https://via.placeholder.com/150" }}');"></div>
-  </a>
-  {% endfor %}
-{% else %}
-  <p class="text-text-muted-dark col-span-2">Henüz maç eklenmemiş.</p>
-{% endif %}
-</div>
-</div>
-<div>
-<h2 class="text-2xl font-bold text-text-dark mb-4">Gol Kralları</h2>
-<div class="grid gap-6 sm:grid-cols-2">
-{% if players %}
-  {% for player in players[:2] %}
-  <a href="{{ url_for('player_profile', player_id=player.id) }}" class="bg-card-dark rounded-xl p-4 flex gap-4 items-center shadow-md hover:bg-card-dark/80 transition-colors">
-    <div class="flex-1 space-y-2">
-      <p class="text-lg font-bold text-text-dark">{{ player.name }}</p>
-      <p class="text-sm text-text-muted-dark font-medium">{{ player.overall_rating }} OVR</p>
-      <button class="mt-2 text-sm font-semibold text-white bg-primary hover:bg-primary/80 rounded-lg px-4 py-2 transition-colors">Profili Görüntüle</button>
-    </div>
-    <div class="w-24 h-24 rounded-lg bg-cover bg-center" style="background-image: url('{{ player.photo_url or "https://via.placeholder.com/150" }}');"></div>
-  </a>
-  {% endfor %}
-{% else %}
-  <p class="text-text-muted-dark col-span-2">Henüz oyuncu eklenmemiş.</p>
-{% endif %}
-</div>
-</div>
-</main>
-<nav class="sticky bottom-0 bg-background-dark border-t border-border-dark p-2 lg:hidden">
-<div class="flex justify-around">
-<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-primary" href="{{ url_for('dashboard') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
-</svg>
-<span class="text-xs font-bold">Ana Sayfa</span>
-</a>
-<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-text-muted-dark hover:text-primary" href="{{ url_for('matches') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path>
-</svg>
-<span class="text-xs font-medium">Maçlar</span>
-</a>
-<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-text-muted-dark hover:text-primary" href="{{ url_for('players') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
-</svg>
-<span class="text-xs font-medium">Oyuncular</span>
-</a>
-<a class="flex flex-col items-center gap-1 p-2 rounded-lg text-text-muted-dark hover:text-primary" href="{{ url_for('leaderboard') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M240.26,186.1,152.81,34.23h0a28.74,28.74,0,0,0-49.62,0L15.74,186.1a27.45,27.45,0,0,0,0,27.71A28.31,28.31,0,0,0,40.55,228h174.9a28.31,28.31,0,0,0,24.79-14.19A27.45,27.45,0,0,0,240.26,186.1Zm-20.8,15.7a12.32,12.32,0,0,1-10.91,6.2H40.55a12.32,12.32,0,0,1-10.91-6.2,11.46,11.46,0,0,1,0-11.49L117.09,38.22a12.75,12.75,0,0,1,21.82,0l87.45,152.09A11.46,11.46,0,0,1,219.46,201.8Z"></path>
-</svg>
-<span class="text-xs font-medium">Statistika</span>
-</a>
-</div>
-</nav>
-</div>
-</div>
-</body>
-</html>
+{% endblock %}

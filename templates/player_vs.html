@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Arena9 - Oyuncu Karşılaştırması (VS Mode){% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <!-- Selection Header -->
+    <div class="reveal">
+        <h1 class="text-4xl font-black tracking-tight text-gradient inline-block">Karşılaştırma Paneli</h1>
+        <p class="text-slate-400 mt-2 font-medium">İki oyuncuyu yan yana karşılaştırın ve özelliklerini analiz edin.</p>
+    </div>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 reveal">
+        <!-- Player 1 Selection/Profile -->
+        <div class="space-y-6">
+            <div class="glass-card p-6">
+                <form action="{{ url_for('player_vs') }}" method="GET" class="flex gap-3">
+                    <select name="p1"
+                        class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none">
+                        <option value="">Oyuncu 1 Seçin</option>
+                        {% for p in all_players %}
+                        <option value="{{ p.id }}" {{ 'selected' if p1 and p1.id==p.id }}>{{ p.name }} ({{ p.team }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if p2 %} <input type="hidden" name="p2" value="{{ p2.id }}"> {% endif %}
+                    <button type="submit" class="btn-primary !px-6">Seç</button>
+                </form>
+            </div>
+
+            {% if p1 %}
+            <div
+                class="glass-card p-10 flex flex-col items-center text-center space-y-6 border-primary/20 bg-gradient-to-b from-primary/5 to-transparent">
+                <div class="relative">
+                    <div class="w-32 h-32 rounded-full border-4 border-primary p-1 bg-dark">
+                        <img src="{{ p1.photo_url or 'https://via.placeholder.com/150' }}"
+                            class="w-full h-full rounded-full object-cover">
+                    </div>
+                    <div
+                        class="absolute -top-2 -right-2 bg-primary text-dark font-black px-3 py-1 rounded-lg text-xl shadow-2xl">
+                        {{ p1.overall_rating }}
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-black">{{ p1.name }}</h2>
+                    <p class="text-slate-500 font-bold uppercase tracking-widest">{{ p1.position }} | {{ p1.team }}</p>
+                </div>
+
+                <!-- Simple Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <div class="text-2xl font-black text-primary">{{ p1.goals }}</div>
+                        <div class="text-[10px] font-black text-slate-500 uppercase">Goller</div>
+                    </div>
+                    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <div class="text-2xl font-black text-secondary">{{ p1.assists }}</div>
+                        <div class="text-[10px] font-black text-slate-500 uppercase">Asistler</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Player 2 Selection/Profile -->
+        <div class="space-y-6">
+            <div class="glass-card p-6">
+                <form action="{{ url_for('player_vs') }}" method="GET" class="flex gap-3">
+                    {% if p1 %} <input type="hidden" name="p1" value="{{ p1.id }}"> {% endif %}
+                    <select name="p2"
+                        class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none">
+                        <option value="">Oyuncu 2 Seçin</option>
+                        {% for p in all_players %}
+                        <option value="{{ p.id }}" {{ 'selected' if p2 and p2.id==p.id }}>{{ p.name }} ({{ p.team }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn-primary !px-6 !bg-secondary">Seç</button>
+                </form>
+            </div>
+
+            {% if p2 %}
+            <div
+                class="glass-card p-10 flex flex-col items-center text-center space-y-6 border-secondary/20 bg-gradient-to-b from-secondary/5 to-transparent">
+                <div class="relative">
+                    <div class="w-32 h-32 rounded-full border-4 border-secondary p-1 bg-dark">
+                        <img src="{{ p2.photo_url or 'https://via.placeholder.com/150' }}"
+                            class="w-full h-full rounded-full object-cover">
+                    </div>
+                    <div
+                        class="absolute -top-2 -right-2 bg-secondary text-white font-black px-3 py-1 rounded-lg text-xl shadow-2xl">
+                        {{ p2.overall_rating }}
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-black">{{ p2.name }}</h2>
+                    <p class="text-slate-500 font-bold uppercase tracking-widest">{{ p2.position }} | {{ p2.team }}</p>
+                </div>
+
+                <!-- Simple Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <div class="text-2xl font-black text-primary">{{ p2.goals }}</div>
+                        <div class="text-[10px] font-black text-slate-500 uppercase">Goller</div>
+                    </div>
+                    <div class="bg-white/5 rounded-2xl p-4 border border-white/5">
+                        <div class="text-2xl font-black text-secondary">{{ p2.assists }}</div>
+                        <div class="text-[10px] font-black text-slate-500 uppercase">Asistler</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Radar Chart Analysis -->
+    {% if p1 and p2 %}
+    <section class="reveal">
+        <div class="glass-card p-12 max-w-4xl mx-auto border-white/5">
+            <h3 class="text-2xl font-black text-center mb-10 tracking-widest uppercase">Özellik Analizi</h3>
+            <canvas id="compRadar"></canvas>
+        </div>
+    </section>
+
+    <script>
+        const ctx = document.getElementById('compRadar');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Hız', 'Şut', 'Pas', 'Dribling', 'Savunma', 'Fizik'],
+                datasets: [{
+                    label: '{{ p1.name }}',
+                    pointBorderColor: '#fff'
+                }, {
+                    label: '{{ p2.name }}',
+                    data: [{{ p2.pace }}, {{ p2.shooting }}, {{ p2.passing }}, {{ p2.dribbling }}, {{ p2.defending }}, {{ p2.physical }}],
+            fill: true,
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: '#3b82f6',
+            pointBackgroundColor: '#3b82f6',
+            pointBorderColor: '#fff'
+                }]
+            },
+            options: {
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(255,255,255,0.05)' },
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    pointLabels: { color: '#94a3b8', font: { size: 14 } },
+                    suggestedMin: 0,
+                    suggestedMax: 100,
+                    ticks: { display: false }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff', font: { size: 14 } } }
+            }
+        }
+        });
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

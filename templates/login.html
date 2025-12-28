@@ -1,100 +1,187 @@
 <!DOCTYPE html>
 <html class="dark" lang="az">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Arena9 - Admin Girişi | Giriş Yap</title>
-<meta name="description" content="Arena9 admin paneli - futbol liqa sistemini idarə edin, oyunçu və maç əlavə edin."/>
-<meta name="robots" content="noindex, nofollow"/>
-<link rel="canonical" href="https://arena9.onrender.com/login"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-    tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                colors: {
-                    "primary": "#2ECC71",
-                    "background-light": "#f6f7f8",
-                    "background-dark": "#101922",
-                },
-                fontFamily: {
-                    "display": ["Space Grotesk"]
-                },
-                borderRadius: {
-                    "DEFAULT": "0.5rem",
-                    "lg": "1rem",
-                    "xl": "1.5rem",
-                    "full": "9999px"
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Arena9 - Admin Girişi</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": {
+                            DEFAULT: "#39FF14",
+                            glow: "rgba(57, 255, 20, 0.4)",
+                            dim: "rgba(57, 255, 20, 0.1)",
+                            dark: "#2ecc10"
+                        },
+                        "background-dark": "#050505",
+                        "card-glass": "rgba(20, 20, 20, 0.6)",
+                        "text-light": "#FFFFFF",
+                        "text-muted": "#9CA3AF"
+                    },
+                    fontFamily: {
+                        "sans": ["Outfit", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'neon': '0 0 20px rgba(57, 255, 20, 0.15), 0 0 40px rgba(57, 255, 20, 0.05)',
+                        'card': '0 8px 32px 0 rgba(0, 0, 0, 0.36)',
+                        'input-focus': '0 0 0 1px #39FF14, 0 0 15px rgba(57, 255, 20, 0.2)'
+                    }
                 },
             },
-        },
-    }
-</script>
-<style>
-    body {
-        min-height: max(884px, 100dvh);
-    }
-</style>
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            background-color: #050505;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(57, 255, 20, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(57, 255, 20, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-card {
+            background: rgba(18, 18, 18, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
-<div class="flex flex-col h-screen">
-    <header class="flex items-center justify-center pt-16 pb-8">
-        <div class="flex items-center gap-3">
-            <svg class="text-primary" fill="currentColor" height="36" viewBox="0 0 256 256" width="36" xmlns="http://www.w3.org/2000/svg">
-                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z"></path>
-            </svg>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">League</h1>
-        </div>
-    </header>
-    
+
+<body
+    class="font-sans text-text-light antialiased min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="fixed top-4 right-4 z-50 max-w-md">
-                {% for category, message in messages %}
-                    <div class="mb-2 p-4 rounded-lg {% if category == 'success' %}bg-green-500{% elif category == 'error' %}bg-red-500{% else %}bg-blue-500{% endif %} text-white shadow-lg">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+    <div class="fixed top-4 right-4 z-50 max-w-md">
+        {% for category, message in messages %}
+        <div
+            class="mb-2 p-4 rounded-xl glass-card {% if category == 'success' %}border-primary/50 text-primary{% elif category == 'error' %}border-red-500/50 text-red-500{% else %}border-blue-500/50 text-blue-400{% endif %} shadow-neon">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
-    
-    <main class="flex-grow flex flex-col items-center justify-center px-4 text-center">
-        <div class="max-w-md w-full">
-            <div class="mb-12">
-                <h2 class="text-4xl font-bold text-gray-900 dark:text-white">Hoş Geldiniz!</h2>
-                <p class="mt-3 text-lg text-gray-600 dark:text-gray-400">Hesabınıza giriş yapın</p>
+
+    <div
+        class="fixed top-1/4 left-1/4 w-96 h-96 bg-primary-DEFAULT rounded-full mix-blend-screen filter blur-[128px] opacity-[0.07] pointer-events-none animate-pulse">
+    </div>
+
+    <main class="w-full max-w-md z-10 flex flex-col gap-8">
+        <header class="flex flex-col items-center text-center space-y-6">
+            <div class="relative">
+                <div class="absolute inset-0 bg-primary-DEFAULT rounded-full blur-[20px] opacity-20"></div>
+                <div
+                    class="relative flex items-center justify-center w-20 h-20 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md shadow-2xl ring-1 ring-white/5">
+                    <span class="material-symbols-outlined text-primary-DEFAULT"
+                        style="font-size: 36px;">sports_soccer</span>
+                </div>
             </div>
-            
-            <form method="POST" action="{{ url_for('login') }}" class="space-y-4 text-left">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="username">Kullanıcı Adı</label>
-                    <input type="text" id="username" name="username" required
-                           class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 dark:text-white">
+            <div class="space-y-1">
+                <h1
+                    class="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-gray-200 to-gray-500 drop-shadow-lg uppercase">
+                    Arena9 Manager
+                </h1>
+                <div class="flex items-center justify-center gap-2 opacity-60">
+                    <span class="h-px w-8 bg-gradient-to-r from-transparent to-primary"></span>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-primary font-medium">Admin Panel</span>
+                    <span class="h-px w-8 bg-gradient-to-l from-transparent to-primary"></span>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="password">Şifre</label>
-                    <input type="password" id="password" name="password" required
-                           class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 dark:text-white">
+            </div>
+        </header>
+
+        <div class="glass-card rounded-[2.5rem] p-8 shadow-card relative overflow-hidden group">
+            <div
+                class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50">
+            </div>
+            <div class="mb-10 text-center">
+                <h2 class="text-xl font-medium text-white tracking-wide">Xoş Gəldiniz</h2>
+                <p class="text-gray-400 text-sm font-light mt-2 leading-relaxed">Hesabınıza daxil olmaq üçün
+                    məlumatlarınızı təsdiqləyin.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('login') }}" class="space-y-6">
+                <div class="space-y-2">
+                    <label
+                        class="block text-[11px] font-semibold text-gray-500 uppercase tracking-widest ml-1 transition-colors duration-300"
+                        for="username">İstifadəçi Adı</label>
+                    <div class="relative group/input">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span class="material-symbols-outlined text-gray-500 transition-all duration-300"
+                                style="font-size: 20px;">badge</span>
+                        </div>
+                        <input
+                            class="block w-full bg-black/20 border border-white/5 text-white placeholder-gray-600 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-primary/50 focus:bg-black/40 focus:shadow-input-focus hover:border-white/20 transition-all duration-300 text-sm font-normal backdrop-blur-sm"
+                            id="username" name="username" placeholder="ad.soyad" required type="text" />
+                    </div>
                 </div>
-                
-                <button type="submit" class="w-full flex items-center justify-center gap-3 bg-primary text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all duration-300">
-                    <span>Giriş Yap</span>
-                </button>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center ml-1">
+                        <label
+                            class="block text-[11px] font-semibold text-gray-500 uppercase tracking-widest transition-colors duration-300"
+                            for="password">Şifrə</label>
+                        <a class="text-[11px] text-gray-500 hover:text-primary transition-colors duration-300 font-medium"
+                            href="#">Unutmusunuz?</a>
+                    </div>
+                    <div class="relative group/input">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span class="material-symbols-outlined text-gray-500 transition-all duration-300"
+                                style="font-size: 20px;">lock_open</span>
+                        </div>
+                        <input
+                            class="block w-full bg-black/20 border border-white/5 text-white placeholder-gray-600 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-primary/50 focus:bg-black/40 focus:shadow-input-focus hover:border-white/20 transition-all duration-300 text-sm font-normal backdrop-blur-sm"
+                            id="password" name="password" placeholder="••••••••" required type="password" />
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button
+                        class="w-full relative group overflow-hidden bg-primary rounded-2xl p-[1px] shadow-[0_0_20px_-5px_rgba(57,255,20,0.3)] hover:shadow-[0_0_30px_rgba(57,255,20,0.5)] transition-all duration-300 transform hover:-translate-y-1 active:scale-[0.98]"
+                        type="submit">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 z-10">
+                        </div>
+                        <div
+                            class="relative bg-primary h-full w-full rounded-2xl py-4 flex items-center justify-center gap-3">
+                            <span class="text-black font-bold tracking-wide text-sm">Giriş Yap</span>
+                            <span
+                                class="material-symbols-outlined text-black group-hover:translate-x-1 transition-transform duration-300"
+                                style="font-size: 20px;">arrow_forward</span>
+                        </div>
+                    </button>
+                </div>
             </form>
-            
-            <div class="mt-6 text-center">
-                <p class="text-gray-600 dark:text-gray-400">
-                    Hesabınız yok mu? <a href="{{ url_for('register') }}" class="text-primary font-semibold hover:underline">Kayıt Ol</a>
-                </p>
-            </div>
+        </div>
+
+        <div class="text-center z-10 flex flex-col items-center">
+            <a class="group flex items-center justify-center gap-3 py-2 px-4 rounded-full hover:bg-white/5 transition-all duration-300"
+                href="{{ url_for('index') }}">
+                <div
+                    class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-primary/50 group-hover:text-primary transition-colors duration-300">
+                    <span
+                        class="material-symbols-outlined text-gray-500 group-hover:text-primary text-[16px]">west</span>
+                </div>
+                <span class="text-xs text-gray-500 group-hover:text-white transition-colors">Geri qayıt</span>
+            </a>
         </div>
     </main>
-</div>
 </body>
+
 </html>

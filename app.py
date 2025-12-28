@@ -1,12 +1,26 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file as flask_send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import datetime
+from PIL import Image
 import os
 import json
+import csv
+import io
+import uuid
+from sqlalchemy import or_, func, desc
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# File Upload Configuration
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
 # PostgreSQL için DATABASE_URL düzəlişi (Render.com postgres:// -> postgresql:// dəyişdirir)
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///football_stats.db')
@@ -17,6 +31,62 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# Helper Functions for File Upload
+def allowed_file(filename):
+    """Fayl formatının icazəli olub-olmadığını yoxlayır"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_file(file, folder='players'):
+    """Yüklənmiş faylı saxlayır və yolunu qaytarır"""
+    if file and allowed_file(file.filename):
+        # Unique filename yaradırıq
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        
+        # Folder yoxlayırıq və yaradırıq
+        upload_path = os.path.join(app.config['UPLOAD_FOLDER'], folder)
+        os.makedirs(upload_path, exist_ok=True)
+        
+        # Faylı saxlayırıq
+        filepath = os.path.join(upload_path, filename)
+        file.save(filepath)
+        
+        # Thumbnail yaradırıq
+        create_thumbnail(filepath, folder)
+        
+        # Relative path qaytarırıq
+        return f"/static/uploads/{folder}/{filename}"
+    return None
+
+def create_thumbnail(filepath, folder, size=(150, 150)):
+    """Şəkil üçün thumbnail yaradır"""
+    try:
+        with Image.open(filepath) as img:
+            # RGB-yə çeviririk (RGBA problemi üçün)
+            if img.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                img = background
+            
+            # Thumbnail yaradırıq
+            img.thumbnail(size, Image.Resampling.LANCZOS)
+            
+            # Thumbnail qovluğuna saxlayırıq
+            thumbnail_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'thumbnails', folder)
+            os.makedirs(thumbnail_dir, exist_ok=True)
+            
+            filename = os.path.basename(filepath)
+            thumbnail_path = os.path.join(thumbnail_dir, filename)
+            img.save(thumbnail_path, 'JPEG', quality=85)
+            
+            return f"/static/uploads/thumbnails/{folder}/{filename}"
+    except Exception as e:
+        print(f"Thumbnail error: {e}")
+        return None
+
 
 # Models
 class User(db.Model):
@@ -33,6 +103,9 @@ class Player(db.Model):
     team = db.Column(db.String(100))
     jersey_number = db.Column(db.Integer, default=0)
     age = db.Column(db.Integer, default=0)
+    height = db.Column(db.Integer, default=0)
+    weight = db.Column(db.Integer, default=0)
+    preferred_foot = db.Column(db.String(10)) # Left, Right, Both
     photo_url = db.Column(db.String(200))
     
     # Genel istatistikler
@@ -52,6 +125,10 @@ class Player(db.Model):
     # Detaylı yetenekler (JSON formatında)
     detailed_skills = db.Column(db.Text, default='{}')
     
+    # Advanced Metrics
+    xg_total = db.Column(db.Float, default=0.0)
+    pass_accuracy = db.Column(db.Float, default=0.0)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # İlişkiler
@@ -64,6 +141,8 @@ class SeasonStats(db.Model):
     matches = db.Column(db.Integer, default=0)
     goals = db.Column(db.Integer, default=0)
     assists = db.Column(db.Integer, default=0)
+    xg = db.Column(db.Float, default=0.0)
+    pass_accuracy = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Match(db.Model):
@@ -79,11 +158,34 @@ class Match(db.Model):
     status = db.Column(db.String(20), default='finished')  # scheduled, live, finished
     image_url = db.Column(db.String(300))  # Maç görseli
     mvp_player_id = db.Column(db.Integer, db.ForeignKey('player.id'))  # Maçın oyuncusu
+    season = db.Column(db.String(20)) # Örnek: "24/25"
+    
+    # Advanced Metrics
+    home_xg = db.Column(db.Float, default=0.0)
+    away_xg = db.Column(db.Float, default=0.0)
+    
     timeline = db.Column(db.Text, default='[]')  # JSON: [{"minute": "15'", "type": "goal", "player": "...", "team": "home"}]
+    lineups = db.Column(db.Text, default='{"home": [], "away": []}')  # JSON: {"home": [id1, id2], "away": [id3, id4]}
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    @property
+    def lineups_data(self):
+        import json
+        try:
+            return json.loads(self.lineups)
+        except:
+            return {"home": [], "away": []}
+
+    @property
+    def timeline_data(self):
+        import json
+        try:
+            return json.loads(self.timeline)
+        except:
+            return []
+
     # İlişkiler
-    mvp = db.relationship('Player', foreign_keys=[mvp_player_id])
+    mvp = db.relationship('Player', foreign_keys=[mvp_player_id], post_update=True)
     goals = db.relationship('Goal', backref='match', lazy=True, cascade='all, delete-orphan')
 
 class Goal(db.Model):
@@ -105,6 +207,57 @@ class Team(db.Model):
     logo_url = db.Column(db.String(300))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class AuditLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    action = db.Column(db.String(50), nullable=False)  # CREATE, UPDATE, DELETE
+    target_type = db.Column(db.String(50), nullable=False)  # Player, Match
+    target_id = db.Column(db.Integer)
+    details = db.Column(db.Text)  # JSON string
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # User relationship
+    user = db.relationship('User', foreign_keys=[user_id])
+
+class PlayerRating(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # 1-5 stars
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    player = db.relationship('Player', backref=db.backref('ratings', lazy=True))
+    user = db.relationship('User', backref=db.backref('given_ratings', lazy=True))
+
+class PlayerComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    comment = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    player = db.relationship('Player', backref=db.backref('comments', lazy=True))
+    user = db.relationship('User', backref=db.backref('user_comments', lazy=True))
+
+def log_action(user_id, action, target_type, target_id, details=None):
+    """Helper function to record admin actions"""
+    try:
+        if isinstance(details, (dict, list)):
+            details = json.dumps(details)
+            
+        log = AuditLog(
+            user_id=user_id,
+            action=action,
+            target_type=target_type,
+            target_id=target_id,
+            details=details
+        )
+        db.session.add(log)
+        db.session.commit()
+    except Exception as e:
+        print(f"Audit Log Error: {e}")
+        db.session.rollback()
+
 # Routes
 @app.route('/')
 def index():
@@ -118,16 +271,114 @@ def dashboard():
         session['username'] = 'Misafir'
     
     try:
+        # KPI Stats
+        total_players = Player.query.count()
+        total_matches = Match.query.count()
+        total_goals = Goal.query.count()
+        
+        # Recent Matches
         matches = Match.query.order_by(Match.match_date.desc()).limit(10).all()
-        players = Player.query.order_by(Player.overall_rating.desc()).limit(8).all()
+        
+        # Top Scorers (Real calculation from Goals)
+        # Returns list of (Player, goal_count) tuples
+        top_scorers_data = db.session.query(
+            Player, func.count(Goal.id).label('total_goals')
+        ).join(Goal, Goal.scorer_id == Player.id)\
+         .group_by(Player.id)\
+         .order_by(desc('total_goals'))\
+         .limit(5).all()
+         
+        # Calculate Average Rating
+        avg_rating = db.session.query(func.avg(Player.overall_rating)).scalar() or 0
+        
+        # Recent activity placeholders (or actual queries if available)
+        recent_comments = PlayerComment.query.order_by(PlayerComment.timestamp.desc()).limit(5).all()
+        user_rating = 0 # Default if not logged in
+        form_data = [] # Placeholder
+        
     except Exception as e:
         print(f"Dashboard error: {e}")
-        # Əgər database error varsa, boş siyahı göndər
         matches = []
-        players = []
+        top_scorers_data = []
+        total_players = 0
+        total_matches = 0
+        total_goals = 0
+        avg_rating = 0
+        recent_comments = []
+        user_rating = 0
+        form_data = []
     
     is_admin = session.get('is_admin', False)
-    return render_template('dashboard.html', matches=matches, players=players, is_admin=is_admin)
+    return render_template('dashboard.html', 
+                         matches=matches, 
+                         top_scorers=top_scorers_data,
+                         total_players=total_players,
+                         total_matches=total_matches,
+                         total_goals=total_goals,
+                         avg_rating=round(avg_rating, 1),
+                         recent_comments=recent_comments,
+                         user_rating=user_rating,
+                         form_data=form_data,
+                         is_admin=is_admin)
+
+@app.route('/api/rate-player', methods=['POST'])
+def rate_player():
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'message': 'Giriş etməlisiniz'}), 401
+    
+    data = request.json
+    player_id = data.get('player_id')
+    rating_val = data.get('rating')
+    
+    if not player_id or not rating_val:
+        return jsonify({'success': False, 'message': 'Məlumat çatışmır'}), 400
+    
+    existing = PlayerRating.query.filter_by(player_id=player_id, user_id=session.get('user_id')).first()
+    if existing:
+        existing.rating = rating_val
+    else:
+        new_rating = PlayerRating(player_id=player_id, user_id=session.get('user_id'), rating=rating_val)
+        db.session.add(new_rating)
+    
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/api/comment-player', methods=['POST'])
+def comment_player():
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'message': 'Giriş etməlisiniz'}), 401
+    
+    data = request.json
+    player_id = data.get('player_id')
+    comment_text = data.get('comment')
+    
+    if not player_id or not comment_text:
+        return jsonify({'success': False, 'message': 'Məlumat çatışmır'}), 400
+    
+    new_comment = PlayerComment(player_id=player_id, user_id=session.get('user_id'), comment=comment_text)
+    db.session.add(new_comment)
+    db.session.commit()
+    
+    return jsonify({
+        'success': True, 
+        'comment': {
+            'username': session.get('username'),
+            'text': comment_text,
+            'timestamp': datetime.utcnow().strftime('%d.%m.%Y')
+        }
+    })
+
+@app.route('/player-vs')
+def player_vs():
+    p1_id = request.args.get('p1', type=int)
+    p2_id = request.args.get('p2', type=int)
+    
+    p1 = Player.query.get(p1_id) if p1_id else None
+    p2 = Player.query.get(p2_id) if p2_id else None
+    
+    all_players = Player.query.all()
+    
+    return render_template('player_vs.html', p1=p1, p2=p2, all_players=all_players)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -165,17 +416,44 @@ def admin_add_match():
         match_time = data.get('match_time', '00:00')
         match_datetime = datetime.strptime(f"{match_date_str} {match_time}", '%Y-%m-%d %H:%M')
         
+        image_url = data.get('image_url')
+        
+        # Şəkil yükləmə
+        if 'match_image' in request.files:
+            file = request.files['match_image']
+            if file and file.filename != '':
+                uploaded_path = save_uploaded_file(file, folder='matches')
+                if uploaded_path:
+                    image_url = uploaded_path
+
+        mvp_id = data.get('mvp_player_id')
+        if mvp_id:
+            mvp_id = int(mvp_id)
+        else:
+            mvp_id = None
+
+        home_score = int(data.get('home_score', 0))
+        away_score = int(data.get('away_score', 0))
+
         new_match = Match(
             name=data.get('name'),
             home_team=data.get('home_team'),
             away_team=data.get('away_team'),
-            home_score=int(data.get('home_score', 0)),
-            away_score=int(data.get('away_score', 0)),
+            home_score=home_score,
+            away_score=away_score,
             match_date=match_datetime,
             match_time=match_time,
             stadium=data.get('stadium'),
-            image_url=data.get('image_url'),
-            status='finished'
+            image_url=image_url,
+            status='finished',
+            mvp_player_id=mvp_id,
+            season=data.get('season'),
+            home_xg=float(data.get('home_xg', 0.0)),
+            away_xg=float(data.get('away_xg', 0.0)),
+            lineups=json.dumps({
+                "home": json.loads(request.form.get('home_lineup') or '[]'),
+                "away": json.loads(request.form.get('away_lineup') or '[]')
+            })
         )
         db.session.add(new_match)
         db.session.commit()
@@ -198,11 +476,21 @@ def admin_add_match():
             except Exception as e:
                 print(f"Gol ekleme hatası: {e}")
         
+        # Audit Log
+        log_action(
+            user_id=session.get('user_id'),
+            action='CREATE',
+            target_type='Match',
+            target_id=new_match.id,
+            details={'home_team': new_match.home_team, 'away_team': new_match.away_team}
+        )
+        
         flash('Maç başarıyla eklendi!', 'success')
         return redirect(url_for('matches'))
     
+    unique_teams = [t[0] for t in db.session.query(Player.team).filter(Player.team != None).distinct().order_by(Player.team).all()]
     players = Player.query.order_by(Player.name).all()
-    return render_template('admin_add_match_new.html', players=players)
+    return render_template('admin_add_match_new.html', players=players, teams=unique_teams)
 
 @app.route('/admin/player/add', methods=['GET', 'POST'])
 def admin_add_player():
@@ -213,81 +501,109 @@ def admin_add_player():
     if request.method == 'POST':
         data = request.form
         
-        # Detaylı yetenekleri formdan al
+        # Detaylı yetenekleri formdan al - Daha ətraflı statistika
         detailed_skills = {
             'pace': {
-                'acceleration': int(data.get('acceleration', 0)),
-                'sprint_speed': int(data.get('sprint_speed', 0))
+                'acceleration': int(data.get('acceleration', 0) or 0),
+                'sprint_speed': int(data.get('sprint_speed', 0) or 0)
             },
             'shooting': {
-                'finishing': int(data.get('finishing', 0)),
-                'long_shots': int(data.get('long_shots', 0)),
-                'shot_power': int(data.get('shot_power', 0)),
-                'positioning': int(data.get('positioning', 0)),
-                'volleys': int(data.get('volleys', 0)),
-                'penalties': int(data.get('penalties', 0))
+                'finishing': int(data.get('finishing', 0) or 0),
+                'long_shots': int(data.get('long_shots', 0) or 0),
+                'shot_power': int(data.get('shot_power', 0) or 0),
+                'positioning': int(data.get('positioning', 0) or 0),
+                'volleys': int(data.get('volleys', 0) or 0),
+                'penalties': int(data.get('penalties', 0) or 0)
             },
             'passing': {
-                'short_pass': int(data.get('short_pass', 0)),
-                'long_pass': int(data.get('long_pass', 0)),
-                'vision': int(data.get('vision', 0)),
-                'crossing': int(data.get('crossing', 0)),
-                'curve': int(data.get('curve', 0)),
-                'free_kick': int(data.get('free_kick', 0))
+                'short_pass': int(data.get('short_pass', 0) or 0),
+                'long_pass': int(data.get('long_pass', 0) or 0),
+                'vision': int(data.get('vision', 0) or 0),
+                'crossing': int(data.get('crossing', 0) or 0),
+                'curve': int(data.get('curve', 0) or 0),
+                'free_kick': int(data.get('free_kick', 0) or 0)
             },
             'dribbling': {
-                'dribbling': int(data.get('dribbling_skill', 0)),
-                'balance': int(data.get('balance', 0)),
-                'agility': int(data.get('agility', 0)),
-                'reactions': int(data.get('reactions', 0)),
-                'ball_control': int(data.get('ball_control', 0))
+                'dribbling': int(data.get('dribbling', 0) or 0),
+                'balance': int(data.get('balance', 0) or 0),
+                'agility': int(data.get('agility', 0) or 0),
+                'reactions': int(data.get('reactions', 0) or 0),
+                'ball_control': int(data.get('ball_control', 0) or 0)
             },
             'defending': {
-                'man_marking': int(data.get('man_marking', 0)),
-                'standing_tackle': int(data.get('standing_tackle', 0)),
-                'interceptions': int(data.get('interceptions', 0)),
-                'heading': int(data.get('heading', 0))
+                'man_marking': int(data.get('man_marking', 0) or 0),
+                'standing_tackle': int(data.get('standing_tackle', 0) or 0),
+                'interceptions': int(data.get('interceptions', 0) or 0),
+                'heading': int(data.get('heading', 0) or 0)
             },
             'physical': {
-                'strength': int(data.get('strength', 0)),
-                'aggression': int(data.get('aggression', 0)),
-                'jumping': int(data.get('jumping', 0)),
-                'stamina': int(data.get('stamina', 0))
+                'strength': int(data.get('strength', 0) or 0),
+                'aggression': int(data.get('aggression', 0) or 0),
+                'jumping': int(data.get('jumping', 0) or 0),
+                'stamina': int(data.get('stamina', 0) or 0)
             }
         }
         
         # Ana yetenekleri detaylı yeteneklerin ortalamasından hesapla
-        pace_avg = sum(detailed_skills['pace'].values()) // len(detailed_skills['pace'])
-        shooting_avg = sum(detailed_skills['shooting'].values()) // len(detailed_skills['shooting'])
-        passing_avg = sum(detailed_skills['passing'].values()) // len(detailed_skills['passing'])
-        dribbling_avg = sum(detailed_skills['dribbling'].values()) // len(detailed_skills['dribbling'])
-        defending_avg = sum(detailed_skills['defending'].values()) // len(detailed_skills['defending'])
-        physical_avg = sum(detailed_skills['physical'].values()) // len(detailed_skills['physical'])
+        try:
+            pace_avg = sum(detailed_skills['pace'].values()) // len(detailed_skills['pace']) if detailed_skills['pace'] else 75
+            shooting_avg = sum(detailed_skills['shooting'].values()) // len(detailed_skills['shooting']) if detailed_skills['shooting'] else 75
+            passing_avg = sum(detailed_skills['passing'].values()) // len(detailed_skills['passing']) if detailed_skills['passing'] else 75
+            dribbling_avg = sum(detailed_skills['dribbling'].values()) // len(detailed_skills['dribbling']) if detailed_skills['dribbling'] else 75
+            physical_avg = sum(detailed_skills['physical'].values()) // len(detailed_skills['physical']) if detailed_skills['physical'] else 75
+            defending_avg = sum(detailed_skills['defending'].values()) // len(detailed_skills['defending']) if detailed_skills['defending'] else 75
+        except Exception as e:
+            print(f"Stats calculation error: {e}")
+            pace_avg = shooting_avg = passing_avg = dribbling_avg = physical_avg = defending_avg = 75
         
         # Basit pozisyon haritası oluştur
         position_map = {'ST': 'green', 'CF': 'green'}
         
+        # Şəkil yükləmə
+        photo_url = data.get('photo_url') or 'https://via.placeholder.com/150'
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and file.filename != '':
+                uploaded_path = save_uploaded_file(file, folder='players')
+                if uploaded_path:
+                    photo_url = uploaded_path
+
         new_player = Player(
             name=data.get('name'),
             position=data.get('position'),
             team=data.get('team'),
-            jersey_number=int(data.get('jersey_number', 0)),
-            age=int(data.get('age', 0)),
-            overall_rating=int(data.get('overall_rating', 0)),
+            jersey_number=int(data.get('jersey_number', 0) or 0),
+            age=int(data.get('age', 0) or 0),
+            height=int(data.get('height', 0) or 0),
+            weight=int(data.get('weight', 0) or 0),
+            preferred_foot=data.get('preferred_foot'),
+            photo_url=photo_url,
+            overall_rating=int(data.get('overall_rating', 75) or 75),
             pace=pace_avg,
             shooting=shooting_avg,
             passing=passing_avg,
             dribbling=dribbling_avg,
             defending=defending_avg,
             physical=physical_avg,
-            photo_url=data.get('photo_url'),
+            xg_total=float(data.get('xg_total', 0.0) or 0.0),
+            pass_accuracy=float(data.get('pass_accuracy', 0.0) or 0.0),
             position_map=json.dumps(position_map),
             detailed_skills=json.dumps(detailed_skills)
         )
+        
         db.session.add(new_player)
         db.session.commit()
         
-        flash('Oyuncu başarıyla eklendi!', 'success')
+        # Audit Log
+        log_action(
+            user_id=session.get('user_id'),
+            action='CREATE',
+            target_type='Player',
+            target_id=new_player.id,
+            details={'name': new_player.name, 'team': new_player.team}
+        )
+        
+        flash('✅ Oyunçu uğurla əlavə edildi!', 'success')
         return redirect(url_for('players'))
     
     return render_template('admin_add_player.html')
@@ -320,6 +636,12 @@ def logout():
     flash('Çıkış yapıldı.', 'info')
     return redirect(url_for('index'))
 
+@app.route('/welcome_page')
+def welcome_page():
+    matches = Match.query.order_by(Match.match_date.desc()).all()
+    players = Player.query.all()
+    return render_template('index.html', matches=matches, players=players)
+
 @app.route('/matches')
 def matches():
     try:
@@ -334,7 +656,47 @@ def matches():
 def match_detail(match_id):
     match = Match.query.get_or_404(match_id)
     is_admin = session.get('is_admin', False)
-    return render_template('match_detail.html', match=match, is_admin=is_admin)
+    
+    # Lineups yuklə
+    home_players = []
+    away_players = []
+    players_dict = {}
+    
+    try:
+        lineups = json.loads(match.lineups) if match.lineups else {}
+        home_ids = lineups.get('home', [])
+        away_ids = lineups.get('away', [])
+        
+        if home_ids:
+            home_players = Player.query.filter(Player.id.in_(home_ids)).all()
+            for player in home_players:
+                players_dict[player.id] = player
+        if away_ids:
+            away_players = Player.query.filter(Player.id.in_(away_ids)).all()
+            for player in away_players:
+                players_dict[player.id] = player
+            
+    except Exception as e:
+        print(f"Lineup loading error: {e}")
+        
+    # Əgər lineup yoxdursa, köhnə üsulla (team adına görə) tapmağa çalış (fallback)
+    if not home_players and match.home_team:
+        home_players = Player.query.filter(Player.team == match.home_team).all()
+    if not away_players and match.away_team:
+        away_players = Player.query.filter(Player.team == match.away_team).all()
+    
+    # Get goals for this match
+    goals = Goal.query.filter_by(match_id=match_id).order_by(Goal.minute).all()
+    
+    # Get MVP player if set
+    mvp_player = None
+    if match.mvp_player_id:
+        mvp_player = Player.query.get(match.mvp_player_id)
+        match.mvp_player = mvp_player
+        
+    return render_template('match_detail.html', match=match, is_admin=is_admin, 
+                         home_players=home_players, away_players=away_players,
+                         players_dict=players_dict, goals=goals)
 
 @app.route('/players')
 def players():
@@ -386,42 +748,193 @@ def leaderboard():
     # Row objelerini dict'e çevir
     top_assists = [{'player': row[0], 'assists': row[1]} for row in assists_query]
     
+    # POTM Liderlik (Most Man of the Matches) - Using MVP field
+    potm_query = db.session.query(
+        Player,
+        func.count(Match.id).label('potm_count')
+    ).join(Match, Player.id == Match.mvp_player_id)\
+     .group_by(Player.id)\
+     .order_by(func.count(Match.id).desc())\
+     .limit(10)\
+     .all()
+     
+    top_potm = [{'player': row[0], 'count': row[1]} for row in potm_query]
+    
+    # Mövqe üzrə ortalama reytinq
+    position_ratings = db.session.query(
+        Player.position,
+        func.avg(Player.overall_rating).label('avg_rating'),
+        func.count(Player.id).label('player_count')
+    ).filter(Player.position.isnot(None))\
+     .group_by(Player.position)\
+     .order_by(func.avg(Player.overall_rating).desc())\
+     .all()
+    
+    position_stats = [{'position': row[0], 'avg_rating': round(row[1], 1), 'count': row[2]} for row in position_ratings]
+    
     return render_template('leaderboard.html', 
                          top_scorers=top_scorers,
-                         top_assists=top_assists)
+                         top_assists=top_assists,
+                         top_potm=top_potm,
+                         position_stats=position_stats)
 
 @app.route('/player/<int:player_id>')
 def player_profile(player_id):
+    try:
+        player = Player.query.get_or_404(player_id)
+        
+        # Reytinqləri və Şərhləri al - Hataları önlemek için filter_by kullanıyoruz
+        avg_rating = 0
+        try:
+            avg_rating = db.session.query(func.avg(PlayerRating.rating)).filter(PlayerRating.player_id == player_id).scalar() or 0
+        except: pass
+        
+        recent_comments = []
+        try:
+            recent_comments = PlayerComment.query.filter_by(player_id=player_id).order_by(PlayerComment.timestamp.desc()).limit(5).all()
+        except: pass
+        
+        user_rating = 0
+        if session.get('user_id'):
+            try:
+                existing_rating = PlayerRating.query.filter_by(player_id=player_id, user_id=session.get('user_id')).first()
+                if existing_rating:
+                    user_rating = existing_rating.rating
+            except: pass
+
+        # Son 5 mac performansı (Form)
+        form_data = []
+        try:
+            # Goal tablosundan bu oyunçunun iştirak etdiyi son 5 macı tapırıq
+            last_matches = db.session.query(Match).join(Goal, Match.id == Goal.match_id)\
+                .filter((Goal.scorer_id == player_id) | (Goal.assist_id == player_id))\
+                .order_by(Match.match_date.desc()).limit(5).all()
+            
+            # Form hesablanması (qol=2 xal, asist=1 xal, MVP=3 xal)
+            for m in last_matches:
+                score = 0
+                goals_in_match = Goal.query.filter_by(match_id=m.id, scorer_id=player_id).count()
+                assists_in_match = Goal.query.filter_by(match_id=m.id, assist_id=player_id).count()
+                score += (goals_in_match * 2) + assists_in_match
+                if m.mvp_player_id == player_id:
+                    score += 3
+                form_data.append({'date': m.match_date.strftime('%d.%m'), 'score': score})
+            form_data.reverse() # Xronoloji ardıcıllıq
+        except Exception as e:
+            print(f"Form calculation error: {e}")
+        
+        # JSON verilerini parse et
+        position_map = {}
+        try:
+            position_map = json.loads(player.position_map) if player.position_map else {}
+        except: pass
+        
+        detailed_skills = {}
+        try:
+            detailed_skills = json.loads(player.detailed_skills) if player.detailed_skills else {}
+        except: pass
+        
+        # Sezon istatistiklerini al
+        season_stats = []
+        try:
+            season_stats = SeasonStats.query.filter_by(player_id=player_id).order_by(SeasonStats.season.desc()).all()
+        except: pass
+        
+        is_admin = session.get('is_admin', False)
+        
+        return render_template('player_profile_new.html', 
+                             player=player, 
+                             position_map=position_map,
+                             detailed_skills=detailed_skills,
+                             season_stats=season_stats,
+                             avg_rating=round(avg_rating, 1),
+                             recent_comments=recent_comments,
+                             user_rating=user_rating,
+                             form_data=form_data,
+                             is_admin=is_admin)
+    except Exception as e:
+        print(f"Profile loading error: {e}")
+        flash('Oyunçu profili yüklənərkən xəta baş verdi.', 'error')
+        return redirect(url_for('players'))
+
+@app.route('/compare')
+def compare_players():
+    p1_id = request.args.get('p1')
+    p2_id = request.args.get('p2')
+    
+    player1 = None
+    player2 = None
+    
+    if p1_id:
+        player1 = Player.query.get(p1_id)
+    if p2_id:
+        player2 = Player.query.get(p2_id)
+        
+    all_players = Player.query.order_by(Player.name).all()
+    
+    return render_template('player_compare.html', 
+                         player1=player1, 
+                         player2=player2, 
+                         all_players=all_players)
+
+@app.route('/dream-team')
+def dream_team():
+    all_players = Player.query.order_by(Player.name).all()
+    return render_template('dream_team.html', all_players=all_players)
+
+# API Endpoints for Charts
+@app.route('/api/player/<int:player_id>/stats')
+def api_player_stats(player_id):
+    """Oyunçu statistika məlumatları (Chart.js üçün)"""
     player = Player.query.get_or_404(player_id)
     
-    # JSON verilerini parse et
-    position_map = json.loads(player.position_map) if player.position_map else {}
-    detailed_skills = json.loads(player.detailed_skills) if player.detailed_skills else {}
-    
-    # Sezon istatistiklerini al
-    season_stats = SeasonStats.query.filter_by(player_id=player_id).order_by(SeasonStats.season.desc()).all()
-    
-    is_admin = session.get('is_admin', False)
-    
-    return render_template('player_profile_new.html', 
-                         player=player, 
-                         position_map=position_map,
-                         detailed_skills=detailed_skills,
-                         season_stats=season_stats,
-                         is_admin=is_admin)
+    return jsonify({
+        'name': player.name,
+        'pace': player.pace,
+        'shooting': player.shooting,
+        'passing': player.passing,
+        'dribbling': player.dribbling,
+        'defending': player.defending,
+        'physical': player.physical
+    })
 
-# Admin Routes
-@app.route('/admin')
-def admin_panel():
-    if not session.get('is_admin'):
-        flash('Bu sayfaya erişim yetkiniz yok!', 'error')
-        return redirect(url_for('index'))
+@app.route('/api/player/<int:player_id>/season-stats')
+def api_season_stats(player_id):
+    """Sezon statistikaları (Chart.js üçün)"""
+    season_stats = SeasonStats.query.filter_by(player_id=player_id).order_by(SeasonStats.season).all()
     
-    matches = Match.query.order_by(Match.match_date.desc()).all()
-    players = Player.query.order_by(Player.name).all()
-    users = User.query.all()
+    return jsonify({
+        'seasons': [stat.season for stat in season_stats],
+        'goals': [stat.goals for stat in season_stats],
+        'assists': [stat.assists for stat in season_stats],
+        'matches': [stat.matches for stat in season_stats]
+    })
+
+@app.route('/api/dashboard/stats')
+def api_dashboard_stats():
+    """Dashboard statistikaları"""
+    from sqlalchemy import func
     
-    return render_template('admin.html', matches=matches, players=players, users=users)
+    total_players = Player.query.count()
+    total_matches = Match.query.count()
+    total_goals = Goal.query.count()
+    
+    # Mövqe üzrə ortalama reytinq
+    position_stats = db.session.query(
+        Player.position,
+        func.avg(Player.overall_rating).label('avg_rating')
+    ).group_by(Player.position).all()
+    
+    return jsonify({
+        'total_players': total_players,
+        'total_matches': total_matches,
+        'total_goals': total_goals,
+        'position_stats': {
+            'positions': [stat[0] for stat in position_stats if stat[0]],
+            'ratings': [round(float(stat[1]), 1) for stat in position_stats if stat[0]]
+        }
+    })
+
 
 # Removed old add_player route - now using admin_add_player with dedicated page
 
@@ -439,67 +952,95 @@ def admin_edit_player(player_id):
         # Detaylı yetenekleri güncelle
         detailed_skills = {
             'pace': {
-                'acceleration': int(data.get('acceleration', 0)),
-                'sprint_speed': int(data.get('sprint_speed', 0))
+                'acceleration': int(data.get('acceleration', 0) or 0),
+                'sprint_speed': int(data.get('sprint_speed', 0) or 0)
             },
             'shooting': {
-                'finishing': int(data.get('finishing', 0)),
-                'long_shots': int(data.get('long_shots', 0)),
-                'shot_power': int(data.get('shot_power', 0)),
-                'positioning': int(data.get('positioning', 0)),
-                'volleys': int(data.get('volleys', 0)),
-                'penalties': int(data.get('penalties', 0))
+                'finishing': int(data.get('finishing', 0) or 0),
+                'long_shots': int(data.get('long_shots', 0) or 0),
+                'shot_power': int(data.get('shot_power', 0) or 0),
+                'positioning': int(data.get('positioning', 0) or 0),
+                'volleys': int(data.get('volleys', 0) or 0),
+                'penalties': int(data.get('penalties', 0) or 0)
             },
             'passing': {
-                'short_pass': int(data.get('short_pass', 0)),
-                'long_pass': int(data.get('long_pass', 0)),
-                'vision': int(data.get('vision', 0)),
-                'crossing': int(data.get('crossing', 0)),
-                'curve': int(data.get('curve', 0)),
-                'free_kick': int(data.get('free_kick', 0))
+                'short_pass': int(data.get('short_pass', 0) or 0),
+                'long_pass': int(data.get('long_pass', 0) or 0),
+                'vision': int(data.get('vision', 0) or 0),
+                'crossing': int(data.get('crossing', 0) or 0),
+                'curve': int(data.get('curve', 0) or 0),
+                'free_kick': int(data.get('free_kick', 0) or 0)
             },
             'dribbling': {
-                'dribbling': int(data.get('dribbling_skill', 0)),
-                'balance': int(data.get('balance', 0)),
-                'agility': int(data.get('agility', 0)),
-                'reactions': int(data.get('reactions', 0)),
-                'ball_control': int(data.get('ball_control', 0))
+                'dribbling': int(data.get('dribbling', 0) or 0),
+                'balance': int(data.get('balance', 0) or 0),
+                'agility': int(data.get('agility', 0) or 0),
+                'reactions': int(data.get('reactions', 0) or 0),
+                'ball_control': int(data.get('ball_control', 0) or 0)
             },
             'defending': {
-                'man_marking': int(data.get('man_marking', 0)),
-                'standing_tackle': int(data.get('standing_tackle', 0)),
-                'interceptions': int(data.get('interceptions', 0)),
-                'heading': int(data.get('heading', 0))
+                'man_marking': int(data.get('man_marking', 0) or 0),
+                'standing_tackle': int(data.get('standing_tackle', 0) or 0),
+                'interceptions': int(data.get('interceptions', 0) or 0),
+                'heading': int(data.get('heading', 0) or 0)
             },
             'physical': {
-                'strength': int(data.get('strength', 0)),
-                'aggression': int(data.get('aggression', 0)),
-                'jumping': int(data.get('jumping', 0)),
-                'stamina': int(data.get('stamina', 0))
+                'strength': int(data.get('strength', 0) or 0),
+                'aggression': int(data.get('aggression', 0) or 0),
+                'jumping': int(data.get('jumping', 0) or 0),
+                'stamina': int(data.get('stamina', 0) or 0)
             }
         }
+        
+        # Ana yetenekleri detaylı yeteneklerin ortalamasından hesapla
+        try:
+            player.pace = sum(detailed_skills['pace'].values()) // len(detailed_skills['pace']) if detailed_skills['pace'] else 75
+            player.shooting = sum(detailed_skills['shooting'].values()) // len(detailed_skills['shooting']) if detailed_skills['shooting'] else 75
+            player.passing = sum(detailed_skills['passing'].values()) // len(detailed_skills['passing']) if detailed_skills['passing'] else 75
+            player.dribbling = sum(detailed_skills['dribbling'].values()) // len(detailed_skills['dribbling']) if detailed_skills['dribbling'] else 75
+            player.physical = sum(detailed_skills['physical'].values()) // len(detailed_skills['physical']) if detailed_skills['physical'] else 75
+            player.defending = sum(detailed_skills['defending'].values()) // len(detailed_skills['defending']) if detailed_skills['defending'] else 75
+        except Exception as e:
+            print(f"Stats calculation error during edit: {e}")
         
         # Ana məlumatları yenilə
         player.name = data.get('name')
         player.position = data.get('position')
         player.team = data.get('team')
-        player.jersey_number = int(data.get('jersey_number', 0))
-        player.age = int(data.get('age', 0))
-        player.photo_url = data.get('photo_url', '')
+        player.jersey_number = int(data.get('jersey_number', 0) or 0)
+        player.age = int(data.get('age', 0) or 0)
+        player.height = int(data.get('height', 0) or 0)
+        player.weight = int(data.get('weight', 0) or 0)
+        player.preferred_foot = data.get('preferred_foot')
         
-        # Reytinqləri yenilə
-        player.overall_rating = int(data.get('overall_rating', 0))
-        player.pace = int(data.get('pace', 0))
-        player.shooting = int(data.get('shooting', 0))
-        player.passing = int(data.get('passing', 0))
-        player.dribbling = int(data.get('dribbling', 0))
-        player.defending = int(data.get('defending', 0))
-        player.physical = int(data.get('physical', 0))
+        # Şəkil yükləmə
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and file.filename != '':
+                uploaded_path = save_uploaded_file(file, folder='players')
+                if uploaded_path:
+                    player.photo_url = uploaded_path
+        elif data.get('photo_url'):
+            player.photo_url = data.get('photo_url')
+        
+        # Reytinqləri yenilə - OVR formdan gələ bilər və ya avtomatlaşdırıla bilər
+        player.overall_rating = int(data.get('overall_rating', 75) or 75)
+        player.xg_total = float(data.get('xg_total', 0.0) or 0.0)
+        player.pass_accuracy = float(data.get('pass_accuracy', 0.0) or 0.0)
         
         # Detaylı bacarıqları yenilə
         player.detailed_skills = json.dumps(detailed_skills)
         
         db.session.commit()
+        # Audit Log
+        log_action(
+            user_id=session.get('user_id'),
+            action='UPDATE',
+            target_type='Player',
+            target_id=player.id,
+            details={'name': player.name}
+        )
+        
         flash('✅ Oyunçu uğurla yeniləndi!', 'success')
         return redirect(url_for('player_profile', player_id=player.id))
     
@@ -512,6 +1053,178 @@ def admin_edit_player(player_id):
                          position_map=position_map,
                          detailed_skills=detailed_skills)
 
+@app.route('/admin/export/players')
+def admin_export_players():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+        
+    si = io.StringIO()
+    cw = csv.writer(si)
+    
+    # Header
+    cw.writerow(['name', 'position', 'team', 'jersey_number', 'age', 'overall_rating', 
+                 'pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'])
+                 
+    players = Player.query.all()
+    for p in players:
+        cw.writerow([p.name, p.position, p.team, p.jersey_number, p.age, p.overall_rating,
+                     p.pace, p.shooting, p.passing, p.dribbling, p.defending, p.physical])
+                     
+    output = io.BytesIO()
+    output.write(si.getvalue().encode('utf-8-sig'))
+    output.seek(0)
+    
+    return flask_send_file(output, mimetype="text/csv", as_attachment=True, download_name="players_export.csv")
+
+@app.route('/admin/match/edit/<int:match_id>', methods=['GET', 'POST'])
+def admin_edit_match(match_id):
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+        
+    match = Match.query.get_or_404(match_id)
+    all_players = Player.query.order_by(Player.name).all()
+    unique_teams = [t[0] for t in db.session.query(Player.team).filter(Player.team != None).distinct().order_by(Player.team).all()]
+    
+    if request.method == 'POST':
+        data = request.form
+        
+        # Update basic fields
+        match.name = data.get('name')
+        match.home_team = data.get('home_team')
+        match.away_team = data.get('away_team')
+        match.home_score = int(data.get('home_score', 0))
+        match.away_score = int(data.get('away_score', 0))
+        match.stadium = data.get('stadium')
+        match.match_time = data.get('match_time')
+        match.home_xg = float(data.get('home_xg', 0.0))
+        match.away_xg = float(data.get('away_xg', 0.0))
+        match.season = data.get('season')
+        
+        match_date_str = data.get('match_date')
+        if match_date_str:
+            match.match_date = datetime.strptime(match_date_str, '%Y-%m-%d')
+            
+        # Update MVP (POTM)
+        mvp_id = data.get('mvp_player_id')
+        if mvp_id:
+            match.mvp_player_id = int(mvp_id)
+        else:
+            match.mvp_player_id = None
+            
+        # Lineupları güncəllə
+        match.lineups = json.dumps({
+            "home": json.loads(request.form.get('home_lineup', '[]')),
+            "away": json.loads(request.form.get('away_lineup', '[]'))
+        })
+            
+        # Update Image
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and file.filename != '':
+                photo_url = save_uploaded_file(file, folder='matches')
+                if photo_url:
+                    match.image_url = photo_url
+                    
+        # Update Goals
+        # Simple strategy: Delete all existing goals and re-create them
+        # This keeps it in sync with the frontend list
+        try:
+            # First, delete existing goals
+            Goal.query.filter_by(match_id=match.id).delete()
+            
+            # Add new goals from JSON
+            goals_json = data.get('goals_data')
+            if goals_json:
+                goals_list = json.loads(goals_json)
+                for g in goals_list:
+                    scorer_id = g.get('scorer_id')
+                    if not scorer_id: continue
+                    
+                    assist_id = g.get('assist_id')
+                    new_goal = Goal(
+                        match_id=match.id,
+                        scorer_id=int(scorer_id),
+                        assist_id=int(assist_id) if assist_id else None,
+                        minute=g.get('minute'),
+                        team=g.get('team')
+                    )
+                    db.session.add(new_goal)
+            
+            db.session.commit()
+            
+            # Audit Log
+            log_action(
+                user_id=session.get('user_id'),
+                action='UPDATE',
+                target_type='Match',
+                target_id=match.id,
+                details={'home_team': match.home_team, 'away_team': match.away_team}
+            )
+            
+            return redirect(url_for('match_detail', match_id=match.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            return f"Xəta baş verdi: {e}"
+            
+    return render_template('admin_edit_match.html', match=match, players=all_players, teams=unique_teams)
+
+@app.route('/admin/bulk-delete', methods=['POST'])
+def admin_bulk_delete():
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'Fayl seçilməyib'})
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'Fayl seçilməyib'})
+        
+    if not file.filename.lower().endswith('.csv'):
+        return jsonify({'success': False, 'message': 'Yalnız CSV faylları dəstəklənir'})
+
+    try:
+        stream = io.StringIO(file.stream.read().decode("utf-8-sig"), newline=None)
+        csv_input = csv.DictReader(stream)
+        
+        count_new = 0
+        count_updated = 0
+        
+        for row in csv_input:
+            name = row.get('name')
+            if not name: continue
+            
+            # Mövcud oyunçunu axtar (case-insensitive)
+            player = Player.query.filter(Player.name.ilike(name)).first()
+            
+            if not player:
+                player = Player(name=name)
+                db.session.add(player)
+                count_new += 1
+            else:
+                count_updated += 1
+                
+            # Məlumatları yenilə
+            player.position = row.get('position', player.position)
+            player.team = row.get('team', player.team)
+            player.jersey_number = int(row.get('jersey_number', player.jersey_number or 0))
+            player.age = int(row.get('age', player.age or 0))
+            player.overall_rating = int(row.get('overall_rating', player.overall_rating or 0))
+            player.pace = int(row.get('pace', player.pace or 0))
+            player.shooting = int(row.get('shooting', player.shooting or 0))
+            player.passing = int(row.get('passing', player.passing or 0))
+            player.dribbling = int(row.get('dribbling', player.dribbling or 0))
+            player.defending = int(row.get('defending', player.defending or 0))
+            player.physical = int(row.get('physical', player.physical or 0))
+            
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Tamamlandı: {count_new} yeni, {count_updated} yeniləndi'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Xəta: {str(e)}'})
+
 @app.route('/admin/player/delete/<int:player_id>', methods=['POST'])
 def delete_player(player_id):
     if not session.get('is_admin'):
@@ -522,10 +1235,17 @@ def delete_player(player_id):
     player_name = player.name
     
     # Bütün əlaqəli məlumatları sil (cascade ilə avtomatik silinir)
-    db.session.delete(player)
-    db.session.commit()
-    
-    flash(f'🗑️ {player_name} oyunçusu uğurla silindi!', 'success')
+    try:
+        db.session.delete(player)
+        db.session.commit()
+        
+        # Audit Log
+        log_action(session.get('user_id'), 'DELETE', 'Player', player_id, {'name': player_name})
+        
+        flash(f'✅ {player_name} silindi!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'❌ Oyunçu silinərkən xəta baş verdi: {e}', 'error')
     return redirect(url_for('players'))
 
 @app.route('/admin/season-stats/add', methods=['POST'])
@@ -565,9 +1285,28 @@ def edit_match(match_id):
     match.stadium = data.get('stadium')
     match.status = data.get('status')
     
+    # Şəkil yükləmə
+    if 'match_image' in request.files:
+        file = request.files['match_image']
+        if file and file.filename != '':
+            uploaded_path = save_uploaded_file(file, folder='matches')
+            if uploaded_path:
+                match.image_url = uploaded_path
+    
     db.session.commit()
     flash('Maç güncellendi!', 'success')
-    return redirect(url_for('admin_panel'))
+    return redirect(url_for('matches'))
+
+@app.route('/admin/logs')
+def admin_logs():
+    if not session.get('is_admin'):
+        flash('⛔ Bu səhifəyə giriş üçün admin icazəniz yoxdur!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # Son 100 audit log qeydini gətir
+    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(100).all()
+    
+    return render_template('admin_logs.html', logs=logs)
 
 @app.route('/admin/match/delete/<int:match_id>', methods=['POST'])
 def delete_match(match_id):
@@ -721,6 +1460,60 @@ def sitemap_xml():
     sitemap.append('</urlset>')
     
     return '\n'.join(sitemap), 200, {'Content-Type': 'application/xml; charset=utf-8'}
+
+@app.route('/admin/recalculate-stats')
+def admin_recalculate_stats():
+    if not session.get('is_admin'):
+        flash('⛔ Bu əməliyyat üçün admin icazəniz yoxdur!', 'error')
+        return redirect(url_for('login'))
+        
+    try:
+        players = Player.query.all()
+        # Mövcud mövsümləri tapırıq
+        seasons = [s[0] for s in db.session.query(Match.season).filter(Match.season != None).distinct().all()]
+        
+        for player in players:
+            for season in seasons:
+                # Bu mövsümdə oyunçunun iştirak etdiyi matçlar
+                season_matches = Match.query.filter_by(season=season).all()
+                matches_count = 0
+                for m in season_matches:
+                    try:
+                        lineups = json.loads(m.lineups) if m.lineups else {}
+                        if player.id in lineups.get('home', []) or player.id in lineups.get('away', []):
+                            matches_count += 1
+                    except:
+                        continue
+                
+                # Qol sayı
+                goals_count = Goal.query.join(Match).filter(
+                    Match.season == season,
+                    Goal.scorer_id == player.id
+                ).count()
+                
+                # Asist sayı
+                assists_count = Goal.query.join(Match).filter(
+                    Match.season == season,
+                    Goal.assist_id == player.id
+                ).count()
+                
+                # Mövsüm statistikalarını tap və ya yarat
+                s_stat = SeasonStats.query.filter_by(player_id=player.id, season=season).first()
+                if not s_stat:
+                    s_stat = SeasonStats(player_id=player.id, season=season)
+                    db.session.add(s_stat)
+                
+                s_stat.matches = matches_count
+                s_stat.goals = goals_count
+                s_stat.assists = assists_count
+        
+        db.session.commit()
+        flash('Bütün mövsüm statistikaları uğurla hesablandı!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Xəta baş verdi: {str(e)}', 'error')
+        
+    return redirect(url_for('admin_dashboard'))
 
 # Database initialize et (həm lokal, həm production üçün)
 try:

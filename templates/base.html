@@ -1,242 +1,146 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="dark" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Futbol İstatistikleri{% endblock %}</title>
+    <title>{% block title %}Arena9 Premium{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind & UI Assets -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#22c55e',
+                        'primary-glow': '#22c55e40',
+                        'background-light': '#f8fafc',
+                        'background-dark': '#050505',
+                        'card-dark': '#121212',
+                        'card-dark-hover': '#1a1a1a',
+                        'text-light': '#0f172a',
+                        'text-dark': '#e2e8f0',
+                        'text-muted-dark': '#94a3b8',
+                        'border-dark': '#27272a'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem'
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(34, 197, 94, 0.3)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
-        }
-
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .navbar-menu {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            list-style: none;
-        }
-
-        .navbar-menu a {
-            color: #333;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .navbar-menu a:hover {
-            color: #667eea;
-        }
-
-        .btn {
-            padding: 0.5rem 1.5rem;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-admin {
-            background: #f39c12;
-            color: white;
-        }
-
-        .btn-admin:hover {
-            background: #e67e22;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .flash-messages {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 2000;
-            max-width: 400px;
-        }
-
-        .flash {
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
-            border-radius: 10px;
-            color: white;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .flash-success {
-            background: #27ae60;
-        }
-
-        .flash-error {
-            background: #e74c3c;
-        }
-
-        .flash-info {
-            background: #3498db;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .user-badge {
-            background: #667eea;
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.85rem;
-        }
-
-        .admin-badge {
-            background: #f39c12;
-        }
-
-        @media (max-width: 768px) {
-            .navbar-menu {
-                gap: 1rem;
-                flex-wrap: wrap;
-            }
-
-            .container {
-                padding: 0 1rem;
-            }
+            background: linear-gradient(to bottom right, #050505, #0a0a0a);
         }
     </style>
+
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="{{ url_for('index') }}" class="navbar-brand">⚽ Futbol İstatistikleri</a>
-            <ul class="navbar-menu">
-                <li><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
-                <li><a href="{{ url_for('matches') }}">Maçlar</a></li>
-                <li><a href="{{ url_for('players') }}">Oyuncular</a></li>
-                
+
+<body class="bg-background-dark font-sans text-text-dark antialiased">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card mx-4 my-4 !rounded-2xl border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-2xl font-bold text-gradient flex items-center gap-2">
+                ⚽ Arena9
+            </a>
+
+            <div class="hidden md:flex items-center gap-8 font-medium">
+                <a href="{{ url_for('dashboard') }}" class="hover:text-primary transition-colors">Panel</a>
+                <a href="{{ url_for('matches') }}" class="hover:text-primary transition-colors">Maçlar</a>
+                <a href="{{ url_for('players') }}" class="hover:text-primary transition-colors">Oyuncular</a>
+                <a href="{{ url_for('leaderboard') }}" class="hover:text-primary transition-colors">Liderler</a>
+                <a href="{{ url_for('compare_players') }}" class="hover:text-primary transition-colors">Müqayisə</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button onclick="toggleArenaTheme()" id="theme-toggle"
+                    class="p-2 rounded-xl hover:bg-white/5 border border-white/10 transition-all duration-500">
+                    <svg id="theme-icon-moon" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg id="theme-icon-sun" class="w-5 h-5 hidden dark:block text-yellow-400" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path
+                            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                            fill-rule="evenodd" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+
                 {% if session.get('user_id') %}
-                    {% if session.get('is_admin') %}
-                        <li><a href="{{ url_for('admin_panel') }}" class="btn btn-admin">Admin Panel</a></li>
-                    {% endif %}
-                    <li>
-                        <div class="user-info">
-                            <span class="user-badge {% if session.get('is_admin') %}admin-badge{% endif %}">
-                                {{ session.get('username') }}
-                            </span>
-                            <a href="{{ url_for('logout') }}" class="btn btn-danger">Çıkış</a>
-                        </div>
-                    </li>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-semibold opacity-80">{{ session.get('username') }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn-primary !py-2 !px-4 text-xs">Çıkış</a>
+                </div>
                 {% else %}
-                    <li><a href="{{ url_for('login') }}" class="btn btn-primary">Giriş Yap</a></li>
-                    <li><a href="{{ url_for('register') }}" class="btn btn-primary">Kayıt Ol</a></li>
+                <div class="flex items-center gap-2">
+                    <a href="{{ url_for('login') }}" class="btn-primary !py-2 !px-4 text-xs">Giriş</a>
+                    <a href="{{ url_for('register') }}" class="btn-primary !py-2 !px-4 text-xs !bg-secondary">Kayıt
+                        Ol</a>
+                </div>
                 {% endif %}
-            </ul>
+            </div>
         </div>
     </nav>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+    <div id="flash-container" class="fixed top-24 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+        {% for category, message in messages %}
+        <div
+            class="flash-msg glass-card !bg-opacity-90 px-6 py-4 border-l-4 border-primary pointer-events-auto shadow-2xl">
+            <p class="font-medium text-sm text-white">{{ message }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
-    <div class="container">
+    <main class="pt-32 pb-20 px-4 max-w-7xl mx-auto min-h-screen">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
+    <footer class="border-t border-white/5 py-10">
+        <div class="max-w-7xl mx-auto px-6 text-center text-slate-500 text-sm">
+            <p>&copy; 2024 Arena9 Premium. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/premium.js') }}"></script>
     <script>
-        // Auto-hide flash messages after 5 seconds
         setTimeout(() => {
-            const flashes = document.querySelectorAll('.flash');
-            flashes.forEach(flash => {
-                flash.style.animation = 'slideOut 0.3s ease-out';
-                setTimeout(() => flash.remove(), 300);
+            document.querySelectorAll('.flash-msg').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(50px)';
+                setTimeout(() => el.remove(), 500);
             });
         }, 5000);
     </script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

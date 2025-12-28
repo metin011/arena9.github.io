@@ -1,156 +1,70 @@
-<!DOCTYPE html>
-<html class="dark" lang="az">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Arena9 - Maçlar | Futbol Maç Nəticələri və Tarixçə</title>
-<meta name="description" content="Arena9 futbol maçlarını izləyin. Canlı nəticələr, keçmiş maçlar, qol statistikaları və maç təfərrüatları."/>
-<meta name="keywords" content="arena9, futbol maçları, match results, maç nəticələri, futbol liqası, matç tarixçəsi"/>
-<link rel="canonical" href="https://arena9.onrender.com/matches"/>
-<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<script>
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        primary: "#2ECC71",
-        "background-light": "#f1f5f9",
-        "background-dark": "#000000",
-        "card-light": "#ffffff",
-        "card-dark": "#1f2937",
-        "text-light": "#0f172a",
-        "text-dark": "#f9fafb",
-        "text-secondary-light": "#64748b",
-        "text-secondary-dark": "#1a1a1a",
-      },
-      fontFamily: {
-        display: ["Space Grotesk"],
-      },
-      borderRadius: {
-        DEFAULT: "0.75rem",
-        lg: "1rem",
-        xl: "1.5rem",
-        full: "9999px",
-      },
-    },
-  },
-};
-</script>
-<style>
-body {
-  min-height: max(884px, 100dvh);
-}
-</style>
-</head>
-<body class="bg-background-dark font-display">
-<div class="flex h-full min-h-screen w-full flex-col">
-<header class="sticky top-0 z-10 bg-background-dark/80 px-4 py-3 backdrop-blur-sm">
-<div class="flex items-center">
-<a href="{{ url_for('dashboard') }}" class="rounded-full p-2 text-text-dark transition-colors hover:bg-gray-800">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
-</svg>
-</a>
-<h1 class="flex-1 text-center text-xl font-bold text-text-dark">Maçlar</h1>
-{% if is_admin %}
-<a href="{{ url_for('admin_add_match') }}" class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-background-dark hover:bg-primary/90 transition-colors">
-<svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
-<path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
-</svg>
-</a>
-{% else %}
-<div class="w-10"></div>
-{% endif %}
-</div>
-</header>
-<main class="flex-1 overflow-y-auto pb-24">
-<div class="p-4">
-<h2 class="mb-4 text-2xl font-bold text-text-dark">Geçmiş Maçlar</h2>
-<div class="space-y-4">
-{% if matches %}
-  {% for match in matches %}
-  <div class="relative flex items-center gap-4 rounded-xl bg-gray-900 p-4 shadow-sm transition-colors group">
-    <a href="{{ url_for('match_detail', match_id=match.id) }}" class="flex items-center gap-4 flex-1 hover:opacity-80 transition-opacity">
-      <div class="flex-1">
-        <p class="text-sm font-medium text-text-secondary-dark">{{ match.name or 'Final' }}</p>
-        <p class="text-lg font-bold text-text-dark">{{ match.home_team }} vs. {{ match.away_team }}</p>
-        <p class="mt-1 text-base font-semibold text-primary">{{ match.home_score }}-{{ match.away_score }}</p>
-      </div>
-      <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg">
-        <div class="h-full w-full bg-cover bg-center" style="background-image: url('{{ match.image_url or "https://via.placeholder.com/150" }}');"></div>
-      </div>
-    </a>
+{% extends "base.html" %}
+
+{% block title %}Arena9 - Karşılaşmalar{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+  <!-- Header -->
+  <div class="reveal flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight text-gradient inline-block">Karşılaşma Geçmişi</h1>
+      <p class="text-slate-400 mt-2 font-medium">Ligde gerçekleşmiş ve gelecek tüm maçlar</p>
+    </div>
     {% if is_admin %}
-    <div class="flex gap-2">
-      <!-- Redaktə Butonu -->
-      <a href="{{ url_for('match_detail', match_id=match.id) }}" class="rounded-full p-2 bg-gray-800 shadow-sm hover:bg-primary border border-gray-700 transition-colors" title="Maçı Redaktə Et">
-        <svg class="text-text-secondary-dark hover:text-background-dark" fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
-          <path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path>
-        </svg>
-      </a>
-      <!-- Silmə Butonu -->
-      <button onclick="deleteMatch({{ match.id }}, '{{ match.home_team }}', '{{ match.away_team }}')" class="rounded-full p-2 bg-red-900/30 shadow-sm hover:bg-red-600 border border-red-800 transition-colors" title="Maçı Sil">
-        <svg class="text-red-400 hover:text-white" fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
-          <path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path>
-        </svg>
-      </button>
+    <a href="{{ url_for('admin_add_match') }}" class="btn-primary !py-4 !px-8 flex items-center gap-3">
+      <span class="text-xl">➕</span> Yeni Maç Ekle
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Matches Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 reveal">
+    {% if matches %}
+    {% for match in matches %}
+    <div class="glass-card group overflow-hidden border-white/5 hover:border-primary/30 transition-all">
+      <div class="relative h-48 overflow-hidden">
+        <img src="{{ match.image_url or 'https://via.placeholder.com/800x400' }}"
+          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+        <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/50 to-transparent"></div>
+        <div class="absolute bottom-4 left-6">
+          <span
+            class="px-3 py-1 bg-primary/20 text-primary text-[10px] font-black rounded-lg uppercase tracking-widest border border-primary/30">{{
+            match.status }}</span>
+        </div>
+      </div>
+
+      <div class="p-8 space-y-6">
+        <div class="flex justify-between items-center">
+          <div class="text-center flex-1">
+            <h3 class="text-xl font-black">{{ match.home_team }}</h3>
+            <p class="text-[10px] text-slate-500 font-bold uppercase">EV SAHİBİ</p>
+          </div>
+          <div class="px-6 py-2 bg-white/5 rounded-2xl border border-white/10">
+            <span class="text-3xl font-black text-gradient">{{ match.home_score }} - {{ match.away_score }}</span>
+          </div>
+          <div class="text-center flex-1">
+            <h3 class="text-xl font-black">{{ match.away_team }}</h3>
+            <p class="text-[10px] text-slate-500 font-bold uppercase">KONUK</p>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-6 border-t border-white/5">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400">📅</div>
+            <span class="text-xs font-bold text-slate-400">{{ match.match_date.strftime('%d.%m.%Y') }}</span>
+          </div>
+          <a href="{{ url_for('match_detail', match_id=match.id) }}"
+            class="btn-primary !text-xs !py-2 !px-6 border border-primary/20 !bg-primary/5 hover:!bg-primary hover:!text-dark transition-all">
+            Detaylara Bak
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-span-full glass-card p-32 text-center text-slate-500 italic">Henüz hiçbir maç kaydedilmedi.
     </div>
     {% endif %}
   </div>
-  {% endfor %}
-{% else %}
-  <p class="text-text-secondary-dark text-center py-8">Henüz maç eklenmemiş.</p>
-{% endif %}
 </div>
-
-<!-- Silmə funksiyası üçün JavaScript -->
-<script>
-function deleteMatch(matchId, homeTeam, awayTeam) {
-  if (confirm('⚠️ Əminsiniz?\n\n' + homeTeam + ' vs. ' + awayTeam + ' maçını silmək istədiyinizə əminsiniz?\n\nBu əməliyyat geri qaytarıla bilməz!')) {
-    // Form yaradırıq və göndəririk
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/admin/match/delete/' + matchId;
-    document.body.appendChild(form);
-    form.submit();
-  }
-}
-</script>
-</div>
-</main>
-<nav class="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-black/90 pb-safe-bottom backdrop-blur-lg">
-<div class="flex h-16 justify-around">
-<a class="flex flex-1 flex-col items-center justify-center gap-1 text-text-secondary-dark" href="{{ url_for('dashboard') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
-</svg>
-<span class="text-xs font-medium">Ana Sayfa</span>
-</a>
-<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="{{ url_for('matches') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm8,39.38,24.79-17.05a88.41,88.41,0,0,1,36.18,27l-8,26.94c-.2,0-.41.1-.61.17l-22.82,7.41a7.59,7.59,0,0,0-1,.4L136,88.62c0-.2,0-.41,0-.62V64C136,63.79,136,63.58,136,63.38ZM95.24,46.33,120,63.38c0,.2,0,.41,0,.62V88c0,.21,0,.42,0,.62L91.44,108.29a7.59,7.59,0,0,0-1-.4l-22.82-7.41c-.2-.07-.41-.12-.61-.17l-8-26.94A88.41,88.41,0,0,1,95.24,46.33Zm-13,129.09H53.9a87.4,87.4,0,0,1-13.79-43.07l22-16.88a5.77,5.77,0,0,0,.58.22l22.83,7.42a7.83,7.83,0,0,0,.93.22l10.79,31.42c-.15.18-.3.36-.44.55L82.7,174.71A7.8,7.8,0,0,0,82.24,175.42ZM150.69,213a88.16,88.16,0,0,1-45.38,0L95.25,184.6c.13-.16.27-.31.39-.48l14.11-19.42a7.66,7.66,0,0,0,.46-.7h35.58a7.66,7.66,0,0,0,.46.7l14.11,19.42c.12.17.26.32.39.48Zm23.07-37.61a7.8,7.8,0,0,0-.46-.71L159.19,155.3c-.14-.19-.29-.37-.44-.55l10.79-31.42a7.83,7.83,0,0,0,.93-.22l22.83-7.42a5.77,5.77,0,0,0,.58-.22l22,16.88a87.4,87.4,0,0,1-13.79,43.07Z"></path>
-</svg>
-<span class="text-xs font-medium">Maçlar</span>
-</a>
-<a class="flex flex-1 flex-col items-center justify-center gap-1 text-text-secondary-dark" href="{{ url_for('players') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
-</svg>
-<span class="text-xs font-medium">Oyuncular</span>
-</a>
-<a class="flex flex-1 flex-col items-center justify-center gap-1 text-text-secondary-dark" href="{{ url_for('leaderboard') }}">
-<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M240.26,186.1,152.81,34.23h0a28.74,28.74,0,0,0-49.62,0L15.74,186.1a27.45,27.45,0,0,0,0,27.71A28.31,28.31,0,0,0,40.55,228h174.9a28.31,28.31,0,0,0,24.79-14.19A27.45,27.45,0,0,0,240.26,186.1Zm-20.8,15.7a12.32,12.32,0,0,1-10.91,6.2H40.55a12.32,12.32,0,0,1-10.91-6.2,11.46,11.46,0,0,1,0-11.49L117.09,38.22a12.75,12.75,0,0,1,21.82,0l87.45,152.09A11.46,11.46,0,0,1,219.46,201.8Z"></path>
-</svg>
-<span class="text-xs font-medium">İstatistikler</span>
-</a>
-</div>
-</nav>
-</div>
-</body>
-</html>
+{% endblock %}
