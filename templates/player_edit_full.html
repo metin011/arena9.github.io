@@ -436,12 +436,20 @@
     <!-- Sticky Footer Actions -->
     <footer class="fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-xl p-6 border-t border-white/5 z-50">
       <div class="flex gap-4 max-w-lg mx-auto">
+        <form action="{{ url_for('delete_player', player_id=player.id) }}" method="POST"
+          onsubmit="return confirm('Bu oyunçunu silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz!');"
+          class="flex-1">
+          <button type="submit"
+            class="w-full rounded-2xl h-14 flex items-center justify-center font-bold text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all uppercase tracking-widest">
+            Sil
+          </button>
+        </form>
         <a href="{{ url_for('player_profile', player_id=player.id) }}"
           class="flex-1 rounded-2xl h-14 flex items-center justify-center font-bold text-[10px] bg-transparent text-gray-500 border border-white/10 hover:bg-white/5 hover:text-white transition-all uppercase tracking-widest">Ləğv
           Et</a>
         <button type="submit"
-          class="flex-2 rounded-2xl h-14 px-12 text-center font-bold text-[10px] bg-primary text-black shadow-neon hover:bg-white transition-all duration-300 uppercase tracking-widest">Dəyişiklikləri
-          Yadda Saxla</button>
+          class="flex-2 rounded-2xl h-14 px-12 text-center font-bold text-[10px] bg-primary text-black shadow-neon hover:bg-white transition-all duration-300 uppercase tracking-widest">Yadda
+          Saxla</button>
       </div>
     </footer>
   </form>

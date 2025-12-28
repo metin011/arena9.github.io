@@ -1234,18 +1234,32 @@ def delete_player(player_id):
     player = Player.query.get_or_404(player_id)
     player_name = player.name
     
-    # Bütün əlaqəli məlumatları sil (cascade ilə avtomatik silinir)
     try:
+        # Manually delete related records to avoid ForeignKey errors if cascade is missing
+        # 1. Delete Stats
+        MatchStats.query.filter_by(player_id=player_id).delete()
+        # 2. Delete Goals & Assists
+        Goal.query.filter_by(player_id=player_id).delete()
+        Assist.query.filter_by(player_id=player_id).delete()
+        # 3. Delete Logs references
+        # AuditLog usually references target_id but not with FK constraint, so it's fine.
+        
+        # 4. Check for other potential relationships (Injury, Suspension if they exist)
+        # Assuming only basic stats for now based on imported models.
+        
+        # Finally delete the player
         db.session.delete(player)
         db.session.commit()
         
-        # Audit Log
+        # Log action
         log_action(session.get('user_id'), 'DELETE', 'Player', player_id, {'name': player_name})
         
-        flash(f'✅ {player_name} silindi!', 'success')
+        flash(f'✅ {player_name} uğurla silindi!', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Oyunçu silinərkən xəta baş verdi: {e}', 'error')
+        print(f"Delete Error: {e}")
+        flash(f'❌ Oyunçu silinərkən xəta baş verdi. Zəhmət olmasa assosiasiya olunmuş məlumatları yoxlayın.', 'error')
+        
     return redirect(url_for('players'))
 
 @app.route('/admin/season-stats/add', methods=['POST'])
