@@ -1,0 +1,230 @@
+/* Arena9 Ultimate Player Card */
+
+.player-card-container {
+    perspective: 1000px;
+    width: 300px;
+    height: 480px;
+    /* Standard FC Card Ratio approx 2:3.2 */
+    margin: 0 auto 20px auto;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.player-card-container:hover {
+    transform: scale(1.02) rotateY(2deg);
+}
+
+.ut-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    /* Custom Shape using Clip Path for that Shield look */
+    /* This clip path mimics the FC24 card shape slightly more modern */
+    clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 50% 100%, 0% 80%, 0% 20%);
+    /* Fallback background if image fails */
+    background: linear-gradient(135deg, #a67c00 0%, #bf9b30 50%, #ffcf40 100%);
+    box-shadow:
+        inset 0 0 20px rgba(0, 0, 0, 0.5),
+        0 10px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    color: #3e2800;
+    /* Dark Brown text for Gold Card */
+    font-family: 'DIN Condensed', 'Impact', sans-serif;
+    overflow: hidden;
+}
+
+/* Gold Rare Variant */
+.ut-card.gold-rare {
+    background-image: url('https://cdn.futbin.com/content/fifa24/img/cards/hd/gold_rare.png');
+    /* Ideally we use a local asset or CSS gradient generator, providing a CSS-only fallback */
+    background: radial-gradient(circle at 50% 30%, #f9e29a 0%, #e2b349 40%, #a67c00 100%);
+    border: 2px solid #eebb54;
+}
+
+/* Inner Texture */
+.ut-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        repeating-linear-gradient(45deg,
+            rgba(255, 255, 255, 0.05) 0px,
+            rgba(255, 255, 255, 0.05) 2px,
+            transparent 2px,
+            transparent 10px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Card Content Layer */
+.card-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Section: Rating, Position, Nation, Club */
+.card-top-info {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.rating {
+    font-size: 48px;
+    line-height: 48px;
+    font-weight: 900;
+}
+
+.position {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 2px solid rgba(62, 40, 0, 0.2);
+    padding-bottom: 2px;
+    margin-bottom: 4px;
+}
+
+.nation-flag,
+.club-badge {
+    width: 25px;
+    height: 18px;
+    /* Aspect 4:3 for flags */
+    object-fit: cover;
+    margin-top: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Player Image */
+.card-player-image-container {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    width: 160px;
+    height: 180px;
+    /* Masking for creating the cutout effect if image isn't transparent */
+}
+
+.card-player-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.4));
+}
+
+/* Name */
+.card-name {
+    margin-top: auto;
+    /* Push to bottom section */
+    font-size: 28px;
+    text-align: center;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid rgba(62, 40, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+/* Stats Grid */
+.card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Two per row? Actually usually 3 per row for FC24 but condensed vertical */
+    /* FC Style is usually 
+       PAC  DRI
+       SHO  DEF
+       PAS  PHY
+    */
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    /* Let's try flexible row */
+    gap: 0;
+    padding: 0 10px 20px 10px;
+    justify-content: space-between;
+}
+
+/* We need specific layout: 3 stats left, 3 stats right? 
+   Actually FC24 is:
+   row 1: STAT1  STAT4
+   row 2: STAT2  STAT5
+   row 3: STAT3  STAT6
+*/
+.card-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 20px;
+    padding-bottom: 30px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.chem-style {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0.6;
+    /* Placeholder */
+}
+
+/* Animations */
+.card-shine {
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 50px;
+    height: 1000px;
+    background: rgba(255, 255, 255, 0.4);
+    transform: rotate(25deg);
+    animation: shine 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-500px) rotate(25deg);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.5;
+    }
+
+    40% {
+        transform: translateX(500px) rotate(25deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(500px) rotate(25deg);
+        opacity: 0;
+    }
+}

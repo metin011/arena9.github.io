@@ -1,36 +1,28 @@
-
 import sqlite3
-import os
 
-db_paths = [
-    'football_stats.db', 
-    os.path.join('instance', 'football_stats.db'),
-    'database.db',
-    os.path.join('instance', 'database.db')
-]
+# Connect to database
+conn = sqlite3.connect('football_stats.db')
+cursor = conn.cursor()
 
-for db_path in db_paths:
-    if not os.path.exists(db_path):
-        print(f"Skipping: {db_path} (not found)")
-        continue
-    
-    print(f"Migrating: {db_path}")
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+try:
+    # Add missing columns to season_stats table
+    cursor.execute("ALTER TABLE season_stats ADD COLUMN xg REAL DEFAULT 0.0")
+    print("✓ Added 'xg' column to season_stats")
+except sqlite3.OperationalError as e:
+    if "duplicate column name" in str(e).lower():
+        print("✓ Column 'xg' already exists")
+    else:
+        print(f"✗ Error adding 'xg': {e}")
 
-    try:
-        cursor.execute("ALTER TABLE match ADD COLUMN lineups TEXT;")
-        print("  Added lineups column.")
-    except sqlite3.OperationalError as e:
-        print(f"  lineups column: {e}")
+try:
+    cursor.execute("ALTER TABLE season_stats ADD COLUMN pass_accuracy REAL DEFAULT 0.0")
+    print("✓ Added 'pass_accuracy' column to season_stats")
+except sqlite3.OperationalError as e:
+    if "duplicate column name" in str(e).lower():
+        print("✓ Column 'pass_accuracy' already exists")
+    else:
+        print(f"✗ Error adding 'pass_accuracy': {e}")
 
-    try:
-        cursor.execute("ALTER TABLE match ADD COLUMN timeline TEXT;")
-        print("  Added timeline column.")
-    except sqlite3.OperationalError as e:
-        print(f"  timeline column: {e}")
-
-    conn.commit()
-    conn.close()
-
-print("Migration process finished.")
+conn.commit()
+conn.close()
+print("\n✓ Database migration completed successfully!")

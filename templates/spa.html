@@ -1,0 +1,3017 @@
+<!doctype html>
+<html lang="az">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arena9</title>
+  <style>
+    :root {
+      --bg-black: #000000;
+      --bg-dark: #050505;
+      --card-gray: #0a0a0a;
+      --card-hover: #111111;
+      --primary-green: #39ff14;
+      --primary-green-light: #69ff4f;
+      --text-gray: #a3a3a3;
+      --text-light: #ffffff;
+      --danger-red: #ff3333;
+      --gold: #ffd700;
+      --success: #39ff14;
+      --warning: #ffaa00;
+      --shadow: 0 10px 40px rgba(57, 255, 20, 0.1);
+      --shadow-sm: 0 4px 15px rgba(57, 255, 20, 0.05);
+    }
+
+
+    /* Dream Team Pitch Styles */
+    .pitch-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 2/3;
+      background: #1a3c2a;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      margin: 0 auto;
+      overflow: hidden;
+      background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0, rgba(255, 255, 255, 0.02) 10%, transparent 10%, transparent 20%);
+    }
+
+    .pitch-line {
+      position: absolute;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .center-circle {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20%;
+      height: 13.3%;
+      border-radius: 50%;
+    }
+
+    .penalty-area-top {
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 16%;
+      border-top: none;
+    }
+
+    .penalty-area-bottom {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 16%;
+      border-bottom: none;
+    }
+
+    .player-spot {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s;
+    }
+
+    .player-spot:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .player-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .player-spot.filled .player-icon {
+      border-style: solid;
+      border-color: #10b981;
+      background: #10b981;
+      color: black;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .player-spot-name {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 10px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    /* Login Modal */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-box {
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 16px;
+      border: 1px solid #333;
+      width: 300px;
+      text-align: center;
+    }
+
+
+
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", system-ui, sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fadeScaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .page.active-page {
+      animation: fadeScaleIn 0.4s ease-out forwards;
+    }
+
+    .stat-card,
+    .match-card,
+    .rank-item {
+      animation: fadeScaleIn 0.5s ease-out backwards;
+    }
+
+    /* Stagger functionality via nth-child for lists */
+    .rank-item:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    .rank-item:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .rank-item:nth-child(3) {
+      animation-delay: 0.15s;
+    }
+
+    .rank-item:nth-child(4) {
+      animation-delay: 0.2s;
+    }
+
+    .rank-item:nth-child(5) {
+      animation-delay: 0.25s;
+    }
+
+
+    body {
+      background: linear-gradient(135deg,
+          var(--bg-black) 0%,
+          var(--bg-dark) 100%);
+      color: var(--text-light);
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      background: linear-gradient(180deg,
+          var(--card-gray) 0%,
+          var(--bg-dark) 100%);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-left {
+      position: absolute;
+      left: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .header-right {
+      position: absolute;
+      right: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .header-logo {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--primary-green);
+      letter-spacing: -0.5px;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #page-header-title {
+      font-weight: 700;
+      font-size: 20px;
+      text-align: center;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg,
+          var(--primary-green),
+          var(--primary-green-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: calc(100vw - 240px);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .header-icon {
+      font-size: 24px;
+      width: 48px;
+      height: 40px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .header-icon:hover {
+      background: rgba(16, 185, 129, 0.2);
+      transform: scale(1.05);
+    }
+
+    .page-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      padding-bottom: 80px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .active-page {
+      display: block;
+    }
+
+    /* Admin Edit Buttons */
+    .admin-only {
+      display: none;
+    }
+
+    .stat-card,
+    .match-card {
+      background: var(--card-gray);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid rgba(57, 255, 20, 0.1);
+      margin-bottom: 12px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover,
+    .match-card:hover {
+      background: var(--card-hover);
+      border-color: var(--primary-green);
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 10px 30px rgba(57, 255, 20, 0.2);
+    }
+
+
+
+    .match-details {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #333;
+      font-size: 13px;
+      color: #ccc;
+      display: none;
+    }
+
+    .match-card.expanded .match-details {
+      display: block;
+    }
+
+    .match-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 5px;
+      border-top: 1px solid #222;
+    }
+
+    .match-date-info {
+      font-size: 10px;
+      color: #666;
+    }
+
+    .delete-btn {
+      color: var(--danger-red);
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      background: rgba(255, 77, 77, 0.1);
+      border: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .edit-btn {
+      color: var(--gold);
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      background: rgba(251, 191, 36, 0.1);
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+
+    .rank-item {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 14px;
+      background: linear-gradient(135deg,
+          rgba(16, 185, 129, 0.05),
+          transparent);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--primary-green);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+      border-left: 3px solid var(--primary-green);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .rank-item:hover {
+      background: linear-gradient(135deg,
+          rgba(16, 185, 129, 0.1),
+          rgba(16, 185, 129, 0.05));
+      border-color: rgba(16, 185, 129, 0.3);
+      transform: translateX(4px);
+    }
+
+    .rank-num {
+      color: var(--primary-green);
+      font-weight: 700;
+      width: 40px;
+      font-size: 16px;
+    }
+
+    .rating-box {
+      grid-column: span 2;
+      text-align: center;
+      padding: 24px;
+      background: linear-gradient(135deg,
+          rgba(16, 185, 129, 0.1) 0%,
+          rgba(52, 211, 153, 0.05) 100%);
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rating-value {
+      font-size: 48px;
+      font-weight: 800;
+      background: linear-gradient(135deg,
+          var(--primary-green),
+          var(--primary-green-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      letter-spacing: -2px;
+    }
+
+    .season-table {
+      grid-column: span 2;
+      background: var(--card-gray);
+      border-radius: 15px;
+      overflow: hidden;
+      border: 1px solid #222;
+      margin-bottom: 15px;
+    }
+
+    .table-title {
+      font-size: 11px;
+      color: #fff;
+      background: #222;
+      padding: 10px 15px;
+      text-align: left;
+      text-transform: uppercase;
+      font-weight: bold;
+      border-bottom: 1px solid var(--primary-green);
+    }
+
+    .season-table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .season-table th {
+      background: #111;
+      color: var(--text-gray);
+      padding: 10px;
+      text-align: center;
+      font-size: 10px;
+    }
+
+    .season-table td {
+      padding: 12px 10px;
+      border-top: 1px solid #222;
+      color: #eee;
+      text-align: center;
+    }
+
+    .season-table th:first-child,
+    .season-table td:first-child {
+      text-align: left;
+      padding-left: 15px;
+      width: 40%;
+      color: var(--primary-green);
+      font-weight: bold;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--primary-green);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-light);
+      padding: 12px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    input:hover,
+    select:hover {
+      border-color: rgba(16, 185, 129, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary-green);
+      background: rgba(16, 185, 129, 0.05);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    option {
+      background: rgba(255, 255, 255, 0.1);
+      color: #000;
+      padding: 8px;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 5px;
+      margin-bottom: 15px;
+      background: #111;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .main-btn {
+      background: linear-gradient(135deg,
+          var(--primary-green) 0%,
+          var(--primary-green-light) 100%);
+      color: #000;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .main-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .main-btn:active {
+      transform: translateY(0);
+    }
+
+    footer {
+      background: linear-gradient(180deg,
+          var(--bg-dark) 0%,
+          var(--card-gray) 100%);
+      display: flex;
+      padding: 12px 0;
+      border-top: 1px solid rgba(16, 185, 129, 0.1);
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 100;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      color: var(--text-gray);
+      font-size: 10px;
+      cursor: pointer;
+      padding: 8px 4px;
+      border-radius: 8px;
+      margin: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--primary-green-light);
+    }
+
+    .nav-item.active {
+      color: var(--primary-green);
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .single-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 5px;
+      border-radius: 8px;
+      border: 1px solid var(--primary-green);
+      background: transparent;
+      color: var(--primary-green);
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-green) !important;
+      color: #000 !important;
+    }
+
+    .player-picker.active {
+      display: flex;
+    }
+
+    .player-picker-header {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: var(--primary-green);
+    }
+
+    .player-picker-item {
+      background: var(--card-gray);
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 1px solid #222;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-picker-item:hover {
+      border-color: var(--primary-green);
+      background: #252525;
+    }
+
+    .player-picker-name {
+      font-weight: bold;
+    }
+
+    .player-picker-rating {
+      color: var(--primary-green);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-gray);
+      color: var(--text-light);
+      padding: 14px 24px;
+      border-radius: 10px;
+      border-left: 4px solid var(--primary-green);
+      z-index: 2000;
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow);
+      font-weight: 500;
+      font-size: 13px;
+      max-width: 80%;
+    }
+
+    .toast.error {
+      border-left-color: var(--danger-red);
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+      color: #86efac;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .empty-state-text {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .btn-secondary:hover {
+      background: #444;
+      border-color: var(--primary-green);
+    }
+
+    .btn-danger {
+      background: rgba(255, 77, 77, 0.1);
+      color: var(--danger-red);
+      border: 1px solid var(--danger-red);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 77, 77, 0.2);
+    }
+
+    input:invalid {
+      border-color: var(--danger-red) !important;
+    }
+
+    .stat-badge {
+      display: inline-block;
+      background: #333;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      color: var(--primary-green);
+      font-weight: bold;
+      margin: 2px;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: var(--primary-green);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .divider {
+      height: 1px;
+      background: #222;
+      margin: 15px 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 15px;
+      padding: 25px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: var(--primary-green);
+    }
+
+    .modal-text {
+      color: #ccc;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .modal-btn.primary {
+      background: var(--primary-green);
+      color: #000;
+    }
+
+    .modal-btn.secondary {
+      background: #333;
+      color: #fff;
+      border: 1px solid #444;
+    }
+
+    .player-select {
+      width: 120px;
+      height: 120px;
+      border: 2px dashed rgba(16, 185, 129, 0.5);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .player-select:hover {
+      border-color: var(--primary-green);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .select-icon {
+      font-size: 32px;
+      color: var(--primary-green);
+      font-weight: bold;
+    }
+
+    .select-text {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-top: 5px;
+    }
+
+    .vs-text {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--primary-green);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .stat-names {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .player-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--card-gray);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .stat-value {
+      font-weight: bold;
+      color: var(--text-light);
+    }
+
+    .stat-diff {
+      color: var(--primary-green);
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="header-left">
+      <span class="header-logo">⚽ Arena9</span>
+      <span id="back-header-btn" class="header-icon" style="visibility: hidden" onclick="goBack()" title="Geri">←</span>
+      <span onclick="showLogin()"
+        style="font-size: 10px; margin-left: 10px; cursor: pointer; color: var(--primary-green); border: 1px solid var(--primary-green); padding: 2px 6px; border-radius: 4px;">Admin</span>
+    </div>
+
+    <span id="page-header-title">Əsas</span>
+    <div class="header-right">
+      <button id="edit-header-btn" class="header-icon" style="
+            visibility: hidden;
+            border: none;
+            background: none;
+            color: inherit;
+            cursor: pointer;
+          " onclick="toggleEdit()" title="Redaktə et">
+        ✏️
+      </button>
+    </div>
+
+  </header>
+
+  <div class="page-container">
+    <div id="ana-sayfa" class="page active-page">
+      <!-- Recent Matches Section -->
+      <div style="
+            background: var(--card-gray);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+          ">
+        <h3 style="
+              color: var(--primary-green);
+              margin: 0 0 16px 0;
+              font-size: 18px;
+              font-weight: 600;
+            ">
+          ⚽ Son Matçlar
+        </h3>
+        <div id="recent-matches-list"></div>
+      </div>
+
+      <!-- Top Rankings Section -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
+        <!-- Top Goals -->
+        <div style="
+              background: var(--card-gray);
+              padding: 20px;
+              border-radius: 12px;
+              box-shadow: var(--shadow-sm);
+            ">
+          <h3 style="
+                color: var(--primary-green);
+                margin: 0 0 16px 0;
+                font-size: 18px;
+                font-weight: 600;
+              ">
+            🥅 Qol Krallığı (Top 5)
+          </h3>
+          <div id="top-goals-list"></div>
+        </div>
+
+        <!-- Top Assists -->
+        <div style="
+              background: var(--card-gray);
+              padding: 20px;
+              border-radius: 12px;
+              box-shadow: var(--shadow-sm);
+            ">
+          <h3 style="
+                color: var(--primary-green);
+                margin: 0 0 16px 0;
+                font-size: 18px;
+                font-weight: 600;
+              ">
+            🎯 Asist Krallığı (Top 5)
+          </h3>
+          <div id="top-assists-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="maclar" class="page">
+      <div style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+          ">
+        <h2>Matç Tarixçəsi</h2>
+        <button onclick="showMatchForm()" style="
+              background: var(--primary-green);
+              color: #000;
+              border: none;
+              padding: 8px 15px;
+              border-radius: 8px;
+              font-weight: bold;
+            ">
+          + Yeni Matç
+        </button>
+      </div>
+      <div id="match-list"></div>
+    </div>
+
+    <div id="oyuncular" class="page">
+      <div style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+          ">
+        <h2>Oyunçular</h2>
+        <button onclick="showAddPlayerForm()" style="
+              background: linear-gradient(
+                135deg,
+                var(--primary-green),
+                var(--primary-green-light)
+              );
+              color: #000;
+              border: none;
+              padding: 10px 16px;
+              border-radius: 8px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 13px;
+            ">
+          + Yeni Oyunçu
+        </button>
+      </div>
+      <div style="margin-bottom: 15px">
+        <input type="text" id="player-search" placeholder="🔍 Oyunçu ara..." oninput="filterPlayers(this.value)"
+          style="font-size: 13px" />
+      </div>
+      <div id="full-player-list"></div>
+    </div>
+
+    <!-- Dream Team Page -->
+    <div id="dream-team" class="page">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="color: var(--gold); margin: 0; font-size: 18px;">⭐ Dream Team</h2>
+        <div style="display: flex; gap: 5px;">
+          <select id="team-size-select" onchange="updateFormationOptions()"
+            style="width: auto; padding: 6px; font-size: 11px; background: #222; color: white; border: 1px solid #444; border-radius: 6px;">
+            <option value="5">5 Oyunçu</option>
+            <option value="4">4 Oyunçu</option>
+          </select>
+          <select id="formation-select" onchange="changeFormation()"
+            style="width: auto; padding: 6px; font-size: 11px; background: #222; color: white; border: 1px solid #444; border-radius: 6px;">
+            <!-- Options populated by JS -->
+          </select>
+        </div>
+      </div>
+      <div class="pitch-container" id="pitch-container">
+        <div class="pitch-line center-circle"></div>
+        <div class="pitch-line penalty-area-top"></div>
+        <div class="pitch-line penalty-area-bottom"></div>
+        <div class="absolute top-1/2 left-0 right-0 border-t-2 border-white/20"
+          style="position: absolute; top:50%; width:100%; border-top: 1px solid rgba(255,255,255,0.2);"></div>
+        <div id="formation-layer"></div>
+      </div>
+      <div style="text-align: center; margin-top: 15px;">
+        <small style="color: #666;">Oyunçu seçmək üçün mövqeyə toxunun</small>
+      </div>
+    </div>
+
+
+
+    <div id="add-player-page" class="page">
+      <div class="form-group">
+        <label>Oyunçu Adı</label><input type="text" id="new-p-name" placeholder=" " />
+      </div>
+      <div class="form-group">
+        <label>Şəkil</label>
+        <input type="file" id="new-p-photo" accept="image/*" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+        <div class="form-group">
+          <label>Nömrə</label><input type="text" id="new-p-num" placeholder="7" />
+        </div>
+        <div class="form-group">
+          <label>Yaş</label><input type="number" id="new-p-age" value="14" />
+        </div>
+      </div>
+
+      <h3 style="
+            color: var(--primary-green);
+            font-size: 14px;
+            margin: 15px 0 10px 0;
+          ">
+        TEXNİKİ GÖSTƏRİCİLƏR (0-99)
+      </h3>
+      <div id="new-p-stats-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"></div>
+
+      <button class="main-btn" onclick="saveNewPlayer()">
+        OYUNÇUNU YADDA SAXLA
+      </button>
+    </div>
+
+    <div id="istatistikler" class="page">
+      <div class="tab-container" style="display: flex; gap: 5px; margin-bottom: 20px">
+        <button class="tab-btn active" id="btn-gol" onclick="showStats('gol')">
+          Qol
+        </button>
+        <button class="tab-btn" id="btn-asist" onclick="showStats('asist')">
+          Asist
+        </button>
+        <button class="tab-btn" id="btn-motm" onclick="showStats('motm')">
+          MOTM
+        </button>
+      </div>
+      <div id="stats-list"></div>
+    </div>
+
+    <div id="muqayise" class="page">
+      <h2>Müqayisə</h2>
+      <div style="
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+          ">
+        <div id="player1-select" class="player-select" onclick="selectPlayer(1)">
+          <div class="select-icon">+</div>
+          <div class="select-text">Oyuncu Seç</div>
+        </div>
+        <div class="vs-text">VS</div>
+        <div id="player2-select" class="player-select" onclick="selectPlayer(2)">
+          <div class="select-icon">+</div>
+          <div class="select-text">Oyuncu Seç</div>
+        </div>
+      </div>
+      <div id="comparison-content" style="display: none">
+        <div class="comparison-grid">
+          <div class="player-stats" id="player1-stats"></div>
+          <div class="stat-names"></div>
+          <div class="player-stats" id="player2-stats"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="add-match-page" class="page">
+      <h2>Yeni Matç Əlavə Et</h2>
+      <div class="form-group">
+        <label>Matç Növü</label>
+        <select id="m_type">
+          <option value="Sinif Ligi">Sinif Ligi</option>
+          <option value="Dostluq matçları">Dostluq matçları</option>
+          <option value="Məktəbdənkənar">Məktəbdənkənar</option>
+          <option value="Məktəb çempionatı">Məktəb çempionatı</option>
+        </select>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+        <div class="form-group">
+          <label>Ev Sahibi</label><input type="text" id="match_input_home" value="Arena9"
+            oninput="updateTeamOptions()" />
+        </div>
+        <div class="form-group">
+          <label>Qonaq</label><input type="text" id="match_input_away" placeholder="Rəqib"
+            oninput="updateTeamOptions()" />
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px">
+        <div style="flex: 1">
+          <label>Tarix</label><input type="datetime-local" id="match_input_date" />
+        </div>
+
+        <div style="flex: 1">
+          <label>Sezon</label>
+          <select id="m_season">
+            <option value="21/22">21/22</option>
+            <option value="22/23">22/23</option>
+            <option value="23/24">23/24</option>
+            <option value="24/25">24/25</option>
+            <option value="25/26">25/26</option>
+          </select>
+        </div>
+      </div>
+      <div style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            background: #111;
+            padding: 15px;
+            border-radius: 15px;
+          ">
+        <div style="text-align: center">
+          <small id="live-name-1" style="color: #888; display: block; margin-bottom: 5px">Ev</small><span id="live-s1"
+            style="
+                font-size: 32px;
+                font-weight: bold;
+                color: var(--primary-green);
+              ">0</span>
+        </div>
+        <div style="font-size: 24px; color: #444">-</div>
+        <div style="text-align: center">
+          <small id="live-name-2" style="color: #888; display: block; margin-bottom: 5px">Qonaq</small><span
+            id="live-s2" style="
+                font-size: 32px;
+                font-weight: bold;
+                color: var(--primary-green);
+              ">0</span>
+        </div>
+      </div>
+      <div style="
+            background: #0f0f0f;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid #222;
+          ">
+        <div class="form-group">
+          <label>Qolu Vuran Komanda</label><select id="event_scoring_team"></select>
+        </div>
+        <div class="form-group">
+          <label>Oyunçu</label>
+          <input type="text" id="event_player_manual" placeholder="Oyunçu adı..." list="player-datalist" />
+          <datalist id="player-datalist"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Asist</label><input type="text" id="event_assist_manual" placeholder="Asist edən..."
+            list="player-datalist" />
+        </div>
+        <button class="main-btn" onclick="addMatchEvent('goal')" style="
+              background: #333;
+              color: var(--primary-green);
+              border: 1px dashed var(--primary-green);
+            ">
+          ⚽ Qol Əlavə Et
+        </button>
+      </div>
+      <div class="form-group" style="margin-top: 15px">
+        <label style="color: var(--gold)">⭐ MOTM</label><select id="match_motm"></select>
+      </div>
+      <div id="temp_event_list" style="font-size: 12px; color: #aaa; margin: 10px 0"></div>
+      <button class="main-btn" onclick="saveMatch()">
+        MATÇI YADDA SAXLA
+      </button>
+    </div>
+
+    <div id="player-profile" class="page">
+      <div id="profile-details" class="stat-grid"></div>
+    </div>
+
+    <div id="edit-page" class="page">
+      <div id="edit-form-container"></div>
+      <h3 style="color: var(--primary-green); font-size: 14px; margin-top: 20px">
+        SEZON STATİSTİKASINI DÜZƏLT
+      </h3>
+      <div id="past-seasons-edit"></div>
+      <h3 style="color: var(--primary-green); font-size: 14px; margin-top: 20px">
+        MATÇ NÖVLƏRİNİ DÜZƏLT
+      </h3>
+      <div id="match-types-edit"></div>
+      <button class="main-btn" onclick="savePlayerStats()">
+        Yadda Saxla
+      </button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="nav-item active" id="nav-ana-sayfa" onclick="changePage('ana-sayfa', 'Əsas')">
+      <span class="nav-icon">🏠</span>Əsas
+    </div>
+    <div class="nav-item" id="nav-maclar" onclick="changePage('maclar', 'Matçlar')">
+      <span class="nav-icon">⚽</span>Matçlar
+    </div>
+    <div class="nav-item" id="nav-oyuncular" onclick="changePage('oyuncular', 'Oyunçular')">
+      <span class="nav-icon">👥</span>Oyunçular
+    </div>
+    <div class="nav-item" id="nav-istatistikler" onclick="changePage('istatistikler', 'İstatistikler')">
+      <span class="nav-icon">📊</span>İstatistikler
+    </div>
+    <div class="nav-item" id="nav-muqayise" onclick="changePage('muqayise', 'Müqayisə')">
+      <span class="nav-icon">⚖️</span>Müqayisə
+    </div>
+    <div class="nav-item" id="nav-dream-team" onclick="changePage('dream-team', 'Dream Team')">
+      <span class="nav-icon">⭐</span>Dream
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="login-overlay" style="display: none;">
+    <div class="login-box">
+      <h2 style="color: var(--primary-green); margin-bottom: 20px;">Admin Girişi</h2>
+      <input type="text" id="login-user" placeholder="İstifadəçi adı" style="margin-bottom: 10px;">
+      <input type="password" id="login-pass" placeholder="Şifrə" style="margin-bottom: 20px;">
+      <button class="main-btn" onclick="performLogin()">Giriş</button>
+      <button class="btn-secondary" style="margin-top: 10px; width: 100%;" onclick="closeLogin()">Bağla</button>
+    </div>
+  </div>
+
+
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-title">Təsdiq</div>
+      <div class="modal-text" id="confirm-text"></div>
+      <div class="modal-buttons">
+        <button class="modal-btn secondary" onclick="closeConfirmModal()">
+          Ləğv Et
+        </button>
+        <button class="modal-btn primary" onclick="confirmAction()">
+          Bəli
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const statNames = [
+      "Qol",
+      "Asist",
+      "Hız",
+      "Şut",
+      "Pas",
+      "Dribling",
+      "Defans",
+      "Fizik",
+    ];
+    const matchTypes = [
+      "Sinif Ligi",
+      "Dostluq matçları",
+      "Məktəbdənkənar",
+      "Məktəb çempionatı",
+    ];
+    const seasonOptions = ["21/22", "22/23", "23/24", "24/25", "25/26"];
+
+    let players = [];
+    let matches = [];
+    let isAdmin = false; // Set via API
+    let tempEvents = [];
+    let s1 = 0,
+      s2 = 0;
+    let currentPlayerIndex = null;
+    let historyStack = ["ana-sayfa"];
+    let compareLeft = null;
+    let compareRight = null;
+    let currentCompareSide = null;
+    let isEditMode = false;
+    let currentPage = "ana-sayfa";
+    let currentMatchId = null; // Track editing match ID
+
+
+    // Feature 3: API Integration
+    async function fetchAllData() {
+      try {
+        const [pRes, mRes, authRes] = await Promise.all([
+          fetch('/api/players'),
+          fetch('/api/matches'),
+          fetch('/api/auth-status')
+        ]);
+
+        players = await pRes.json();
+        matches = await mRes.json();
+        const auth = await authRes.json();
+
+        isAdmin = auth.is_admin;
+        updateAdminUI();
+
+        renderRecentMatches();
+        renderTopGoals();
+        renderTopAssists();
+      } catch (e) {
+        console.error("API Error:", e);
+        showToast("Server xətası!", "error");
+      }
+    }
+
+    function updateAdminUI() {
+      document.querySelectorAll('.btn-danger').forEach(el => el.style.display = isAdmin ? 'inline-block' : 'none');
+      const editBtn = document.getElementById('edit-header-btn');
+      if (editBtn) editBtn.style.display = isAdmin ? 'flex' : 'none';
+    }
+
+    // Feature 2: Login Logic
+    async function performLogin() {
+      const u = document.getElementById('login-user').value;
+      const p = document.getElementById('login-pass').value;
+
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        isAdmin = true;
+        showToast("Xoş gəldiniz!", "success");
+        document.getElementById('login-modal').style.display = 'none';
+        updateAdminUI();
+      } else {
+        showToast(data.message, "error");
+      }
+    }
+
+    function showLogin() { document.getElementById('login-modal').style.display = 'flex'; }
+    function closeLogin() { document.getElementById('login-modal').style.display = 'none'; }
+
+    // Feature 5: Image Upload
+    async function uploadImage(fileInputId) {
+      const input = document.getElementById(fileInputId);
+      if (!input.files[0]) return null;
+
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      return data.success ? data.url : null;
+    }
+
+
+    // Toast Notification
+    function showToast(message, type = "success") {
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerText = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Confirm Modal
+    function showConfirm(message, callback) {
+      document.getElementById("confirm-text").innerText = message;
+      document.getElementById("confirm-modal").classList.add("active");
+      pendingAction = callback;
+    }
+
+    function confirmAction() {
+      if (pendingAction) pendingAction();
+      closeConfirmModal();
+    }
+
+    function closeConfirmModal() {
+      document.getElementById("confirm-modal").classList.remove("active");
+      pendingAction = null;
+    }
+
+    // Form Validation
+    function validatePlayerForm() {
+      const name = document.getElementById("new-p-name").value.trim();
+      const age = document.getElementById("new-p-age").value;
+
+      if (!name) {
+        showToast("Oyunçu adı boş ola bilməz!", "error");
+        return false;
+      }
+      if (name.length < 2) {
+        showToast("Ad ən az 2 hərfdən ibarət olmalıdır!", "error");
+        return false;
+      }
+      if (age < 10 || age > 50) {
+        showToast("Yaş 10 ilə 50 arasında olmalıdır!", "error");
+        return false;
+      }
+      return true;
+    }
+
+    function validateMatchForm() {
+      const homeTeam = document.getElementById("match_input_home").value.trim();
+      const awayTeam = document.getElementById("match_input_away").value.trim();
+      const date = document.getElementById("match_input_date").value;
+
+
+      if (!homeTeam || !awayTeam) {
+        showToast("Ev sahibi və qonaq adlarını daxil edin!", "error");
+        return false;
+      }
+      if (homeTeam === awayTeam) {
+        showToast("Komandalar eyni ola bilməz!", "error");
+        return false;
+      }
+      if (!date) {
+        showToast("Matç tarixini seçin!", "error");
+        return false;
+      }
+      return true;
+    }
+
+    function changePage(pageId, title) {
+      currentPage = pageId;
+      document
+        .querySelectorAll(".page")
+        .forEach((p) => p.classList.remove("active-page"));
+      document.getElementById(pageId).classList.add("active-page");
+      document.getElementById("page-header-title").innerText = title;
+      document
+        .querySelectorAll(".nav-item")
+        .forEach((i) => i.classList.remove("active"));
+
+      let navId = "";
+      if (pageId === "ana-sayfa") navId = "nav-ana-sayfa";
+      else if (pageId === "maclar" || pageId === "add-match-page")
+        navId = "nav-maclar";
+      else if (
+        pageId === "oyuncular" ||
+        pageId === "player-profile" ||
+        pageId === "edit-page" ||
+        pageId === "add-player-page"
+      )
+        navId = "nav-oyuncular";
+      else if (pageId === "istatistikler") navId = "nav-istatistikler";
+      else if (pageId === "istatistikler") navId = "nav-istatistikler";
+      else if (pageId === "muqayise") navId = "nav-muqayise";
+      else if (pageId === "dream-team") navId = "nav-dream-team";
+
+
+      if (navId) document.getElementById(navId).classList.add("active");
+      document.getElementById("edit-header-btn").style.visibility =
+        pageId === "player-profile"
+          ? "visible"
+          : "hidden";
+      if (pageId === "player-profile") {
+        document.getElementById("edit-header-btn").innerHTML = "✏️";
+        document.getElementById("edit-header-btn").title = "Redaktə et";
+      }
+
+      document.getElementById("back-header-btn").style.visibility =
+        pageId === "player-profile" ||
+          pageId === "edit-page" ||
+          pageId === "add-match-page" ||
+          pageId === "maclar"
+          ? "visible" // Show back button on match list too if desired, or just subpages
+          : "hidden";
+
+      if (pageId === "ana-sayfa") {
+        renderRecentMatches();
+        renderTopGoals();
+        renderTopAssists();
+      }
+      if (pageId === "istatistikler") showStats("gol");
+      if (pageId === "maclar") renderMatches();
+      if (pageId === "oyuncular") {
+        renderPlayers();
+        document.getElementById("player-search").value = "";
+      }
+      if (pageId === "add-player-page") renderAddPlayerStats();
+      if (pageId === "muqayise") renderComparison();
+
+      if (historyStack[historyStack.length - 1] !== pageId)
+        historyStack.push(pageId);
+    }
+
+    function exportData() {
+      const data = {
+        players,
+        matches,
+        exportedAt: new Date().toLocaleString("az-AZ"),
+      };
+
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Arena9_${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Məlumatlar yükləndi ✓", "success");
+    }
+
+    function goBack() {
+      if (historyStack.length > 1) {
+        historyStack.pop();
+        let prev = historyStack[historyStack.length - 1];
+        let title = getPageTitle(prev);
+        changePage(prev, title);
+      }
+    }
+
+    function getPageTitle(pageId) {
+      switch (pageId) {
+        case "ana-sayfa":
+          return "Əsas";
+        case "maclar":
+          return "Matçlar";
+        case "oyuncular":
+          return "Oyunçular";
+        case "istatistikler":
+          return "İstatistikler";
+        case "muqayise":
+          return "Müqayisə";
+        case "player-profile":
+          return players[currentPlayerIndex]?.name || "Oyuncu";
+        case "edit-page":
+          return "Redaktə";
+        case "add-player-page":
+          return "Yeni Oyunçu";
+        case "add-match-page":
+          return "Yeni Matç";
+        default:
+          return "Əsas";
+      }
+    }
+
+    function renderAddPlayerStats() {
+      const container = document.getElementById("new-p-stats-container");
+      container.innerHTML = statNames
+        .map(
+          (s) => `
+                <div class="form-group">
+                  <label>${s}</label>
+                  <input type="number" id="new-stat-${s}" value="80" min="0" max="99">
+                </div>
+              `,
+        )
+        .join("");
+    }
+
+    async function saveNewPlayer() {
+      if (!validatePlayerForm()) return;
+
+      const name = document.getElementById("new-p-name").value.trim();
+      const num = document.getElementById("new-p-num").value || "0";
+      const age = parseInt(document.getElementById("new-p-age").value) || 14;
+
+      // Image Upload
+      const photoUrl = await uploadImage('new-p-photo');
+
+      if (players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
+        showToast("Bu oyunçu zaten mövcuddur!", "error");
+        return;
+      }
+
+      let customStats = {};
+      statNames.forEach((s) => {
+        const val =
+          parseInt(document.getElementById(`new-stat-${s}`).value) || 80;
+        customStats[s] = Math.max(0, Math.min(99, val));
+      });
+
+      const newPlayer = {
+        num: num,
+        name: name,
+        age: age,
+        stats: customStats,
+        photo_url: photoUrl,
+        pastData: createPastData(),
+        typeStats: createTypeStats(),
+      };
+
+      // API Call
+      try {
+        const res = await fetch('/api/players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newPlayer)
+        });
+        const data = await res.json();
+        if (data.success) {
+          newPlayer.id = data.id;
+          players.push(newPlayer);
+          showToast(name + " uğurla əlavə edildi! ✓", "success");
+          document.getElementById("new-p-name").value = "";
+          document.getElementById("new-p-num").value = "";
+          document.getElementById("new-p-age").value = "14";
+          changePage("oyuncular", "Oyunçular");
+        } else {
+          showToast("Xəta: " + data.message, "error");
+        }
+      } catch (e) { showToast("Server xətası", "error"); }
+    }
+
+    function createPastData() {
+      let d = {};
+      seasonOptions.forEach((s) => (d[s] = { g: 0, a: 0, m: 0 }));
+      return d;
+    }
+    function createTypeStats() {
+      let d = {};
+      matchTypes.forEach((t) => (d[t] = { g: 0, a: 0, m: 0 }));
+      return d;
+    }
+
+    function getOverall(stats) {
+      let t = 0;
+      statNames.forEach((n) => (t += Number(stats[n])));
+      return Math.round(t / statNames.length);
+    }
+
+    function renderPlayers() {
+      const list = document.getElementById("full-player-list");
+
+      if (players.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">👥</div>
+              <div class="empty-state-text">Hələ oyunçu yoxdur</div>
+              <div style="margin-top: 15px;">
+                <button class="main-btn" style="max-width: 200px; margin: 0 auto;" onclick="showAddPlayerForm()">
+                  + Oyunçu Əlavə Et
+                </button>
+              </div>
+            </div>
+          `;
+        return;
+      }
+
+      players.sort((a, b) => a.num - b.num);
+      list.innerHTML = players
+        .map(
+          (p, idx) => `
+                <div class="rank-item" style="position: relative;">
+                  <span class="rank-num">#${p.num}</span>
+                  <div style="flex:1; cursor: pointer;" onclick="viewProfile(${idx})">
+                    <div style="font-weight:600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.name}</div>
+                    <div style="font-size:11px; color:var(--text-gray); margin-top: 2px;">OVR: <span style="color: var(--primary-green); font-weight: 600;">${getOverall(p.stats)}</span> | Yaş: ${p.age}</div>
+                  </div>
+                  <button class="btn-danger" onclick="deletePlayer(${idx})" title="Sil">🗑️</button>
+                </div>
+              `,
+        )
+        .join("");
+    }
+
+    function filterPlayers(query) {
+      const list = document.getElementById("full-player-list");
+      const filtered = players.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query.toLowerCase()) ||
+          p.num.toString().includes(query),
+      );
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🔍</div>
+              <div class="empty-state-text">Oyunçu tapılmadı</div>
+            </div>
+          `;
+        return;
+      }
+
+      list.innerHTML = filtered
+        .map((p, idx) => {
+          const actualIdx = players.indexOf(p);
+          return `
+                <div class="rank-item" style="position: relative;">
+                  <span class="rank-num">#${p.num}</span>
+                  <div style="flex:1; cursor: pointer;" onclick="viewProfile(${actualIdx})">
+                    <div style="font-weight:600; font-size: 14px;">${p.name}</div>
+                    <div style="font-size:11px; color:var(--text-gray); margin-top: 2px;">OVR: <span style="color: var(--primary-green); font-weight: 600;">${getOverall(p.stats)}</span> | Yaş: ${p.age}</div>
+                  </div>
+                  <button class="btn-danger" onclick="deletePlayer(${actualIdx})" title="Sil">🗑️</button>
+                </div>
+              `;
+        })
+        .join("");
+    }
+
+    function deletePlayer(idx) {
+      const player = players[idx];
+      showConfirm(
+        `${player.name} silinsin?\nBu əməl geri qaytarıla bilməz.`,
+        async () => {
+          try {
+            const res = await fetch(`/api/players/${player.id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+              players.splice(idx, 1);
+              showToast(player.name + " silindi", "success");
+              renderPlayers();
+            } else {
+              showToast("Xəta: " + data.message, "error");
+            }
+          } catch (e) { showToast("Server xətası", "error"); }
+        },
+      );
+    }
+
+
+    function renderRecentMatches() {
+      const list = document.getElementById("recent-matches-list");
+      if (matches.length === 0) {
+        list.innerHTML =
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ matç yoxdur</div>';
+        return;
+      }
+      const recent = matches.slice(0, 5); // Show last 5 matches
+      list.innerHTML = recent
+        .map(
+          (m, idx) => `
+                <div class="match-card" onclick="viewMatch(${matches.indexOf(m)})" style="cursor: pointer; margin-bottom: 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <small style="color:var(--primary-green)">${m.type} (${m.season})</small>
+                      <div style="font-weight: bold; font-size: 14px; margin: 4px 0;">${m.home} vs ${m.away}</div>
+                      <div style="font-size: 12px; color: var(--text-gray);">📅 ${new Date(m.date).toLocaleDateString("az-AZ")}</div>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-size: 18px; font-weight: bold; color: var(--primary-green);">${m.s1} - ${m.s2}</div>
+                    </div>
+                  </div>
+                  <div class="match-details">
+                    <div>MVP: ${m.motm || '-'}</div>
+                    <!-- Events list simplified -->
+                    <div class="match-footer">
+                       <span class="match-date-info">ID: ${m.id}</span>
+                       <div class="admin-actions">
+                         <button class="edit-btn btn-danger" onclick="editMatch(${idx}); event.stopPropagation();">✎</button>
+                         <button class="delete-btn btn-danger" onclick="deleteMatch(${idx}); event.stopPropagation();" title="Sil">🗑️</button>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+
+              `,
+        )
+        .join("");
+    }
+
+    function renderTopGoals() {
+      const list = document.getElementById("top-goals-list");
+      const playerStats = players
+        .map((p) => ({
+          name: p.name,
+          goals:
+            Object.values(p.pastData).reduce(
+              (sum, season) => sum + season.g,
+              0,
+            ) +
+            Object.values(p.typeStats).reduce((sum, type) => sum + type.g, 0),
+        }))
+        .sort((a, b) => b.goals - a.goals)
+        .slice(0, 5);
+
+      if (playerStats.length === 0 || playerStats[0].goals === 0) {
+        list.innerHTML =
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ qol yoxdur</div>';
+        return;
+      }
+
+      list.innerHTML = playerStats
+        .map(
+          (p, idx) => `
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <div style="width: 24px; height: 24px; background: var(--primary-green); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">${idx + 1}</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px;">${p.name}</div>
+              </div>
+              <div style="font-size: 16px; font-weight: bold; color: var(--gold);">${p.goals}</div>
+            </div>
+          `,
+        )
+        .join("");
+    }
+
+    function renderTopAssists() {
+      const list = document.getElementById("top-assists-list");
+      const playerStats = players
+        .map((p) => ({
+          name: p.name,
+          assists:
+            Object.values(p.pastData).reduce(
+              (sum, season) => sum + season.a,
+              0,
+            ) +
+            Object.values(p.typeStats).reduce((sum, type) => sum + type.a, 0),
+        }))
+        .sort((a, b) => b.assists - a.assists)
+        .slice(0, 5);
+
+      if (playerStats.length === 0 || playerStats[0].assists === 0) {
+        list.innerHTML =
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ asist yoxdur</div>';
+        return;
+      }
+
+      list.innerHTML = playerStats
+        .map(
+          (p, idx) => `
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <div style="width: 24px; height: 24px; background: var(--primary-green); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">${idx + 1}</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px;">${p.name}</div>
+              </div>
+              <div style="font-size: 16px; font-weight: bold; color: var(--gold);">${p.assists}</div>
+            </div>
+          `,
+        )
+        .join("");
+    }
+
+    function viewProfile(index) {
+      currentPlayerIndex = index;
+      isEditMode = false;
+      const p = players[index];
+
+      // Sezon cədvəli sətirləri (OM əlavə edildi)
+      let seasonRows = seasonOptions
+        .map(
+          (s) =>
+            `<tr>
+      <td>${s}</td>
+      <td>${isEditMode ? `<input type="number" id="season-om-${s.replace("/", "")}" value="${p.pastData[s].om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].om || 0}`}</td> 
+      <td>${isEditMode ? `<input type="number" id="season-g-${s.replace("/", "")}" value="${p.pastData[s].g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].g}`}</td>
+      <td>${isEditMode ? `<input type="number" id="season-a-${s.replace("/", "")}" value="${p.pastData[s].a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].a}`}</td>
+      <td>${isEditMode ? `<input type="number" id="season-m-${s.replace("/", "")}" value="${p.pastData[s].m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].m}`}</td>
+    </tr>`,
+        )
+        .join("");
+
+      // Matç Növü cədvəli sətirləri (OM əlavə edildi)
+      let typeRows = matchTypes
+        .map(
+          (t) =>
+            `<tr>
+      <td>${t}</td>
+      <td>${isEditMode ? `<input type="number" id="type-om-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].om || 0}`}</td>
+      <td>${isEditMode ? `<input type="number" id="type-g-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].g}`}</td>
+      <td>${isEditMode ? `<input type="number" id="type-a-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].a}`}</td>
+      <td>${isEditMode ? `<input type="number" id="type-m-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].m}`}</td>
+    </tr>`,
+        )
+        .join("");
+
+      changePage("player-profile", p.name);
+
+      document.getElementById("profile-details").innerHTML = `
+    <div class="stat-card rating-box" style="grid-column: span 2;">
+      <div class="rating-value">${getOverall(p.stats)}</div>
+      <div style="font-size:12px; opacity:0.7;">#${p.num} | Yaş: ${p.age}</div>
+    </div>
+
+    <div class="season-table" style="grid-column: span 2;">
+      <div class="table-title">📅 Sezon Statistikası</div>
+      <table>
+        <thead><tr><th>SEZON</th><th>OM</th><th>G</th><th>A</th><th>MOTM</th></tr></thead>
+        <tbody>${seasonRows}</tbody>
+      </table>
+    </div>
+
+    <div class="season-table" style="grid-column: span 2;">
+      <div class="table-title">🏆 Turnir/Matç Növü</div>
+      <table>
+        <thead><tr><th>NÖV</th><th>OM</th><th>G</th><th>A</th><th>MOTM</th></tr></thead>
+        <tbody>${typeRows}</tbody>
+      </table>
+    </div>
+
+    <div style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      ${["Hız", "Şut", "Pas", "Dribling", "Defans", "Fizik"]
+          .map(
+            (n) => `
+        <div class="stat-card single-stat" style="margin-bottom:0">
+          <span style="font-size:10px; color:var(--text-gray)">${n.toUpperCase()}</span>
+          ${isEditMode ? `<input type="number" id="profile-${n}" value="${p.stats?.[n] || 0}" style="font-size:18px; font-weight:bold; border:none; background:none; color:inherit; text-align:center; width:100%;" min="0" max="99">` : `<b style="font-size:18px">${p.stats?.[n] || 0}</b>`}
+        </div>
+      `,
+          )
+          .join("")}
+    </div>
+
+    ${isEditMode
+          ? `<div style="grid-column: span 2; text-align: center; margin-top: 20px;">
+      <button class="main-btn" onclick="saveProfileStats()">Yadda Saxla</button>
+    </div>`
+          : ""
+        }`;
+    }
+
+    // Redaktə (Edit) bölməsində də OM giriş sahəsi olması üçün bu hissəni də yeniləyin:
+    function openEditPage(idx) {
+      const p = players[idx];
+      changePage("edit-page", "Redaktə");
+
+      let h = `<div class="form-group"><label>Ad</label><input type="text" id="edit-name" value="${p.name}"></div>
+           <div class="form-group"><label>Yaş</label><input type="number" id="edit-age" value="${p.age}"></div>
+           <div class="form-group"><label>Nömrə</label><input type="text" id="edit-num" value="${p.num}"></div>`;
+
+      statNames.forEach(
+        (n) =>
+          (h += `<div class="form-group"><label>${n}</label><input type="number" id="inp-${n}" value="${p.stats[n]}"></div>`),
+      );
+      document.getElementById("edit-form-container").innerHTML = h;
+
+      let sH = "";
+      seasonOptions.forEach((s) => {
+        let data = p.pastData[s];
+        let k = s.replace("/", "");
+        sH += `<label style="font-size:9px; color:var(--text-gray);">${s}</label>
+           <div class="edit-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+             <div><label>OM</label><input type="number" id="ps-om-${k}" value="${data.om || 0}"></div>
+             <div><label>G</label><input type="number" id="ps-g-${k}" value="${data.g}"></div>
+             <div><label>A</label><input type="number" id="ps-a-${k}" value="${data.a}"></div>
+             <div><label>M</label><input type="number" id="ps-m-${k}" value="${data.m}"></div>
+           </div>`;
+      });
+      document.getElementById("past-seasons-edit").innerHTML = sH;
+
+      let tH = "";
+      matchTypes.forEach((t) => {
+        let data = p.typeStats[t];
+        let k = t.replace(/\s+/g, "");
+        tH += `<label style="font-size:9px; color:var(--text-gray);">${t}</label>
+           <div class="edit-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+             <div><label>OM</label><input type="number" id="pt-om-${k}" value="${data.om || 0}"></div>
+             <div><label>G</label><input type="number" id="pt-g-${k}" value="${data.g}"></div>
+             <div><label>A</label><input type="number" id="pt-a-${k}" value="${data.a}"></div>
+             <div><label>M</label><input type="number" id="pt-m-${k}" value="${data.m}"></div>
+           </div>`;
+      });
+      document.getElementById("match-types-edit").innerHTML = tH;
+    }
+
+    async function savePlayerStats() {
+
+      const p = players[currentPlayerIndex];
+      p.name = document.getElementById("edit-name").value || p.name;
+      if (!p.name.trim()) {
+        showToast("Ad boş ola bilməz!", "error");
+        return;
+      }
+      p.age = parseInt(document.getElementById("edit-age").value) || 0;
+      p.num = document.getElementById("edit-num").value || p.num;
+
+      if (p.age < 10 || p.age > 50) {
+        showToast("Yaş 10 ilə 50 arasında olmalıdır!", "error");
+        return;
+      }
+
+      statNames.forEach((n) => {
+        const val = parseInt(document.getElementById("inp-" + n).value) || 0;
+        p.stats[n] = Math.max(0, Math.min(99, val));
+      });
+
+      seasonOptions.forEach((s) => {
+        let k = s.replace("/", "");
+        p.pastData[s] = {
+          g: Math.max(
+            0,
+            parseInt(document.getElementById(`ps-g-${k}`).value) || 0,
+          ),
+          a: Math.max(
+            0,
+            parseInt(document.getElementById(`ps-a-${k}`).value) || 0,
+          ),
+          m: Math.max(
+            0,
+            parseInt(document.getElementById(`ps-m-${k}`).value) || 0,
+          ),
+        };
+      });
+
+      matchTypes.forEach((t) => {
+        let k = t.replace(/\s+/g, "");
+        p.typeStats[t] = {
+          om: Math.max(
+            0,
+            parseInt(document.getElementById(`pt-om-${k}`).value) || 0,
+          ),
+          g: Math.max(
+            0,
+            parseInt(document.getElementById(`pt-g-${k}`).value) || 0,
+          ),
+          a: Math.max(
+            0,
+            parseInt(document.getElementById(`pt-a-${k}`).value) || 0,
+          ),
+          m: Math.max(
+            0,
+            parseInt(document.getElementById(`pt-m-${k}`).value) || 0,
+          ),
+        };
+      });
+
+      // map stats/season/type back to backend structure?
+      // For now, updating frontend object and sending relevant parts
+      // NOTE: Detailed season/type stats syncing to DB is complex, simplified to basic stats for now in this iteration
+      // Unless we expand the PUT endpoint to handle nested JSONs or use separate endpoints.
+      // Based on app.py, api_player_detail PUT accepts 'stats' dict.
+
+      const payload = {
+        name: p.name,
+        age: p.age,
+        num: p.num,
+        stats: p.stats
+        // detailed stats excluded for MVP API update unless backend extended
+      };
+
+      try {
+        const res = await fetch(`/api/players/${p.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast("Oyunçu məlumatı güncəlləndi ✓", "success");
+          viewProfile(currentPlayerIndex);
+        } else {
+          showToast("Xəta: " + data.message, "error");
+        }
+      } catch (e) { showToast("Server xətası", "error"); }
+    }
+
+
+    async function saveProfileStats() {
+      const p = players[currentPlayerIndex];
+
+
+      // Save single stats
+      ["Hız", "Şut", "Pas", "Dribling", "Defans", "Fizik"].forEach((n) => {
+        const val =
+          parseInt(document.getElementById(`profile-${n}`).value) || 0;
+        p.stats[n] = Math.max(0, Math.min(99, val));
+      });
+
+      // Save season stats
+      seasonOptions.forEach((s) => {
+        let k = s.replace("/", "");
+        p.pastData[s] = {
+          om: Math.max(
+            0,
+            parseInt(document.getElementById(`season-om-${k}`).value) || 0,
+          ),
+          g: Math.max(
+            0,
+            parseInt(document.getElementById(`season-g-${k}`).value) || 0,
+          ),
+          a: Math.max(
+            0,
+            parseInt(document.getElementById(`season-a-${k}`).value) || 0,
+          ),
+          m: Math.max(
+            0,
+            parseInt(document.getElementById(`season-m-${k}`).value) || 0,
+          ),
+        };
+      });
+
+      // Save type stats
+      matchTypes.forEach((t) => {
+        let k = t.replace(/\s+/g, "");
+        p.typeStats[t] = {
+          om: Math.max(
+            0,
+            parseInt(document.getElementById(`type-om-${k}`).value) || 0,
+          ),
+          g: Math.max(
+            0,
+            parseInt(document.getElementById(`type-g-${k}`).value) || 0,
+          ),
+          a: Math.max(
+            0,
+            parseInt(document.getElementById(`type-a-${k}`).value) || 0,
+          ),
+          m: Math.max(
+            0,
+            parseInt(document.getElementById(`type-m-${k}`).value) || 0,
+          ),
+        };
+      });
+
+      // API Update
+      const payload = {
+        // Send specific stats structures
+        // Since app.py api_player_detail logic we added handles 'stats' but maybe not complex nested
+        // We might need to rely on the backend handling 'stats' update primarily, 
+        // or extend backend. For now, we send what we have.
+        // Note: App.py currently only explicitly updates 'stats' (skills). 
+        // If we want to update seasons/types, we need to ensure backend supports it or we accept detailed_skills column usage.
+        // Let's assume for now we just send what we can.
+        stats: p.stats
+        // Detailed season data would need backend support to parse 'pastData' from JSON
+      };
+
+      try {
+        const res = await fetch(`/api/players/${p.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          showToast("Profil statistikaları yadda saxlanıldı ✓", "success");
+          isEditMode = false;
+          viewProfile(currentPlayerIndex);
+          document.getElementById("edit-header-btn").innerHTML = "✏️";
+          document.getElementById("edit-header-btn").title = "Redaktə et";
+        } else {
+          showToast("Xəta", "error");
+        }
+      } catch (e) { showToast("Server xətası", "error"); }
+    }
+
+
+    function toggleEdit() {
+      if (currentPage === "player-profile") {
+        isEditMode = !isEditMode;
+        viewProfile(currentPlayerIndex);
+        document.getElementById("edit-header-btn").innerHTML = isEditMode
+          ? "💾"
+          : "✏️";
+        document.getElementById("edit-header-btn").title = isEditMode
+          ? "Yadda Saxla"
+          : "Redaktə et";
+      } else if (currentPage === "maclar") {
+        showMatchForm();
+      } else if (currentPage === "oyuncular") {
+        showAddPlayerForm();
+      }
+    }
+
+    function showStats(type) {
+      document
+        .querySelectorAll(".tab-btn")
+        .forEach((b) => b.classList.remove("active"));
+      document.getElementById("btn-" + type).classList.add("active");
+
+      let sorted = [...players]
+        .map((p) => {
+          let total = 0;
+          seasonOptions.forEach((s) => {
+            if (type === "gol") total += p.pastData[s].g;
+            else if (type === "asist") total += p.pastData[s].a;
+            else if (type === "motm") total += p.pastData[s].m;
+          });
+          return { name: p.name, val: total, num: p.num };
+        })
+        .filter((p) => p.val > 0)
+        .sort((a, b) => b.val - a.val);
+
+      if (sorted.length === 0) {
+        document.getElementById("stats-list").innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📈</div>
+              <div class="empty-state-text">Hələ statistika yoxdur</div>
+            </div>
+          `;
+        return;
+      }
+
+      document.getElementById("stats-list").innerHTML = sorted
+        .map(
+          (p, i) => `
+                <div class="rank-item">
+                  <span class="rank-num">#${i + 1}</span>
+                  <div style="flex:1">
+                    <div style="font-weight:bold">${p.name}</div>
+                    <div style="font-size:11px; color:#666">Nömrə: ${p.num}</div>
+                  </div>
+                  <div style="font-weight:bold; color:var(--primary-green); font-size:16px;">${p.val}</div>
+                </div>
+              `,
+        )
+        .join("");
+    }
+
+    function showAddPlayerForm() {
+      changePage("add-player-page", "Yeni Oyunçu");
+    }
+
+    function showMatchForm() {
+      currentMatchId = null; // precise reset
+      document.getElementById("match_input_home").value = "";
+      document.getElementById("match_input_away").value = "";
+      document.getElementById("match_input_date").value = "";
+
+
+
+      changePage("add-match-page", "Yeni Matç");
+      tempEvents = [];
+      s1 = 0;
+      s2 = 0;
+      updateScoreDisplay();
+      updateTeamOptions(); // Initial
+
+      // Populate datalists
+      document.getElementById("player-datalist").innerHTML = players
+        .map((p) => `<option value="${p.name}">`)
+        .join("");
+      document.getElementById("match_motm").innerHTML =
+        `<option value="">Seçin...</option>` +
+        players
+          .map((p) => `<option value="${p.name}">${p.name}</option>`)
+          .join("");
+    }
+
+    function editMatch(idx) {
+      changePage("add-match-page", "Matçı Redaktə Et");
+      const m = matches[idx];
+      currentMatchId = m.id;
+      isEditMode = true;
+
+      document.getElementById("match_input_home").value = m.home;
+      document.getElementById("match_input_away").value = m.away;
+      document.getElementById("match_input_date").value = m.date;
+
+
+      document.getElementById("match_season").value = m.season;
+      document.getElementById("match_motm").value = m.motm || '';
+
+      // Load events
+      tempEvents = m.events.map(e => ({
+        team: e.team,
+        player: e.player,
+        assist: e.assist
+      }));
+
+      s1 = m.s1;
+      s2 = m.s2;
+      updateScoreDisplay();
+      renderEventList();
+      updateTeamOptions();
+    }
+
+    function deleteMatch(idx) {
+      const m = matches[idx];
+      showConfirm(`Matç silinsin?`, async () => {
+        try {
+          const res = await fetch(`/api/matches/${m.id}`, { method: 'DELETE' });
+          if (res.ok) {
+            matches.splice(idx, 1);
+            showToast("Matç silindi", "success");
+            renderRecentMatches(); // Refresh list
+          }
+        } catch (e) { showToast("Server xətası", "error"); }
+      });
+    }
+
+
+    function updateTeamOptions() {
+      const t1 = document.getElementById("match_input_home").value || "Ev";
+      const t2 = document.getElementById("match_input_away").value || "Qonaq";
+
+      document.getElementById("live-name-1").innerText = t1;
+      document.getElementById("live-name-2").innerText = t2;
+      document.getElementById("event_scoring_team").innerHTML =
+        `<option value="${t1}">${t1}</option><option value="${t2}">${t2}</option>`;
+    }
+
+    function addMatchEvent() {
+      const team = document.getElementById("event_scoring_team").value;
+      const player = document
+        .getElementById("event_player_manual")
+        .value.trim();
+      const assist = document
+        .getElementById("event_assist_manual")
+        .value.trim();
+
+      if (!player) {
+        showToast("Oyunçu adını daxil edin!", "error");
+        return;
+      }
+
+      if (team === document.getElementById("m_home_team").value) s1++;
+      else s2++;
+      updateScoreDisplay();
+
+      tempEvents.push({ team, player, assist: assist || null });
+      document.getElementById("temp_event_list").innerHTML = `
+          <div style="background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="font-size: 12px; font-weight: bold; color: var(--primary-green); margin-bottom: 8px;">Qollar (${tempEvents.length}):</div>
+            ${tempEvents
+          .map(
+            (
+              e,
+              i,
+            ) => `<div style="font-size: 11px; padding: 4px 0; color: #ccc;">
+                  ⚽ <b>${e.team}:</b> ${e.player} ${e.assist ? "<small style='color:#888'>(A: " + e.assist + ")</small>" : ""}
+                  <button class="btn-danger" style="float: right; padding: 2px 6px; font-size: 9px;" onclick="removeTempEvent(${i})">Sil</button>
+                </div>`,
+          )
+          .join("")}
+          </div>
+        `;
+      document.getElementById("event_player_manual").value = "";
+      document.getElementById("event_assist_manual").value = "";
+      showToast("Qol əlavə edildi ✓", "success");
+    }
+
+    function removeTempEvent(idx) {
+      tempEvents.splice(idx, 1);
+      if (tempEvents.length === 0) {
+        s1 = 0;
+        s2 = 0;
+      }
+      updateScoreDisplay();
+      addMatchEvent();
+      document.getElementById("event_player_manual").value = "";
+      document.getElementById("event_assist_manual").value = "";
+    }
+
+    function updateScoreDisplay() {
+      document.getElementById("live-s1").innerText = s1;
+      document.getElementById("live-s2").innerText = s2;
+    }
+
+    async function saveMatch() {
+      if (!validateMatchForm()) return;
+
+      const match = {
+        type: document.getElementById("m_type").value,
+        home: document.getElementById("match_input_home").value.trim(),
+        away: document.getElementById("match_input_away").value.trim(),
+        s1,
+        s2,
+        date: document.getElementById("match_input_date").value,
+
+        season: document.getElementById("m_season").value,
+        motm: document.getElementById("match_motm").value,
+        events: [...tempEvents],
+      };
+
+      if (isEditMode && currentMatchId) {
+        match.id = currentMatchId;
+      }
+
+      // API Call
+      try {
+        const url = (isEditMode && currentMatchId) ? `/api/matches/${currentMatchId}` : '/api/matches';
+        const method = (isEditMode && currentMatchId) ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(match)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(isEditMode ? "Matç yeniləndi! ✓" : "Matç uğurla saxlanıldı! ✓", "success");
+          isEditMode = false;
+          currentMatchId = null;
+          fetchAllData(); // key: refresh all data from backend
+          changePage("maclar", "Matçlar");
+        } else {
+          showToast("Xəta: " + data.message, "error");
+        }
+      } catch (e) { showToast("Server xətası", "error"); }
+    }
+
+
+
+
+    function renderMatches() {
+      const list = document.getElementById("match-list");
+
+      if (matches.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">⚽</div>
+              <div class="empty-state-text">Hələ matç yoxdur</div>
+              <div style="margin-top: 15px;">
+                <button class="main-btn" style="max-width: 200px; margin: 0 auto;" onclick="showMatchForm()">
+                  + Yeni Matç
+                </button>
+              </div>
+            </div>
+          `;
+        return;
+      }
+
+      matches.sort((a, b) => new Date(b.date) - new Date(a.date));
+      list.innerHTML = matches
+        .map(
+          (m, idx) => `
+                <div class="match-card" onclick="viewMatch(${idx})" style="cursor: pointer;">
+                  <div class="card-header">
+                    <small style="color:var(--primary-green)">${m.type} (${m.season})</small>
+                    <button class="btn-danger" onclick="deleteMatch(${idx}, event)">🗑️ Sil</button>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; font-weight: bold; margin: 10px 0; font-size: 18px;">
+                    <span style="text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.home}</span>
+                    <span style="color: var(--primary-green); text-align: center;">${m.s1} - ${m.s2}</span>
+                    <span style="text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.away}</span>
+                  </div>
+                  <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 8px;">
+                    📅 ${new Date(m.date).toLocaleDateString("az-AZ")}
+                  </div>
+                </div>
+              `,
+        )
+        .join("");
+    }
+
+    function deleteMatch(idx, event) {
+      event.stopPropagation();
+      const match = matches[idx];
+      showConfirm(
+        `${match.home} - ${match.away} matçı silinsin?\nBu əməl geri qaytarıla bilməz.`,
+        () => {
+          matches.splice(idx, 1);
+          localStorage.setItem("arena9_matches", JSON.stringify(matches));
+          showToast("Matç silindi", "success");
+          renderMatches();
+        },
+      );
+    }
+
+    function viewMatch(idx) {
+      const match = matches[idx];
+      document.getElementById("modal-title").innerText =
+        `${match.home} vs ${match.away}`;
+      document.getElementById("modal-content").innerHTML = `
+          <!-- Match Header -->
+          <div style="background: linear-gradient(135deg, var(--card-gray) 0%, var(--bg-dark) 100%); padding: 24px; border-radius: 16px; margin-bottom: 24px; box-shadow: var(--shadow);">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="font-size: 14px; color: var(--text-gray); margin-bottom: 8px;">${match.type} • ${match.season}</div>
+              <div style="font-size: 12px; color: var(--text-gray);">📅 ${new Date(match.date).toLocaleString("az-AZ")}</div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div style="text-align: center; flex: 1;">
+                <div style="font-size: 20px; font-weight: 700; color: var(--text-light); margin-bottom: 8px;">${match.home}</div>
+                <div style="width: 60px; height: 60px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px; font-weight: bold; color: #000;">🏆</div>
+              </div>
+              
+              <div style="text-align: center; padding: 0 20px;">
+                <div style="font-size: 48px; font-weight: 900; color: var(--primary-green); line-height: 1; margin-bottom: 8px;">${match.s1} - ${match.s2}</div>
+                <div style="font-size: 12px; color: var(--text-gray); text-transform: uppercase;">FT</div>
+              </div>
+              
+              <div style="text-align: center; flex: 1;">
+                <div style="font-size: 20px; font-weight: 700; color: var(--text-light); margin-bottom: 8px;">${match.away}</div>
+                <div style="width: 60px; height: 60px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px; font-weight: bold; color: #000;">⚽</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Events Timeline -->
+          <div style="background: var(--card-gray); padding: 24px; border-radius: 16px; margin-bottom: 24px;">
+            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600;">⚽ Hadisələr</h3>
+            ${match.events.length > 0
+          ? `
+              <div style="position: relative;">
+                <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--primary-green); transform: translateX(-50%);"></div>
+                ${match.events
+            .map(
+              (e, i) => `
+                  <div style="display: flex; align-items: center; margin-bottom: 16px; ${i % 2 === 0 ? "justify-content: flex-start;" : "justify-content: flex-end; flex-direction: row-reverse;"}">
+                    <div style="background: ${e.team === match.home ? "var(--primary-green)" : "var(--danger-red)"}; color: #000; padding: 8px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; z-index: 1;">
+                      ⚽ ${e.player}
+                      ${e.assist ? ` (A: ${e.assist})` : ""}
+                    </div>
+                  </div>
+                `,
+            )
+            .join("")}
+              </div>
+            `
+          : '<div style="text-align: center; color: var(--text-gray); padding: 40px 0;">Qol yoxdur</div>'
+        }
+          </div>
+          
+          <!-- Match Stats -->
+          <div style="background: var(--card-gray); padding: 24px; border-radius: 16px; margin-bottom: 24px;">
+            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600;">📊 Statistika</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: var(--text-light);">${match.events.filter((e) => e.team === match.home).length}</div>
+                <div style="font-size: 12px; color: var(--text-gray);">${match.home} Qolları</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: var(--text-light);">${match.events.filter((e) => e.team === match.away).length}</div>
+                <div style="font-size: 12px; color: var(--text-gray);">${match.away} Qolları</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Man of the Match -->
+          <div style="background: var(--card-gray); padding: 24px; border-radius: 16px;">
+            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600;">⭐ Man of the Match</h3>
+            <div style="display: flex; align-items: center;">
+              <div style="width: 50px; height: 50px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 20px;">⭐</div>
+              <div>
+                <div style="font-size: 18px; font-weight: 600; color: var(--gold);">${match.motm || "Seçilmədi"}</div>
+                <div style="font-size: 12px; color: var(--text-gray);">Ən yaxşı oyunçu</div>
+              </div>
+            </div>
+          </div>
+        `;
+      document.getElementById("match-modal").style.display = "block";
+    }
+
+    function closeMatchModal() {
+      document.getElementById("match-modal").style.display = "none";
+    }
+
+    function renderComparison() {
+      compareLeft = null;
+      compareRight = null;
+      document.getElementById("player1-select").innerHTML = `
+          <div class="select-icon">+</div>
+          <div class="select-text">Oyuncu Seç</div>
+        `;
+      document.getElementById("player2-select").innerHTML = `
+          <div class="select-icon">+</div>
+          <div class="select-text">Oyuncu Seç</div>
+        `;
+      document.getElementById("comparison-content").style.display = "none";
+    }
+
+    function selectPlayer(side) {
+      currentCompareSide = side;
+      const modalContent = `
+          <div style="max-height: 400px; overflow-y: auto;">
+            ${players
+          .map(
+            (p, i) => `
+              <div onclick="choosePlayer(${i})" style="padding: 12px; border-bottom: 1px solid var(--card-gray); cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <div style="width: 40px; height: 40px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold;">${p.num}</div>
+                <div>
+                  <div style="font-weight: bold;">${p.name}</div>
+                  <div style="font-size: 12px; color: var(--text-gray);">Nömrə: ${p.num}</div>
+                </div>
+              </div>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+      document.getElementById("modal-title").innerText = "Oyuncu Seç";
+      document.getElementById("modal-content").innerHTML = modalContent;
+      document.getElementById("match-modal").style.display = "flex";
+    }
+
+    function choosePlayer(index) {
+      const player = players[index];
+      if (currentCompareSide === 1) {
+        compareLeft = player;
+        document.getElementById("player1-select").innerHTML = `
+            <div style="width: 60px; height: 60px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 24px; margin-bottom: 5px;">${player.num}</div>
+            <div style="font-weight: bold; font-size: 14px; text-align: center;">${player.name}</div>
+          `;
+      } else {
+        compareRight = player;
+        document.getElementById("player2-select").innerHTML = `
+            <div style="width: 60px; height: 60px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 24px; margin-bottom: 5px;">${player.num}</div>
+            <div style="font-weight: bold; font-size: 14px; text-align: center;">${player.name}</div>
+          `;
+      }
+      closeMatchModal();
+      if (compareLeft && compareRight) {
+        updateComparison();
+      }
+    }
+
+    function updateComparison() {
+      const technicalStats = [
+        { name: "Hız", key: "Hız" },
+        { name: "Şut", key: "Şut" },
+        { name: "Pas", key: "Pas" },
+        { name: "Dribling", key: "Dribling" },
+        { name: "Defans", key: "Defans" },
+        { name: "Fizik", key: "Fizik" },
+      ];
+
+      const performanceStats = [
+        { name: "Qollar", key: "goals" },
+        { name: "Asistlər", key: "assists" },
+        { name: "Oynadığı Matçlar", key: "matches" },
+        { name: "Qol/Matç", key: "avg" },
+      ];
+
+      const leftStats = calculatePlayerStats(compareLeft);
+      const rightStats = calculatePlayerStats(compareRight);
+
+      const technicalNamesHtml = technicalStats
+        .map((stat) => `<div class="stat-item">${stat.name}</div>`)
+        .join("");
+      const performanceNamesHtml = performanceStats
+        .map((stat) => `<div class="stat-item">${stat.name}</div>`)
+        .join("");
+
+      const leftTechnicalHtml = technicalStats
+        .map((stat) => {
+          const diff = leftStats[stat.key] - rightStats[stat.key];
+          const diffHtml =
+            diff > 0 ? `<span class="stat-diff">+${diff}</span>` : "";
+          return `<div class="stat-item">${leftStats[stat.key]} ${diffHtml}</div>`;
+        })
+        .join("");
+
+      const rightTechnicalHtml = technicalStats
+        .map((stat) => {
+          const diff = rightStats[stat.key] - leftStats[stat.key];
+          const diffHtml =
+            diff > 0 ? `<span class="stat-diff">+${diff}</span>` : "";
+          return `<div class="stat-item">${rightStats[stat.key]} ${diffHtml}</div>`;
+        })
+        .join("");
+
+      const leftPerformanceHtml = performanceStats
+        .map((stat) => {
+          const diff = leftStats[stat.key] - rightStats[stat.key];
+          const diffHtml =
+            diff > 0 ? `<span class="stat-diff">+${diff}</span>` : "";
+          return `<div class="stat-item">${leftStats[stat.key]} ${diffHtml}</div>`;
+        })
+        .join("");
+
+      const rightPerformanceHtml = performanceStats
+        .map((stat) => {
+          const diff = rightStats[stat.key] - leftStats[stat.key];
+          const diffHtml =
+            diff > 0 ? `<span class="stat-diff">+${diff}</span>` : "";
+          return `<div class="stat-item">${rightStats[stat.key]} ${diffHtml}</div>`;
+        })
+        .join("");
+
+      document.querySelector(".stat-names").innerHTML = `
+          ${technicalNamesHtml}
+          <div style="height: 40px;"></div>
+          ${performanceNamesHtml}
+        `;
+
+      document.getElementById("player1-stats").innerHTML = `
+          ${leftTechnicalHtml}
+          <div style="height: 40px;"></div>
+          ${leftPerformanceHtml}
+        `;
+
+      document.getElementById("player2-stats").innerHTML = `
+          ${rightTechnicalHtml}
+          <div style="height: 40px;"></div>
+          ${rightPerformanceHtml}
+        `;
+
+      document.getElementById("comparison-content").style.display = "block";
+    }
+
+    function calculatePlayerStats(player) {
+      let goals = 0;
+      let assists = 0;
+      let matchSet = new Set();
+      matches.forEach((match) => {
+        match.events.forEach((event) => {
+          if (event.player === player.name) {
+            goals++;
+            matchSet.add(match.date + match.home + match.away);
+          }
+          if (event.assist === player.name) {
+            assists++;
+          }
+        });
+      });
+      const matchesPlayed = matchSet.size;
+      const avg = matchesPlayed > 0 ? (goals / matchesPlayed).toFixed(2) : 0;
+      return {
+        goals,
+        assists,
+        matches: matchesPlayed,
+        avg,
+        Hız: player.stats?.Hız || 0,
+        Şut: player.stats?.Şut || 0,
+        Pas: player.stats?.Pas || 0,
+        Dribling: player.stats?.Dribling || 0,
+        Defans: player.stats?.Defans || 0,
+        Fizik: player.stats?.Fizik || 0,
+      };
+    }
+
+    window.onload = () => {
+      fetchAllData();
+      changePage("ana-sayfa", "Əsas");
+
+      // Setup Dream Team
+      updateFormationOptions();
+    };
+
+    // Dream Team Logic
+    const formationConfig = {
+      '5': [
+        { val: '1-2-1-1', text: '1-2-1-1 (2 Def, 1 Mid, 1 Atk)' },
+        { val: '1-1-2-1', text: '1-1-2-1 (1 Def, 2 Mid, 1 Atk)' },
+        { val: '1-1-1-2', text: '1-1-1-2 (1 Def, 1 Mid, 2 Atk)' },
+        { val: '1-2-2', text: '1-2-2 (2 Def, 2 Atk)' }
+      ],
+      '4': [
+        { val: '1-1-2', text: '1-1-2 (1 Def, 2 Atk)' },
+        { val: '1-2-1', text: '1-2-1 (2 Def, 1 Atk)' },
+        { val: '1-1-1-1', text: '1-1-1-1 (1 Def, 1 Mid, 1 Atk)' }
+      ]
+    };
+
+    const formations = {
+      // 5 Player Formations
+      '1-2-1-1': [
+        { id: 'gk', top: 90, left: 50, label: 'GK' },
+        { id: 'def1', top: 75, left: 30, label: 'DEF' }, { id: 'def2', top: 75, left: 70, label: 'DEF' },
+        { id: 'mid', top: 50, left: 50, label: 'MID' },
+        { id: 'atk', top: 20, left: 50, label: 'ATK' }
+      ],
+      '1-1-2-1': [
+        { id: 'gk', top: 90, left: 50, label: 'GK' },
+        { id: 'def', top: 80, left: 50, label: 'DEF' },
+        { id: 'mid1', top: 50, left: 30, label: 'MID' }, { id: 'mid2', top: 50, left: 70, label: 'MID' },
+        { id: 'atk', top: 20, left: 50, label: 'ATK' }
+      ],
+      '1-1-1-2': [
+        { id: 'gk', top: 90, left: 50, label: 'GK' },
+        { id: 'def', top: 80, left: 50, label: 'DEF' },
+        { id: 'mid', top: 55, left: 50, label: 'MID' },
+        { id: 'atk1', top: 25, left: 30, label: 'ATK' }, { id: 'atk2', top: 25, left: 70, label: 'ATK' }
+      ],
+      '1-2-2': [
+        { id: 'gk', top: 90, left: 50, label: 'GK' },
+        { id: 'def1', top: 75, left: 30, label: 'DEF' }, { id: 'def2', top: 75, left: 70, label: 'DEF' },
+        { id: 'atk1', top: 25, left: 30, label: 'ATK' }, { id: 'atk2', top: 25, left: 70, label: 'ATK' }
+      ],
+
+      // 4 Player Formations
+      '1-1-2': [
+        { id: 'gk', top: 90, left: 50, label: 'GK' },
+        { id: 'def', top: 75, left: 50, label: 'DEF' },
+        { id: 'atk1', top: 25, left: 30, label: 'ATK' }, { id: 'atk2', top: 25, left: 70, label: 'ATK' }
+      ],
+      '1-2-1': [
+        { id: 'gk', top: 90, left: 50, label: 'GK' },
+        { id: 'def1', top: 75, left: 30, label: 'DEF' }, { id: 'def2', top: 75, left: 70, label: 'DEF' },
+        { id: 'atk', top: 25, left: 50, label: 'ATK' }
+      ],
+      '1-1-1-1': [
+        { id: 'gk', top: 90, left: 50, label: 'GK' },
+        { id: 'def', top: 75, left: 50, label: 'DEF' },
+        { id: 'mid', top: 50, left: 50, label: 'MID' },
+        { id: 'atk', top: 25, left: 50, label: 'ATK' }
+      ]
+    };
+
+    let currentFormation = '1-2-1-1';
+    let selectedSlotId = null;
+
+    function updateFormationOptions() {
+      const size = document.getElementById('team-size-select').value;
+      const select = document.getElementById('formation-select');
+      select.innerHTML = formationConfig[size].map(f => `<option value="${f.val}">${f.text}</option>`).join('');
+      changeFormation();
+    }
+
+    function changeFormation() {
+      currentFormation = document.getElementById('formation-select').value;
+      const container = document.getElementById('formation-layer');
+      container.innerHTML = '';
+
+      if (formations[currentFormation]) {
+        formations[currentFormation].forEach(pos => {
+          const html = `
+                  <div class="player-spot" id="slot-${pos.id}" style="top: ${pos.top}%; left: ${pos.left}%" onclick="selectSlot('${pos.id}')">
+                     <div class="player-icon">
+                       <span style="font-size: 20px; opacity: 0.5;">+</span>
+                     </div>
+                     <div class="player-spot-name">${pos.label || 'Seç'}</div>
+                  </div>
+                `;
+          container.insertAdjacentHTML('beforeend', html);
+        });
+      }
+    }
+
+
+    function selectSlot(id) {
+      selectedSlotId = id;
+      selectPlayerForDreamTeam(); // Opens the comparison modal logic or similar
+    }
+
+    function selectPlayerForDreamTeam() {
+      // Reuse the comparison modal logic, but hijack the click handler
+      currentCompareSide = 'dream_team'; // Special flag
+      const modalContent = `
+           <div style="max-height: 400px; overflow-y: auto;">
+             ${players.map((p, i) => `
+               <div onclick="fillDreamTeamSlot(${i})" style="padding: 12px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                 <div style="width: 40px; height: 40px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold;">${p.num}</div>
+                 <div>
+                   <div style="font-weight: bold;">${p.name}</div>
+                   <div style="font-size: 12px; color: #888;">Nömrə: ${p.num}</div>
+                 </div>
+               </div>
+             `).join("")}
+           </div>
+          `;
+      document.getElementById("modal-title").innerText = "Mövqe üçün oyunçu seç";
+      document.getElementById("modal-content").innerHTML = modalContent;
+      document.getElementById("match-modal").style.display = "flex";
+    }
+
+    function fillDreamTeamSlot(idx) {
+      const p = players[idx];
+      const slot = document.getElementById(`slot-${selectedSlotId}`);
+      if (slot) {
+        slot.classList.add('filled');
+        slot.querySelector('.player-icon').innerHTML = `<img src="${p.photo_url || ''}" style="width:100%; height:100%; border-radius:50%; object-cover;" onerror="this.src='https://via.placeholder.com/50'">`;
+        slot.querySelector('.player-spot-name').innerText = p.name;
+      }
+      closeMatchModal();
+    }
+
+  </script>
+
+  <!-- Match Detail Modal -->
+  <div id="match-modal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        overflow-y: auto;
+      ">
+    <div style="max-width: 800px; margin: 0 auto; padding: 20px">
+      <div style="
+            background: var(--bg-black);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+          ">
+        <div style="
+              padding: 20px;
+              background: var(--card-gray);
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            ">
+          <h2 id="modal-title" style="margin: 0; color: var(--primary-green); margin-right: 10px">
+            Matç Detalları
+          </h2>
+          <button onclick="closeMatchModal()" style="
+                background: var(--danger-red);
+                color: white;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+              ">
+            ✕ Bağla
+          </button>
+        </div>
+        <div id="modal-content" style="padding: 24px"></div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

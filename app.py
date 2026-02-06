@@ -261,7 +261,314 @@ def log_action(user_id, action, target_type, target_id, details=None):
 # Routes
 @app.route('/')
 def index():
-    return render_template('welcome.html')
+    # Serve the new SPA frontend
+    return render_template('spa.html')
+
+@app.route('/api/auth-status')
+def api_auth_status():
+    return jsonify({
+        'is_logged_in': 'user_id' in session,
+        'is_admin': session.get('is_admin', False),
+        'username': session.get('username')
+    })
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password, password):
+        session['user_id'] = user.id
+        session['username'] = user.username
+        session['is_admin'] = user.is_admin
+        return jsonify({'success': True, 'is_admin': user.is_admin})
+    
+    return jsonify({'success': False, 'message': 'İstifadəçi adı və ya şifrə yanlışdır'}), 401
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.clear()
+    return jsonify({'success': True})
+
+@app.route('/api/upload', methods=['POST'])
+def api_upload():
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part'}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No selected file'}), 400
+        
+    path = save_uploaded_file(file, folder='uploads')
+    if path:
+        return jsonify({'success': True, 'url': path})
+    return jsonify({'success': False, 'message': 'Upload failed'}), 500
+
+@app.route('/api/players', methods=['GET', 'POST'])
+def api_players():
+    if request.method == 'POST':
+        if not session.get('is_admin'):
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+        data = request.json
+        # Basic validation
+        if not data.get('name'):
+            return jsonify({'success': False, 'message': 'Name required'}), 400
+            
+        # Create Player
+        try:
+            # Stats (assuming data format matches frontend)
+            stats = data.get('stats', {})
+            
+            new_player = Player(
+                name=data.get('name'),
+                jersey_number=int(data.get('num', 0)),
+                age=int(data.get('age', 0)),
+                overall_rating=int(data.get('overall', 75)), 
+                # Map simple stats to model (approx)
+                pace=stats.get('Hız', 0),
+                shooting=stats.get('Şut', 0),
+                passing=stats.get('Pas', 0),
+                dribbling=stats.get('Dribling', 0),
+                defending=stats.get('Defans', 0),
+                physical=stats.get('Fizik', 0),
+                photo_url=data.get('photo_url')
+            )
+            
+            # Handle Past Seasons (if provided)
+            # This complex logic might need more detail, defaulting to simple creation for now
+            
+            db.session.add(new_player)
+            db.session.commit()
+            return jsonify({'success': True, 'id': new_player.id})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+    # GET
+    players = Player.query.all()
+    result = []
+    for p in players:
+        # Reconstruct stats object for frontend compatibility
+        stats = {
+            'Hız': p.pace, 'Şut': p.shooting, 'Pas': p.passing,
+            'Dribling': p.dribbling, 'Defans': p.defending, 'Fizik': p.physical
+        }
+        
+        # Reconstruct season stats
+        past_data = {}
+        try:
+            seasons = SeasonStats.query.filter_by(player_id=p.id).all()
+            for s in seasons:
+                past_data[s.season] = {'g': s.goals, 'a': s.assists, 'm': s.matches, 'om': 0}
+        except Exception as e:
+            # Handle schema mismatch or missing columns gracefully
+            print(f"SeasonStats error for player {p.id}: {e}")
+            past_data = {}
+            
+        result.append({
+            'id': p.id,
+            'name': p.name,
+            'num': p.jersey_number,
+            'age': p.age,
+            'photo_url': p.photo_url,
+            'stats': stats,
+            'pastData': past_data,
+            # 'typeStats': ... (need to implement type stats in DB if crucial)
+        })
+
+    return jsonify(result)
+
+@app.route('/api/players/<int:id>', methods=['PUT', 'DELETE'])
+def api_player_detail(id):
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+    player = Player.query.get(id)
+    if not player:
+        return jsonify({'success': False, 'message': 'Player not found'}), 404
+        
+    if request.method == 'DELETE':
+        try:
+            # Delete related records first to avoid FK constraint errors
+            # Delete season stats
+            SeasonStats.query.filter_by(player_id=id).delete()
+            
+            # Delete goals where player is scorer or assister
+            Goal.query.filter_by(scorer_id=id).delete()
+            Goal.query.filter_by(assist_id=id).delete()
+            
+            # Delete player ratings and comments if they exist
+            try:
+                PlayerRating.query.filter_by(player_id=id).delete()
+                PlayerComment.query.filter_by(player_id=id).delete()
+            except:
+                pass  # These tables might not exist yet
+            
+            # Finally delete the player
+            db.session.delete(player)
+            db.session.commit()
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+        
+    if request.method == 'PUT':
+        data = request.json
+        player.name = data.get('name', player.name)
+        player.age = int(data.get('age', player.age))
+        player.jersey_number = int(data.get('num', player.jersey_number))
+        
+        if 'stats' in data:
+            stats = data['stats']
+            player.pace = stats.get('Hız', player.pace)
+            player.shooting = stats.get('Şut', player.shooting)
+            player.passing = stats.get('Pas', player.passing)
+            player.dribbling = stats.get('Dribling', player.dribbling)
+            player.defending = stats.get('Defans', player.defending)
+            player.physical = stats.get('Fizik', player.physical)
+            
+        # Re-calc overall if needed
+        # player.overall_rating = ...
+        
+        # Handle Seasons / Type Stats if detailed structure provided
+        # For simplicity, focused on core details first
+        
+        db.session.commit()
+        return jsonify({'success': True})
+
+
+@app.route('/api/matches', methods=['GET', 'POST'])
+def api_matches():
+    if request.method == 'POST':
+        if not session.get('is_admin'):
+             return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+        data = request.json
+        try:
+            # Simplified match creation from JSON
+            m = Match(
+                home_team=data.get('home'),
+                away_team=data.get('away'),
+                home_score=data.get('s1'),
+                away_score=data.get('s2'),
+                match_date=datetime.strptime(data.get('date'), '%Y-%m-%dT%H:%M') if data.get('date') else datetime.utcnow(),
+                season=data.get('season'),
+                status='finished'
+            )
+            # MVP
+            if data.get('motm'):
+                p = Player.query.filter_by(name=data.get('motm')).first()
+                if p: m.mvp_player_id = p.id
+                
+            db.session.add(m)
+            db.session.commit()
+            
+            # Events
+            for ev in data.get('events', []):
+                scorer = Player.query.filter_by(name=ev.get('player')).first()
+                assist = Player.query.filter_by(name=ev.get('assist')).first() if ev.get('assist') else None
+                
+                if scorer:
+                    g = Goal(
+                        match_id=m.id,
+                        scorer_id=scorer.id,
+                        assist_id=assist.id if assist else None,
+                        team=ev.get('team')
+                    )
+                    db.session.add(g)
+            
+            db.session.commit()
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+    # GET
+    matches = Match.query.order_by(Match.match_date.desc()).all()
+    result = []
+    for m in matches:
+        mvp_name = m.mvp.name if m.mvp else None
+        
+        # Events
+        events = []
+        for g in m.goals:
+             events.append({
+                 'player': g.scorer.name if g.scorer else 'Unknown',
+                 'assist': g.assist.name if g.assist else None,
+                 'team': g.team
+             })
+             
+        result.append({
+            'id': m.id,
+            'home': m.home_team,
+            'away': m.away_team,
+            's1': m.home_score,
+            's2': m.away_score,
+            'date': m.match_date.isoformat(),
+            'season': m.season,
+            'type': 'Match', # Placeholder
+            'motm': mvp_name,
+            'events': events
+        })
+    return jsonify(result)
+
+@app.route('/api/matches/<int:id>', methods=['PUT', 'DELETE'])
+def api_match_detail(id):
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        
+    match = Match.query.get(id)
+    if not match:
+        return jsonify({'success': False, 'message': 'Match not found'}), 404
+        
+    if request.method == 'DELETE':
+        db.session.delete(match)
+        db.session.commit()
+        return jsonify({'success': True})
+        
+    if request.method == 'PUT':
+        data = request.json
+        match.home_team = data.get('home', match.home_team)
+        match.away_team = data.get('away', match.away_team)
+        match.home_score = data.get('s1', match.home_score)
+        match.away_score = data.get('s2', match.away_score)
+        match.season = data.get('season', match.season)
+        
+        if data.get('date'):
+             try:
+                 match.match_date = datetime.strptime(data.get('date'), '%Y-%m-%dT%H:%M')
+             except: pass
+             
+        # MVP update
+        if data.get('motm'):
+            p = Player.query.filter_by(name=data.get('motm')).first()
+            if p: match.mvp_player_id = p.id
+            
+        # Re-create goals (events) - simpler to clear and re-add
+        Goal.query.filter_by(match_id=match.id).delete()
+        for ev in data.get('events', []):
+            scorer = Player.query.filter_by(name=ev.get('player')).first()
+            assist = Player.query.filter_by(name=ev.get('assist')).first() if ev.get('assist') else None
+            
+            if scorer:
+                g = Goal(
+                    match_id=match.id,
+                    scorer_id=scorer.id,
+                    assist_id=assist.id if assist else None,
+                    team=ev.get('team')
+                )
+                db.session.add(g)
+        
+        db.session.commit()
+        return jsonify({'success': True})
+
+
 
 @app.route('/dashboard')
 def dashboard():
