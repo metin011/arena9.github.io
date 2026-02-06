@@ -1693,10 +1693,16 @@
       const num = document.getElementById("new-p-num").value || "0";
       const age = parseInt(document.getElementById("new-p-age").value) || 14;
 
-      // Image Upload
-      const photoUrl = await uploadImage('new-p-photo');
+      // Image Upload handling
+      let photoUrl = "";
+      if (isEditMode && currentPlayerIndex !== null) {
+        photoUrl = players[currentPlayerIndex].photo_url;
+      }
 
-      if (players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
+      const newPhoto = await uploadImage('new-p-photo');
+      if (newPhoto) photoUrl = newPhoto;
+
+      if (!isEditMode && players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
         showToast("Bu oyunçu zaten mövcuddur!", "error");
         return;
       }
@@ -1708,37 +1714,51 @@
         customStats[s] = Math.max(0, Math.min(99, val));
       });
 
-      const newPlayer = {
+      const playerData = {
         num: num,
         name: name,
         age: age,
         stats: customStats,
-        photo_url: photoUrl,
-        pastData: createPastData(),
-        typeStats: createTypeStats(),
+        photo_url: photoUrl
       };
+
+      // Only add full nested objects for new players if backend expects them
+      if (!isEditMode) {
+        playerData.pastData = createPastData();
+        playerData.typeStats = createTypeStats();
+      }
 
       // API Call
       try {
-        const res = await fetch('/api/players', {
-          method: 'POST',
+        const url = (isEditMode && currentPlayerIndex !== null) ? `/api/players/${players[currentPlayerIndex].id}` : '/api/players';
+        const method = isEditMode ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newPlayer)
+          body: JSON.stringify(playerData)
         });
         const data = await res.json();
+
         if (data.success) {
-          newPlayer.id = data.id;
-          players.push(newPlayer);
-          showToast(name + " uğurla əlavə edildi! ✓", "success");
+          showToast(isEditMode ? "Oyunçu yeniləndi! ✓" : "Oyunçu əlavə edildi! ✓", "success");
+
+          isEditMode = false;
+          currentPlayerIndex = null;
+
+          // Clear form
           document.getElementById("new-p-name").value = "";
           document.getElementById("new-p-num").value = "";
           document.getElementById("new-p-age").value = "14";
+
+          fetchAllData(); // Key: Refresh from backend
           changePage("oyuncular", "Oyunçular");
         } else {
           showToast("Xəta: " + data.message, "error");
         }
       } catch (e) { showToast("Server xətası", "error"); }
     }
+
 
     function createPastData() {
       let d = {};
@@ -2265,20 +2285,14 @@
 
     function toggleEdit() {
       if (currentPage === "player-profile") {
-        isEditMode = !isEditMode;
-        viewProfile(currentPlayerIndex);
-        document.getElementById("edit-header-btn").innerHTML = isEditMode
-          ? "💾"
-          : "✏️";
-        document.getElementById("edit-header-btn").title = isEditMode
-          ? "Yadda Saxla"
-          : "Redaktə et";
+        showAddPlayerForm(currentPlayerIndex);
       } else if (currentPage === "maclar") {
         showMatchForm();
       } else if (currentPage === "oyuncular") {
         showAddPlayerForm();
       }
     }
+
 
     function showStats(type) {
       document
@@ -2325,9 +2339,34 @@
         .join("");
     }
 
-    function showAddPlayerForm() {
-      changePage("add-player-page", "Yeni Oyunçu");
+    function showAddPlayerForm(idx = null) {
+      isEditMode = (idx !== null);
+      currentPlayerIndex = idx;
+
+      changePage("add-player-page", isEditMode ? "Oyunçunu Redaktə Et" : "Yeni Oyunçu");
+
+      // Clear or pre-fill
+      if (isEditMode) {
+        const p = players[idx];
+        document.getElementById("new-p-name").value = p.name;
+        document.getElementById("new-p-num").value = p.num;
+        document.getElementById("new-p-age").value = p.age;
+        // Stats
+        statNames.forEach(s => {
+          const input = document.getElementById(`new-stat-${s}`);
+          if (input) input.value = p.stats[s] || 80;
+        });
+      } else {
+        document.getElementById("new-p-name").value = "";
+        document.getElementById("new-p-num").value = "";
+        document.getElementById("new-p-age").value = "14";
+        statNames.forEach(s => {
+          const input = document.getElementById(`new-stat-${s}`);
+          if (input) input.value = "80";
+        });
+      }
     }
+
 
     function showMatchForm() {
       currentMatchId = null; // precise reset
