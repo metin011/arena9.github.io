@@ -1878,10 +1878,13 @@ def admin_recalculate_stats():
     return redirect(url_for('admin_dashboard'))
 
 # Database initialize et (həm lokal, həm production üçün)
-try:
-    init_db()
-except Exception as e:
-    print(f"Database initialization error: {e}")
+with app.app_context():
+    try:
+        db.create_all()
+        print("✓ Database tables created/verified")
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
