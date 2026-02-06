@@ -1881,9 +1881,24 @@ def admin_recalculate_stats():
 with app.app_context():
     try:
         db.create_all()
+        # Production-da köhnə database varsa, yeni sütunları əlavə etmək üçün manual check
+        from sqlalchemy import text
+        try:
+            # SeasonStats üçün xg və pass_accuracy yoxla
+            db.session.execute(text('ALTER TABLE season_stats ADD COLUMN IF NOT EXISTS xg FLOAT DEFAULT 0.0'))
+            db.session.execute(text('ALTER TABLE season_stats ADD COLUMN IF NOT EXISTS pass_accuracy FLOAT DEFAULT 0.0'))
+            # Player üçün detailed_skills yoxla (əgər JSON column istifadə olunursa)
+            # db.session.execute(text('ALTER TABLE player ADD COLUMN IF NOT EXISTS detailed_skills TEXT DEFAULT "{}"'))
+            db.session.commit()
+            print("✓ Database columns verified/added")
+        except Exception as inner_e:
+            print(f"Skipping ADD COLUMN (might be SQLite or already exists): {inner_e}")
+            db.session.rollback()
+            
         print("✓ Database tables created/verified")
     except Exception as e:
         print(f"Database initialization error: {e}")
+
 
 
 if __name__ == '__main__':

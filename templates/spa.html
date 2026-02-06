@@ -1836,9 +1836,8 @@
             const res = await fetch(`/api/players/${player.id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
-              players.splice(idx, 1);
               showToast(player.name + " silindi", "success");
-              renderPlayers();
+              fetchAllData(); // Key: Refresh from server
             } else {
               showToast("Xəta: " + data.message, "error");
             }
@@ -1846,6 +1845,7 @@
         },
       );
     }
+
 
 
     function renderRecentMatches() {
@@ -2554,18 +2554,25 @@
     }
 
     function deleteMatch(idx, event) {
-      event.stopPropagation();
+      if (event) event.stopPropagation();
       const match = matches[idx];
       showConfirm(
-        `${match.home} - ${match.away} matçı silinsin?\nBu əməl geri qaytarıla bilməz.`,
-        () => {
-          matches.splice(idx, 1);
-          localStorage.setItem("arena9_matches", JSON.stringify(matches));
-          showToast("Matç silindi", "success");
-          renderMatches();
+        `${match.home} - ${match.away} matçı silinsin?`,
+        async () => {
+          try {
+            const res = await fetch(`/api/matches/${match.id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+              showToast("Matç silindi ✓", "success");
+              fetchAllData(); // Refresh from server
+            } else {
+              showToast("Xəta: " + data.message, "error");
+            }
+          } catch (e) { showToast("Server xətası", "error"); }
         },
       );
     }
+
 
     function viewMatch(idx) {
       const match = matches[idx];
