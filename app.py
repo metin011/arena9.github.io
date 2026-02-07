@@ -339,8 +339,13 @@ def api_players():
                 dribbling=safe_int(stats.get('Dribling'), 0),
                 defending=safe_int(stats.get('Defans'), 0),
                 physical=safe_int(stats.get('Fizik'), 0),
+                height=safe_int(data.get('height'), 0),
+                weight=safe_int(data.get('weight'), 0),
+                position=data.get('position', 'CM'),
+                preferred_foot=data.get('preferred_foot', 'Right'),
                 photo_url=data.get('photo_url')
             )
+
             
             db.session.add(new_player)
             db.session.commit()
@@ -385,7 +390,12 @@ def api_players():
             'stats': stats,
             'pastData': past_data,
             'typeStats': type_data,
+            'height': p.height,
+            'weight': p.weight,
+            'position': p.position,
+            'preferred_foot': p.preferred_foot,
         })
+
 
 
     return jsonify(result)
@@ -453,7 +463,11 @@ def api_player_detail(id):
                 player.defending = safe_int(stats.get('Defans'), player.defending)
                 player.physical = safe_int(stats.get('Fizik'), player.physical)
             
-            db.session.commit()
+            player.height = safe_int(data.get('height'), player.height)
+            player.weight = safe_int(data.get('weight'), player.weight)
+            player.position = data.get('position', player.position)
+            player.preferred_foot = data.get('preferred_foot', player.preferred_foot)
+
             return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()

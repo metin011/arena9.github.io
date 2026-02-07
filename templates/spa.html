@@ -1271,6 +1271,43 @@
         </div>
       </div>
 
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+        <div class="form-group">
+          <label>Boy (cm)</label><input type="number" id="new-p-height" value="175" />
+        </div>
+        <div class="form-group">
+          <label>Çəki (kg)</label><input type="number" id="new-p-weight" value="65" />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+        <div class="form-group">
+          <label>Mövqe</label>
+          <select id="new-p-position">
+            <option value="GK">GK</option>
+            <option value="CB">CB</option>
+            <option value="LB">LB</option>
+            <option value="RB">RB</option>
+            <option value="CDM">CDM</option>
+            <option value="CM" selected>CM</option>
+            <option value="CAM">CAM</option>
+            <option value="LW">LW</option>
+            <option value="RW">RW</option>
+            <option value="ST">ST</option>
+            <option value="CF">CF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tercih Edilen Ayak</label>
+          <select id="new-p-foot">
+            <option value="Sağ" selected>Sağ</option>
+            <option value="Sol">Sol</option>
+            <option value="Hər ikisi">Hər ikisi</option>
+          </select>
+        </div>
+      </div>
+
+
       <h3 style="
             color: var(--primary-green);
             font-size: 14px;
@@ -1942,9 +1979,14 @@
         num: num,
         name: name,
         age: age,
+        height: parseInt(document.getElementById("new-p-height").value) || 0,
+        weight: parseInt(document.getElementById("new-p-weight").value) || 0,
+        position: document.getElementById("new-p-position").value,
+        preferred_foot: document.getElementById("new-p-foot").value,
         stats: customStats,
         photo_url: photoUrl
       };
+
 
       // Only add full nested objects for new players if backend expects them
       if (!isEditMode) {
@@ -2258,8 +2300,17 @@
       document.getElementById("profile-details").innerHTML = `
     <div class="stat-card rating-box" style="grid-column: span 2;">
       <div class="rating-value">${getOverall(p.stats)}</div>
-      <div style="font-size:12px; opacity:0.7;">#${p.num} | Yaş: ${p.age}</div>
+      <div style="font-size:12px; opacity:0.7;">
+        #${p.num} | Yaş: ${p.age} 
+        ${p.position ? `| ${p.position}` : ''}
+      </div>
+      <div style="font-size:11px; opacity:0.6; margin-top: 4px;">
+        ${p.height ? `Boy: ${p.height}cm` : ''} 
+        ${p.weight ? `| Çəki: ${p.weight}kg` : ''} 
+        ${p.preferred_foot ? `| Ayaq: ${p.preferred_foot}` : ''}
+      </div>
     </div>
+
 
     <div class="season-table" style="grid-column: span 2;">
       <div class="table-title">📅 Sezon Statistikası</div>
@@ -2290,12 +2341,40 @@
           .join("")}
     </div>
 
+    ${isEditMode ? `
+    <div style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: var(--card-gray); padding: 15px; border-radius: 12px; border: 1px solid var(--primary-green);">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size:10px; color:var(--text-gray); display:block; margin-bottom:4px;">BOY (CM)</label>
+            <input type="number" id="edit-p-height" value="${p.height || 175}" style="width:100%; border:none; background:none; color:inherit; font-weight:bold; font-size:16px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size:10px; color:var(--text-gray); display:block; margin-bottom:4px;">ÇƏKİ (KG)</label>
+            <input type="number" id="edit-p-weight" value="${p.weight || 65}" style="width:100%; border:none; background:none; color:inherit; font-weight:bold; font-size:16px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size:10px; color:var(--text-gray); display:block; margin-bottom:4px;">MÖVQE</label>
+            <select id="edit-p-position" style="width:100%; border:none; background:none; color:inherit; font-weight:bold; font-size:16px;">
+                ${["GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LW", "RW", "ST", "CF"].map(pos => `<option value="${pos}" ${p.position === pos ? 'selected' : ''}>${pos}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size:10px; color:var(--text-gray); display:block; margin-bottom:4px;">AYAQ</label>
+            <select id="edit-p-foot" style="width:100%; border:none; background:none; color:inherit; font-weight:bold; font-size:16px;">
+                <option value="Sağ" ${p.preferred_foot === 'Sağ' ? 'selected' : ''}>Sağ</option>
+                <option value="Sol" ${p.preferred_foot === 'Sol' ? 'selected' : ''}>Sol</option>
+                <option value="Hər ikisi" ${p.preferred_foot === 'Hər ikisi' ? 'selected' : ''}>Hər ikisi</option>
+            </select>
+        </div>
+    </div>
+    ` : ''}
+
     ${isEditMode
           ? `<div style="grid-column: span 2; text-align: center; margin-top: 20px;">
       <button class="main-btn" onclick="saveProfileStats()">Yadda Saxla</button>
     </div>`
           : ""
         }`;
+
     }
 
     // Redaktə (Edit) bölməsində də OM giriş sahəsi olması üçün bu hissəni də yeniləyin:
@@ -2305,7 +2384,22 @@
 
       let h = `<div class="form-group"><label>Ad</label><input type="text" id="edit-name" value="${p.name}"></div>
            <div class="form-group"><label>Yaş</label><input type="number" id="edit-age" value="${p.age}"></div>
-           <div class="form-group"><label>Nömrə</label><input type="text" id="edit-num" value="${p.num}"></div>`;
+           <div class="form-group"><label>Nömrə</label><input type="text" id="edit-num" value="${p.num}"></div>
+           <div class="form-group"><label>Boy (cm)</label><input type="number" id="edit-height" value="${p.height || 175}"></div>
+           <div class="form-group"><label>Çəki (kg)</label><input type="number" id="edit-weight" value="${p.weight || 65}"></div>
+           <div class="form-group"><label>Mövqe</label>
+             <select id="edit-position">
+               ${["GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LW", "RW", "ST", "CF"].map(pos => `<option value="${pos}" ${p.position === pos ? 'selected' : ''}>${pos}</option>`).join('')}
+             </select>
+           </div>
+           <div class="form-group"><label>Ayaq</label>
+             <select id="edit-foot">
+               <option value="Sağ" ${p.preferred_foot === 'Sağ' ? 'selected' : ''}>Sağ</option>
+               <option value="Sol" ${p.preferred_foot === 'Sol' ? 'selected' : ''}>Sol</option>
+               <option value="Hər ikisi" ${p.preferred_foot === 'Hər ikisi' ? 'selected' : ''}>Hər ikisi</option>
+             </select>
+           </div>`;
+
 
       statNames.forEach(
         (n) =>
@@ -2352,6 +2446,11 @@
       }
       p.age = parseInt(document.getElementById("edit-age").value) || 0;
       p.num = document.getElementById("edit-num").value || p.num;
+      p.height = parseInt(document.getElementById("edit-height").value) || p.height;
+      p.weight = parseInt(document.getElementById("edit-weight").value) || p.weight;
+      p.position = document.getElementById("edit-position").value;
+      p.preferred_foot = document.getElementById("edit-foot").value;
+
 
       if (p.age < 10 || p.age > 50) {
         showToast("Yaş 10 ilə 50 arasında olmalıdır!", "error");
@@ -2413,24 +2512,29 @@
         name: p.name,
         age: p.age,
         num: p.num,
-        stats: p.stats
-        // detailed stats excluded for MVP API update unless backend extended
+        height: p.height,
+        weight: p.weight,
+        position: p.position,
+        preferred_foot: p.preferred_foot,
+        stats: p.stats,
       };
 
       try {
         const res = await fetch(`/api/players/${p.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         });
-        const data = await res.json();
-        if (data.success) {
-          showToast("Oyunçu məlumatı güncəlləndi ✓", "success");
-          viewProfile(currentPlayerIndex);
+        if (res.ok) {
+          showToast("Məlumatlar yadda saxlanıldı", "success");
+          fetchAllData();
+          changePage("oyuncular", "Oyunçular");
         } else {
-          showToast("Xəta: " + data.message, "error");
+          showToast("Xəta baş verdi", "error");
         }
-      } catch (e) { showToast("Server xətası", "error"); }
+      } catch (e) {
+        showToast("Server xətası", "error");
+      }
     }
 
 
@@ -2444,6 +2548,18 @@
           parseInt(document.getElementById(`profile-${n}`).value) || 0;
         p.stats[n] = Math.max(0, Math.min(99, val));
       });
+
+      // Save new physical/tactical stats if they were edited
+      const editHeight = document.getElementById("edit-p-height");
+      const editWeight = document.getElementById("edit-p-weight");
+      const editPos = document.getElementById("edit-p-position");
+      const editFoot = document.getElementById("edit-p-foot");
+
+      if (editHeight) p.height = parseInt(editHeight.value) || p.height;
+      if (editWeight) p.weight = parseInt(editWeight.value) || p.weight;
+      if (editPos) p.position = editPos.value;
+      if (editFoot) p.preferred_foot = editFoot.value;
+
 
       // Save season stats
       seasonOptions.forEach((s) => {
@@ -2493,16 +2609,13 @@
 
       // API Update
       const payload = {
-        // Send specific stats structures
-        // Since app.py api_player_detail logic we added handles 'stats' but maybe not complex nested
-        // We might need to rely on the backend handling 'stats' update primarily, 
-        // or extend backend. For now, we send what we have.
-        // Note: App.py currently only explicitly updates 'stats' (skills). 
-        // If we want to update seasons/types, we need to ensure backend supports it or we accept detailed_skills column usage.
-        // Let's assume for now we just send what we can.
-        stats: p.stats
-        // Detailed season data would need backend support to parse 'pastData' from JSON
+        stats: p.stats,
+        height: p.height,
+        weight: p.weight,
+        position: p.position,
+        preferred_foot: p.preferred_foot
       };
+
 
       try {
         const res = await fetch(`/api/players/${p.id}`, {
@@ -2591,6 +2704,11 @@
         document.getElementById("new-p-name").value = p.name;
         document.getElementById("new-p-num").value = p.num;
         document.getElementById("new-p-age").value = p.age;
+        // New fields population if editing
+        document.getElementById("new-p-height").value = p.height || 175;
+        document.getElementById("new-p-weight").value = p.weight || 65;
+        document.getElementById("new-p-position").value = p.position || "CM";
+        document.getElementById("new-p-foot").value = p.preferred_foot || "Sağ";
         // Stats
         statNames.forEach(s => {
           const input = document.getElementById(`new-stat-${s}`);
