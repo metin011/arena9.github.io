@@ -1916,9 +1916,10 @@ with app.app_context():
             # SeasonStats üçün xg və pass_accuracy yoxla
             db.session.execute(text('ALTER TABLE season_stats ADD COLUMN IF NOT EXISTS xg FLOAT DEFAULT 0.0'))
             db.session.execute(text('ALTER TABLE season_stats ADD COLUMN IF NOT EXISTS pass_accuracy FLOAT DEFAULT 0.0'))
-            # Player üçün detailed_skills yoxla (əgər JSON column istifadə olunursa)
-            # db.session.execute(text('ALTER TABLE player ADD COLUMN IF NOT EXISTS detailed_skills TEXT DEFAULT "{}"'))
+            # Match üçün type yoxla
+            db.session.execute(text('ALTER TABLE match ADD COLUMN IF NOT EXISTS type VARCHAR(100) DEFAULT \'Dostluq\''))
             db.session.commit()
+
             print("✓ Database columns verified/added")
         except Exception as inner_e:
             print(f"Skipping ADD COLUMN (might be SQLite or already exists): {inner_e}")
