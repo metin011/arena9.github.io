@@ -295,60 +295,58 @@ def api_logout():
 @app.route('/api/upload', methods=['POST'])
 def api_upload():
     if not session.get('is_admin'):
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+        return jsonify({'success': False, 'message': 'Yalnız adminlər fayl yükləyə bilər'}), 403
     
     if 'file' not in request.files:
-        return jsonify({'success': False, 'message': 'No file part'}), 400
+        return jsonify({'success': False, 'message': 'Fayl seçilməyib'}), 400
         
     file = request.files['file']
     if file.filename == '':
-        return jsonify({'success': False, 'message': 'No selected file'}), 400
+        return jsonify({'success': False, 'message': 'Fayl adı boşdur'}), 400
         
-    path = save_uploaded_file(file, folder='uploads')
-    if path:
-        return jsonify({'success': True, 'url': path})
-    return jsonify({'success': False, 'message': 'Upload failed'}), 500
+    try:
+        path = save_uploaded_file(file, folder='uploads')
+        if path:
+            return jsonify({'success': True, 'url': path})
+        return jsonify({'success': False, 'message': 'Faylı saxlamaq mümkün olmadı'}), 500
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Server xətası: {str(e)}'}), 500
+
 
 @app.route('/api/players', methods=['GET', 'POST'])
 def api_players():
     if request.method == 'POST':
         if not session.get('is_admin'):
-            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+            return jsonify({'success': False, 'message': 'Yalnız adminlər oyunçu əlavə edə bilər'}), 403
         
         data = request.json
-        # Basic validation
-        if not data.get('name'):
-            return jsonify({'success': False, 'message': 'Name required'}), 400
-            
-        # Create Player
         try:
-            # Stats (assuming data format matches frontend)
+            def safe_int(val, default=0):
+                try: return int(val) if val not in [None, ''] else default
+                except: return default
+
             stats = data.get('stats', {})
-            
             new_player = Player(
-                name=data.get('name'),
-                jersey_number=int(data.get('num', 0)),
-                age=int(data.get('age', 0)),
-                overall_rating=int(data.get('overall', 75)), 
-                # Map simple stats to model (approx)
-                pace=stats.get('Hız', 0),
-                shooting=stats.get('Şut', 0),
-                passing=stats.get('Pas', 0),
-                dribbling=stats.get('Dribling', 0),
-                defending=stats.get('Defans', 0),
-                physical=stats.get('Fizik', 0),
+                name=data.get('name', 'İsimsiz'),
+                jersey_number=safe_int(data.get('num'), 0),
+                age=safe_int(data.get('age'), 0),
+                overall_rating=safe_int(data.get('overall'), 75), 
+                pace=safe_int(stats.get('Hız'), 0),
+                shooting=safe_int(stats.get('Şut'), 0),
+                passing=safe_int(stats.get('Pas'), 0),
+                dribbling=safe_int(stats.get('Dribling'), 0),
+                defending=safe_int(stats.get('Defans'), 0),
+                physical=safe_int(stats.get('Fizik'), 0),
                 photo_url=data.get('photo_url')
             )
-            
-            # Handle Past Seasons (if provided)
-            # This complex logic might need more detail, defaulting to simple creation for now
             
             db.session.add(new_player)
             db.session.commit()
             return jsonify({'success': True, 'id': new_player.id})
         except Exception as e:
             db.session.rollback()
-            return jsonify({'success': False, 'message': str(e)}), 500
+            return jsonify({'success': False, 'message': f'Xəta: {str(e)}'}), 500
+
 
     # GET
     players = Player.query.all()
@@ -420,60 +418,76 @@ def api_player_detail(id):
 
         
     if request.method == 'PUT':
-        data = request.json
-        player.name = data.get('name', player.name)
-        player.age = int(data.get('age', player.age))
-        player.jersey_number = int(data.get('num', player.jersey_number))
-        
-        if 'stats' in data:
-            stats = data['stats']
-            player.pace = stats.get('Hız', player.pace)
-            player.shooting = stats.get('Şut', player.shooting)
-            player.passing = stats.get('Pas', player.passing)
-            player.dribbling = stats.get('Dribling', player.dribbling)
-            player.defending = stats.get('Defans', player.defending)
-            player.physical = stats.get('Fizik', player.physical)
+        if not session.get('is_admin'):
+            return jsonify({'success': False, 'message': 'Yalnız adminlər dəyişiklik edə bilər'}), 403
             
-        # Re-calc overall if needed
-        # player.overall_rating = ...
-        
-        # Handle Seasons / Type Stats if detailed structure provided
-        # For simplicity, focused on core details first
-        
-        db.session.commit()
-        return jsonify({'success': True})
+        data = request.json
+        try:
+            def safe_int(val, default=0):
+                try: return int(val) if val not in [None, ''] else default
+                except: return default
+
+            player.name = data.get('name', player.name)
+            player.age = safe_int(data.get('age'), player.age)
+            player.jersey_number = safe_int(data.get('num'), player.jersey_number)
+            player.photo_url = data.get('photo_url', player.photo_url)
+            
+            if 'stats' in data:
+                stats = data['stats']
+                player.pace = safe_int(stats.get('Hız'), player.pace)
+                player.shooting = safe_int(stats.get('Şut'), player.shooting)
+                player.passing = safe_int(stats.get('Pas'), player.passing)
+                player.dribbling = safe_int(stats.get('Dribling'), player.dribbling)
+                player.defending = safe_int(stats.get('Defans'), player.defending)
+                player.physical = safe_int(stats.get('Fizik'), player.physical)
+            
+            db.session.commit()
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': f'Xəta: {str(e)}'}), 500
+
 
 
 @app.route('/api/matches', methods=['GET', 'POST'])
 def api_matches():
     if request.method == 'POST':
         if not session.get('is_admin'):
-             return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+             return jsonify({'success': False, 'message': 'Yalnız adminlər matç əlavə edə bilər'}), 403
         
         data = request.json
         try:
+            def safe_int(val, default=0):
+                try: return int(val) if val not in [None, ''] else default
+                except: return default
+
             # Simplified match creation from JSON
             m = Match(
-                home_team=data.get('home'),
-                away_team=data.get('away'),
-                home_score=data.get('s1'),
-                away_score=data.get('s2'),
+                home_team=data.get('home', 'Home'),
+                away_team=data.get('away', 'Away'),
+                home_score=safe_int(data.get('s1'), 0),
+                away_score=safe_int(data.get('s2'), 0),
                 match_date=datetime.strptime(data.get('date'), '%Y-%m-%dT%H:%M') if data.get('date') else datetime.utcnow(),
-                season=data.get('season'),
-                status='finished'
+                season=data.get('season', '24/25'),
+                status='finished',
+                type=data.get('type', 'Dostluq')
             )
+            
             # MVP
             if data.get('motm'):
                 p = Player.query.filter_by(name=data.get('motm')).first()
                 if p: m.mvp_player_id = p.id
                 
             db.session.add(m)
-            db.session.commit()
+            db.session.flush() # Get match ID before events
             
             # Events
             for ev in data.get('events', []):
-                scorer = Player.query.filter_by(name=ev.get('player')).first()
-                assist = Player.query.filter_by(name=ev.get('assist')).first() if ev.get('assist') else None
+                scorer_name = ev.get('player')
+                assist_name = ev.get('assist')
+                
+                scorer = Player.query.filter_by(name=scorer_name).first()
+                assist = Player.query.filter_by(name=assist_name).first() if assist_name else None
                 
                 if scorer:
                     g = Goal(
@@ -487,7 +501,9 @@ def api_matches():
             db.session.commit()
             return jsonify({'success': True})
         except Exception as e:
-            return jsonify({'success': False, 'message': str(e)}), 500
+            db.session.rollback()
+            return jsonify({'success': False, 'message': f'Matç xətası: {str(e)}'}), 500
+
 
     # GET
     matches = Match.query.order_by(Match.match_date.desc()).all()

@@ -78,11 +78,27 @@
       cursor: pointer;
       z-index: 10;
       transition: all 0.3s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .player-spot:hover {
       transform: translate(-50%, -50%) scale(1.1);
     }
+
+    .player-spot-name {
+      font-size: 10px;
+      color: #fff;
+      margin-top: 4px;
+      white-space: nowrap;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
 
     .player-icon {
       width: 48px;
@@ -969,7 +985,101 @@
       color: var(--primary-green);
       font-weight: bold;
     }
+
+    /* === RESPONSIVE DESIGN (Mobile First) === */
+    @media (max-width: 480px) {
+      .page-container {
+        padding: 55px 10px 80px 10px;
+      }
+
+      .header-logo {
+        font-size: 14px;
+      }
+
+      #page-header-title {
+        font-size: 14px;
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .pitch-container {
+        height: 350px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      .player-card {
+        height: 120px;
+        width: 85px;
+      }
+
+      .badge {
+        font-size: 10px;
+      }
+
+      .rating {
+        font-size: 22px;
+      }
+
+      .position {
+        font-size: 8px;
+      }
+
+      .player-name {
+        font-size: 9px;
+      }
+
+      .stat-card.rating-box {
+        padding: 15px;
+      }
+
+      .rating-value {
+        font-size: 32px;
+      }
+
+      .match-card {
+        padding: 12px;
+      }
+
+      .match-card b {
+        font-size: 14px;
+      }
+
+      .edit-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .player-select {
+        width: 100px;
+        height: 100px;
+      }
+
+      .rank-num {
+        width: 30px;
+        font-size: 14px;
+      }
+
+      .rank-item {
+        padding: 10px;
+      }
+
+      .table-title {
+        font-size: 9px;
+      }
+
+      .season-table table {
+        font-size: 10px;
+      }
+    }
   </style>
+
 </head>
 
 <body>
@@ -1065,7 +1175,7 @@
             margin-bottom: 15px;
           ">
         <h2>Matç Tarixçəsi</h2>
-        <button onclick="showMatchForm()" style="
+        <button class="admin-only" onclick="showMatchForm()" style="
               background: var(--primary-green);
               color: #000;
               border: none;
@@ -1075,6 +1185,7 @@
             ">
           + Yeni Matç
         </button>
+
       </div>
       <div id="match-list"></div>
     </div>
@@ -1087,7 +1198,7 @@
             margin-bottom: 15px;
           ">
         <h2>Oyunçular</h2>
-        <button onclick="showAddPlayerForm()" style="
+        <button class="admin-only" onclick="showAddPlayerForm()" style="
               background: linear-gradient(
                 135deg,
                 var(--primary-green),
@@ -1103,6 +1214,7 @@
             ">
           + Yeni Oyunçu
         </button>
+
       </div>
       <div style="margin-bottom: 15px">
         <input type="text" id="player-search" placeholder="🔍 Oyunçu ara..." oninput="filterPlayers(this.value)"
@@ -1445,10 +1557,18 @@
     }
 
     function updateAdminUI() {
-      document.querySelectorAll('.btn-danger').forEach(el => el.style.display = isAdmin ? 'inline-block' : 'none');
+      // Hide all elements that require admin privileges
+      document.querySelectorAll('.btn-danger, .admin-only').forEach(el => {
+        el.style.display = isAdmin ? '' : 'none';
+      });
+
       const editBtn = document.getElementById('edit-header-btn');
-      if (editBtn) editBtn.style.display = isAdmin ? 'flex' : 'none';
+      if (editBtn) {
+        editBtn.style.visibility = isAdmin ? 'visible' : 'hidden';
+        editBtn.style.display = 'flex';
+      }
     }
+
 
     // Feature 2: Login Logic
     async function performLogin() {
@@ -2449,55 +2569,56 @@
 
     function addMatchEvent() {
       const team = document.getElementById("event_scoring_team").value;
-      const player = document
-        .getElementById("event_player_manual")
-        .value.trim();
-      const assist = document
-        .getElementById("event_assist_manual")
-        .value.trim();
+      const player = document.getElementById("event_player_manual").value.trim();
+      const assist = document.getElementById("event_assist_manual").value.trim();
 
       if (!player) {
         showToast("Oyunçu adını daxil edin!", "error");
         return;
       }
 
-      if (team === document.getElementById("m_home_team").value) s1++;
+      if (team === document.getElementById("match_input_home").value) s1++;
       else s2++;
       updateScoreDisplay();
 
       tempEvents.push({ team, player, assist: assist || null });
-      document.getElementById("temp_event_list").innerHTML = `
-          <div style="background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-            <div style="font-size: 12px; font-weight: bold; color: var(--primary-green); margin-bottom: 8px;">Qollar (${tempEvents.length}):</div>
-            ${tempEvents
-          .map(
-            (
-              e,
-              i,
-            ) => `<div style="font-size: 11px; padding: 4px 0; color: #ccc;">
-                  ⚽ <b>${e.team}:</b> ${e.player} ${e.assist ? "<small style='color:#888'>(A: " + e.assist + ")</small>" : ""}
-                  <button class="btn-danger" style="float: right; padding: 2px 6px; font-size: 9px;" onclick="removeTempEvent(${i})">Sil</button>
-                </div>`,
-          )
-          .join("")}
-          </div>
-        `;
+      renderTempEvents();
+
       document.getElementById("event_player_manual").value = "";
       document.getElementById("event_assist_manual").value = "";
       showToast("Qol əlavə edildi ✓", "success");
     }
 
-    function removeTempEvent(idx) {
-      tempEvents.splice(idx, 1);
+    function renderTempEvents() {
+      const container = document.getElementById("temp_event_list");
       if (tempEvents.length === 0) {
-        s1 = 0;
-        s2 = 0;
+        container.innerHTML = "";
+        return;
       }
-      updateScoreDisplay();
-      addMatchEvent();
-      document.getElementById("event_player_manual").value = "";
-      document.getElementById("event_assist_manual").value = "";
+
+      container.innerHTML = `
+          <div style="background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="font-size: 12px; font-weight: bold; color: var(--primary-green); margin-bottom: 8px;">Qollar (${tempEvents.length}):</div>
+            ${tempEvents.map((e, i) => `
+                <div style="font-size: 11px; padding: 4px 0; color: #ccc; display: flex; justify-content: space-between; align-items: center;">
+                  <span>⚽ <b>${e.team}:</b> ${e.player} ${e.assist ? "<small style='color:#888'>(A: " + e.assist + ")</small>" : ""}</span>
+                  <button class="btn-danger" style="padding: 2px 6px; font-size: 9px; margin-left: 10px;" onclick="removeTempEvent(${i})">Sil</button>
+                </div>
+            `).join("")}
+          </div>
+        `;
     }
+
+    function removeTempEvent(idx) {
+      const ev = tempEvents[idx];
+      if (ev.team === document.getElementById("match_input_home").value) s1 = Math.max(0, s1 - 1);
+      else s2 = Math.max(0, s2 - 1);
+
+      tempEvents.splice(idx, 1);
+      updateScoreDisplay();
+      renderTempEvents();
+    }
+
 
     function updateScoreDisplay() {
       document.getElementById("live-s1").innerText = s1;
