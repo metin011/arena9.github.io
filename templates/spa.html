@@ -631,46 +631,8 @@
       transform: translateY(0);
     }
 
-    footer {
-      background: linear-gradient(180deg,
-          var(--bg-dark) 0%,
-          var(--card-gray) 100%);
-      display: flex;
-      padding: 12px 0;
-      border-top: 1px solid rgba(16, 185, 129, 0.1);
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      z-index: 100;
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .nav-item {
-      flex: 1;
-      text-align: center;
-      color: var(--text-gray);
-      font-size: 10px;
-      cursor: pointer;
-      padding: 8px 4px;
-      border-radius: 8px;
-      margin: 2px;
-      transition: all 0.3s ease;
-    }
-
-    .nav-item:hover {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--primary-green-light);
-    }
-
-    .nav-item.active {
-      color: var(--primary-green);
-      background: rgba(16, 185, 129, 0.15);
-    }
-
-    .nav-icon {
-      font-size: 20px;
-      display: block;
-      margin-bottom: 2px;
+    .font-variation-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
 
     .stat-grid {
@@ -1650,7 +1612,13 @@
         renderRecentMatches();
         renderTopGoals();
         renderTopAssists();
-        changePage('ana-sayfa', 'Əsas'); // Set initial nav state
+        if (!currentPage || currentPage === 'ana-sayfa') {
+          changePage('ana-sayfa', 'Əsas');
+        } else {
+          // Keep current page but update its UI if needed
+          updateNavUI("nav-btn-" + currentPage.replace('add-match-page', 'maclar').replace('player-profile', 'oyuncular').replace('edit-page', 'oyuncular').replace('add-player-page', 'oyuncular'));
+        }
+
 
       } catch (e) {
         console.error("API Error:", e);
