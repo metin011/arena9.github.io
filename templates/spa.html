@@ -1649,12 +1649,8 @@
         renderRecentMatches();
         renderTopGoals();
         renderTopAssists();
-        if (!currentPage || currentPage === 'ana-sayfa') {
-          changePage('ana-sayfa', 'Əsas');
-        } else {
-          // Keep current page but update its UI if needed
-          updateNavUI("nav-btn-" + currentPage.replace('add-match-page', 'maclar').replace('player-profile', 'oyuncular').replace('edit-page', 'oyuncular').replace('add-player-page', 'oyuncular'));
-        }
+        const initialRoute = routeMap[location.pathname] || routeMap["/"];
+        changePage(initialRoute.id, initialRoute.title, false);
 
 
       } catch (e) {
@@ -1783,8 +1779,19 @@
       return true;
     }
 
-    function changePage(pageId, title) {
+    const routeMap = {
+      "/": { id: "ana-sayfa", title: "Əsas" },
+      "/players": { id: "oyuncular", title: "Oyunçular" },
+      "/maclar": { id: "maclar", title: "Matçlar" },
+      "/machs": { id: "maclar", title: "Matçlar" },
+      "/istatistikler": { id: "istatistikler", title: "Statistika" },
+      "/muqayise": { id: "muqayise", title: "Müqayisə" },
+      "/dream-team": { id: "dream-team", title: "Dream Team" },
+    };
+
+    function changePage(pageId, title, pushState = true) {
       currentPage = pageId;
+
       document
         .querySelectorAll(".page")
         .forEach((p) => p.classList.remove("active-page"));
@@ -1842,8 +1849,21 @@
         });
       }
 
+      if (pushState) {
+        let url = "/";
+        if (pageId === "oyuncular") url = "/players";
+        else if (pageId === "maclar") url = "/maclar";
+        else if (pageId === "istatistikler") url = "/istatistikler";
+        else if (pageId === "muqayise") url = "/muqayise";
+        else if (pageId === "dream-team") url = "/dream-team";
+
+        if (location.pathname !== url) {
+          history.pushState({ pageId, title }, title, url);
+        }
+      }
 
       if (navId) updateNavUI(navId);
+
 
       document.getElementById("edit-header-btn").style.visibility =
 
@@ -1880,6 +1900,16 @@
       if (historyStack[historyStack.length - 1] !== pageId)
         historyStack.push(pageId);
     }
+
+    window.onpopstate = function (event) {
+      if (event.state && event.state.pageId) {
+        changePage(event.state.pageId, event.state.title, false);
+      } else {
+        const route = routeMap[location.pathname] || routeMap["/"];
+        changePage(route.id, route.title, false);
+      }
+    };
+
 
     function exportData() {
       const data = {

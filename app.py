@@ -262,9 +262,16 @@ def log_action(user_id, action, target_type, target_id, details=None):
 
 # Routes
 @app.route('/')
+@app.route('/players')
+@app.route('/maclar')
+@app.route('/machs')
+@app.route('/istatistikler')
+@app.route('/muqayise')
+@app.route('/dream-team')
 def index():
     # Serve the new SPA frontend
     return render_template('spa.html')
+
 
 @app.route('/api/auth-status')
 def api_auth_status():
