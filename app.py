@@ -159,6 +159,8 @@ class Match(db.Model):
     image_url = db.Column(db.String(300))  # Maç görseli
     mvp_player_id = db.Column(db.Integer, db.ForeignKey('player.id'))  # Maçın oyuncusu
     season = db.Column(db.String(20)) # Örnek: "24/25"
+    type = db.Column(db.String(100), default='Dostluq')
+
     
     # Advanced Metrics
     home_xg = db.Column(db.Float, default=0.0)
@@ -369,6 +371,11 @@ def api_players():
             print(f"SeasonStats error for player {p.id}: {e}")
             past_data = {}
             
+        # Reconstruct type stats
+        type_data = {}
+        for t in ["Sinif Ligi", "Dostluq matçları", "Məktəbdənkənar", "Məktəb çempionatı"]:
+            type_data[t] = {'g': 0, 'a': 0, 'm': 0, 'om': 0}
+            
         result.append({
             'id': p.id,
             'name': p.name,
@@ -377,8 +384,9 @@ def api_players():
             'photo_url': p.photo_url,
             'stats': stats,
             'pastData': past_data,
-            # 'typeStats': ... (need to implement type stats in DB if crucial)
+            'typeStats': type_data,
         })
+
 
     return jsonify(result)
 
@@ -400,6 +408,10 @@ def api_player_detail(id):
             # Delete goals where player is scorer or assister
             Goal.query.filter_by(scorer_id=id).delete()
             Goal.query.filter_by(assist_id=id).delete()
+            
+            # Reset MVP references in matches
+            Match.query.filter_by(mvp_player_id=id).update({Match.mvp_player_id: None})
+
             
             # Delete player ratings and comments if they exist
             try:
@@ -528,7 +540,8 @@ def api_matches():
             's2': m.away_score,
             'date': m.match_date.isoformat(),
             'season': m.season,
-            'type': 'Match', # Placeholder
+            'type': m.type or 'Dostluq',
+
             'motm': mvp_name,
             'events': events
         })

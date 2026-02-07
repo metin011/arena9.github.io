@@ -1892,10 +1892,18 @@
     }
 
     function getOverall(stats) {
+      if (!stats) return 75;
       let t = 0;
-      statNames.forEach((n) => (t += Number(stats[n])));
-      return Math.round(t / statNames.length);
+      let count = 0;
+      statNames.forEach((n) => {
+        if (stats[n] !== undefined) {
+          t += Number(stats[n]);
+          count++;
+        }
+      });
+      return count > 0 ? Math.round(t / count) : 75;
     }
+
 
     function renderPlayers() {
       const list = document.getElementById("full-player-list");
@@ -2104,34 +2112,42 @@
       currentPlayerIndex = index;
       isEditMode = false;
       const p = players[index];
+      if (!p) return;
 
       // Sezon cədvəli sətirləri (OM əlavə edildi)
       let seasonRows = seasonOptions
         .map(
-          (s) =>
-            `<tr>
-      <td>${s}</td>
-      <td>${isEditMode ? `<input type="number" id="season-om-${s.replace("/", "")}" value="${p.pastData[s].om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].om || 0}`}</td> 
-      <td>${isEditMode ? `<input type="number" id="season-g-${s.replace("/", "")}" value="${p.pastData[s].g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].g}`}</td>
-      <td>${isEditMode ? `<input type="number" id="season-a-${s.replace("/", "")}" value="${p.pastData[s].a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].a}`}</td>
-      <td>${isEditMode ? `<input type="number" id="season-m-${s.replace("/", "")}" value="${p.pastData[s].m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.pastData[s].m}`}</td>
-    </tr>`,
+          (s) => {
+            const data = (p.pastData && p.pastData[s]) ? p.pastData[s] : { g: 0, a: 0, m: 0, om: 0 };
+            const k = s.replace("/", "");
+            return `<tr>
+              <td>${s}</td>
+              <td>${isEditMode ? `<input type="number" id="season-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.om || 0}`}</td> 
+              <td>${isEditMode ? `<input type="number" id="season-g-${k}" value="${data.g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.g}`}</td>
+              <td>${isEditMode ? `<input type="number" id="season-a-${k}" value="${data.a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.a}`}</td>
+              <td>${isEditMode ? `<input type="number" id="season-m-${k}" value="${data.m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.m}`}</td>
+            </tr>`;
+          }
         )
         .join("");
 
       // Matç Növü cədvəli sətirləri (OM əlavə edildi)
       let typeRows = matchTypes
         .map(
-          (t) =>
-            `<tr>
-      <td>${t}</td>
-      <td>${isEditMode ? `<input type="number" id="type-om-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].om || 0}`}</td>
-      <td>${isEditMode ? `<input type="number" id="type-g-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].g}`}</td>
-      <td>${isEditMode ? `<input type="number" id="type-a-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].a}`}</td>
-      <td>${isEditMode ? `<input type="number" id="type-m-${t.replace(/\s+/g, "")}" value="${p.typeStats[t].m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${p.typeStats[t].m}`}</td>
-    </tr>`,
+          (t) => {
+            const data = (p.typeStats && p.typeStats[t]) ? p.typeStats[t] : { g: 0, a: 0, m: 0, om: 0 };
+            const k = t.replace(/\s+/g, "");
+            return `<tr>
+              <td>${t}</td>
+              <td>${isEditMode ? `<input type="number" id="type-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.om || 0}`}</td>
+              <td>${isEditMode ? `<input type="number" id="type-g-${k}" value="${data.g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.g}`}</td>
+              <td>${isEditMode ? `<input type="number" id="type-a-${k}" value="${data.a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.a}`}</td>
+              <td>${isEditMode ? `<input type="number" id="type-m-${k}" value="${data.m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.m}`}</td>
+            </tr>`;
+          }
         )
         .join("");
+
 
       changePage("player-profile", p.name);
 
