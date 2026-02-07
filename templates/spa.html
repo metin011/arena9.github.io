@@ -5,6 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Arena9</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+
   <style>
     :root {
       --bg-black: #000000;
@@ -22,6 +26,39 @@
       --shadow: 0 10px 40px rgba(57, 255, 20, 0.1);
       --shadow-sm: 0 4px 15px rgba(57, 255, 20, 0.05);
     }
+
+    .neon-glow {
+      filter: drop-shadow(0 0 8px rgba(31, 249, 86, 0.4));
+    }
+
+    .solid-gradient {
+      background: linear-gradient(135deg, #1ff956 0%, #09a334 100%);
+    }
+
+    .font-variation-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .nav-btn-active {
+      opacity: 1 !important;
+      transform: scale(1.1);
+    }
+
+    .nav-btn-active .nav-icon-container {
+      backface-visibility: hidden;
+      animation: nav-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes nav-pop {
+      0% {
+        transform: scale(0.8);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
 
 
     /* Dream Team Pitch Styles */
@@ -1448,26 +1485,89 @@
     </div>
   </div>
 
-  <footer>
-    <div class="nav-item active" id="nav-ana-sayfa" onclick="changePage('ana-sayfa', 'Əsas')">
-      <span class="nav-icon">🏠</span>Əsas
+  <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-gradient-to-t from-[#0f2314]/90 to-transparent z-[1000]">
+    <div class="max-w-md mx-auto w-full">
+      <div
+        class="bg-black/90 backdrop-blur-xl border border-white/10 rounded-full h-20 flex items-center justify-around px-2 shadow-2xl">
+
+        <button id="nav-btn-ana-sayfa"
+          class="nav-button flex flex-col items-center justify-center gap-1 flex-1 relative transition-all duration-300"
+          onclick="changePage('ana-sayfa', 'Əsas')">
+          <div
+            class="active-indicator absolute -top-1 w-12 h-1 bg-[#1ff956] rounded-full blur-sm opacity-0 transition-opacity duration-300">
+          </div>
+          <div
+            class="nav-icon-container size-10 rounded-full flex items-center justify-center transition-all duration-300">
+            <span class="material-symbols-outlined text-[#1ff956] text-2xl transition-all duration-300">home</span>
+          </div>
+        </button>
+
+        <button id="nav-btn-oyuncular"
+          class="nav-button flex flex-col items-center justify-center gap-1 flex-1 relative opacity-40 hover:opacity-100 transition-all duration-300"
+          onclick="changePage('oyuncular', 'Oyunçular')">
+          <div
+            class="active-indicator absolute -top-1 w-12 h-1 bg-[#1ff956] rounded-full blur-sm opacity-0 transition-opacity duration-300">
+          </div>
+          <div
+            class="nav-icon-container size-10 rounded-full flex items-center justify-center transition-all duration-300">
+            <span class="material-symbols-outlined text-[#1ff956] text-2xl transition-all duration-300">person</span>
+          </div>
+        </button>
+
+        <button id="nav-btn-maclar"
+          class="nav-button flex flex-col items-center justify-center gap-1 flex-1 relative opacity-40 hover:opacity-100 transition-all duration-300"
+          onclick="changePage('maclar', 'Matçlar')">
+          <div
+            class="active-indicator absolute -top-1 w-12 h-1 bg-[#1ff956] rounded-full blur-sm opacity-0 transition-opacity duration-300">
+          </div>
+          <div
+            class="nav-icon-container size-10 rounded-full flex items-center justify-center transition-all duration-300">
+            <span
+              class="material-symbols-outlined text-[#1ff956] text-2xl transition-all duration-300">sports_soccer</span>
+          </div>
+        </button>
+
+        <button id="nav-btn-istatistikler"
+          class="nav-button flex flex-col items-center justify-center gap-1 flex-1 relative opacity-40 hover:opacity-100 transition-all duration-300"
+          onclick="changePage('istatistikler', 'İstatistikler')">
+          <div
+            class="active-indicator absolute -top-1 w-12 h-1 bg-[#1ff956] rounded-full blur-sm opacity-0 transition-opacity duration-300">
+          </div>
+          <div
+            class="nav-icon-container size-10 rounded-full flex items-center justify-center transition-all duration-300">
+            <span class="material-symbols-outlined text-[#1ff956] text-2xl transition-all duration-300">bar_chart</span>
+          </div>
+        </button>
+
+        <button id="nav-btn-muqayise"
+          class="nav-button flex flex-col items-center justify-center gap-1 flex-1 relative opacity-40 hover:opacity-100 transition-all duration-300"
+          onclick="changePage('muqayise', 'Müqayisə')">
+          <div
+            class="active-indicator absolute -top-1 w-12 h-1 bg-[#1ff956] rounded-full blur-sm opacity-0 transition-opacity duration-300">
+          </div>
+          <div
+            class="nav-icon-container size-10 rounded-full flex items-center justify-center transition-all duration-300">
+            <span
+              class="material-symbols-outlined text-[#1ff956] text-2xl transition-all duration-300">compare_arrows</span>
+          </div>
+        </button>
+
+        <button id="nav-btn-dream-team"
+          class="nav-button flex flex-col items-center justify-center gap-1 flex-1 relative opacity-40 hover:opacity-100 transition-all duration-300"
+          onclick="changePage('dream-team', 'Dream Team')">
+          <div
+            class="active-indicator absolute -top-1 w-12 h-1 bg-[#1ff956] rounded-full blur-sm opacity-0 transition-opacity duration-300">
+          </div>
+          <div
+            class="nav-icon-container size-10 rounded-full flex items-center justify-center transition-all duration-300">
+            <span class="material-symbols-outlined text-[#1ff956] text-2xl transition-all duration-300">trophy</span>
+          </div>
+        </button>
+
+      </div>
     </div>
-    <div class="nav-item" id="nav-maclar" onclick="changePage('maclar', 'Matçlar')">
-      <span class="nav-icon">⚽</span>Matçlar
-    </div>
-    <div class="nav-item" id="nav-oyuncular" onclick="changePage('oyuncular', 'Oyunçular')">
-      <span class="nav-icon">👥</span>Oyunçular
-    </div>
-    <div class="nav-item" id="nav-istatistikler" onclick="changePage('istatistikler', 'İstatistikler')">
-      <span class="nav-icon">📊</span>İstatistikler
-    </div>
-    <div class="nav-item" id="nav-muqayise" onclick="changePage('muqayise', 'Müqayisə')">
-      <span class="nav-icon">⚖️</span>Müqayisə
-    </div>
-    <div class="nav-item" id="nav-dream-team" onclick="changePage('dream-team', 'Dream Team')">
-      <span class="nav-icon">⭐</span>Dream
-    </div>
-  </footer>
+  </div>
+
 
   <!-- Login Modal -->
   <div id="login-modal" class="login-overlay" style="display: none;">
@@ -1550,6 +1650,8 @@
         renderRecentMatches();
         renderTopGoals();
         renderTopAssists();
+        changePage('ana-sayfa', 'Əsas'); // Set initial nav state
+
       } catch (e) {
         console.error("API Error:", e);
         showToast("Server xətası!", "error");
@@ -1688,24 +1790,58 @@
         .forEach((i) => i.classList.remove("active"));
 
       let navId = "";
-      if (pageId === "ana-sayfa") navId = "nav-ana-sayfa";
+      if (pageId === "ana-sayfa") navId = "nav-btn-ana-sayfa";
       else if (pageId === "maclar" || pageId === "add-match-page")
-        navId = "nav-maclar";
+        navId = "nav-btn-maclar";
       else if (
         pageId === "oyuncular" ||
         pageId === "player-profile" ||
         pageId === "edit-page" ||
         pageId === "add-player-page"
       )
-        navId = "nav-oyuncular";
-      else if (pageId === "istatistikler") navId = "nav-istatistikler";
-      else if (pageId === "istatistikler") navId = "nav-istatistikler";
-      else if (pageId === "muqayise") navId = "nav-muqayise";
-      else if (pageId === "dream-team") navId = "nav-dream-team";
+        navId = "nav-btn-oyuncular";
+      else if (pageId === "istatistikler") navId = "nav-btn-istatistikler";
+      else if (pageId === "muqayise") navId = "nav-btn-muqayise";
+      else if (pageId === "dream-team") navId = "nav-btn-dream-team";
+
+      function updateNavUI(activeId) {
+        document.querySelectorAll(".nav-button").forEach((btn) => {
+          const isActive = btn.id === activeId;
+          const indicator = btn.querySelector(".active-indicator");
+          const iconContainer = btn.querySelector(".nav-icon-container");
+          const icon = btn.querySelector(".material-symbols-outlined");
+
+          if (isActive) {
+            btn.classList.add("nav-btn-active");
+            btn.classList.remove("opacity-40");
+            if (indicator) indicator.classList.remove("opacity-0");
+            if (iconContainer) {
+              iconContainer.classList.add("solid-gradient", "neon-glow");
+            }
+            if (icon) {
+              icon.classList.add("font-variation-fill");
+              icon.classList.replace("text-[#1ff956]", "text-black");
+            }
+          } else {
+            btn.classList.remove("nav-btn-active");
+            btn.classList.add("opacity-40");
+            if (indicator) indicator.classList.add("opacity-0");
+            if (iconContainer) {
+              iconContainer.classList.remove("solid-gradient", "neon-glow");
+            }
+            if (icon) {
+              icon.classList.remove("font-variation-fill");
+              icon.classList.replace("text-black", "text-[#1ff956]");
+            }
+          }
+        });
+      }
 
 
-      if (navId) document.getElementById(navId).classList.add("active");
+      if (navId) updateNavUI(navId);
+
       document.getElementById("edit-header-btn").style.visibility =
+
         pageId === "player-profile"
           ? "visible"
           : "hidden";
