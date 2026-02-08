@@ -262,17 +262,17 @@
     }
 
     header {
-      padding: 12px 16px;
+      padding: 10px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      background: #050505;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 2px solid rgba(31, 249, 86, 0.1);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
       z-index: 1000;
     }
 
@@ -280,7 +280,7 @@
     .header-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex: 1;
     }
 
@@ -291,46 +291,60 @@
     .header-logo-container {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .header-logo {
-      font-size: 22px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #1ff956 0%, #059669 100%);
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1.2px;
+      text-transform: uppercase;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .header-logo span {
+      background: linear-gradient(180deg, #1ff956 0%, #059669 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -1px;
     }
 
     .admin-badge {
-      font-size: 9px;
-      background: rgba(16, 185, 129, 0.1);
+      font-size: 10px;
+      background: rgba(31, 249, 86, 0.08);
       color: #1ff956;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 2px 6px;
-      border-radius: 20px;
-      font-weight: 700;
+      border: 1px solid rgba(31, 249, 86, 0.2);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
       cursor: pointer;
       display: none;
       /* Controlled by JS */
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .admin-badge:hover {
+      background: rgba(31, 249, 86, 0.15);
+      box-shadow: 0 0 10px rgba(31, 249, 86, 0.2);
     }
 
     .admin-badge.active {
-      display: flex;
-      align-items: center;
-      gap: 3px;
+      display: inline-flex;
     }
 
     #page-header-title {
-      font-weight: 700;
-      font-size: 16px;
+      font-weight: 800;
+      font-size: 14px;
       text-align: center;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.2px;
       color: #fff;
+      opacity: 0.9;
+      text-transform: uppercase;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -338,24 +352,25 @@
     }
 
     .header-icon {
-      font-size: 20px;
-      width: 36px;
-      height: 36px;
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      background: transparent;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       color: #fff;
     }
 
     .header-icon:hover {
-      background: rgba(16, 185, 129, 0.2);
+      background: rgba(31, 249, 86, 0.1);
       border-color: #1ff956;
       color: #1ff956;
+      box-shadow: 0 0 15px rgba(31, 249, 86, 0.2);
     }
 
     .page-container {
@@ -1095,11 +1110,14 @@
   <header>
     <div class="header-left">
       <div id="back-header-btn" class="header-icon" style="visibility: hidden" onclick="goBack()">
-        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back_ios_new</span>
       </div>
       <div class="header-logo-container">
-        <span class="header-logo" onclick="changePage('ana-sayfa', 'Əsas')">Arena9</span>
-        <div id="admin-indicator" class="admin-badge" onclick="showLogin()">Admin</div>
+        <span class="header-logo" onclick="changePage('ana-sayfa', 'Əsas')"><span>ARENA</span>9</span>
+        <div id="admin-indicator" class="admin-badge" onclick="showLogin()">
+          <span class="material-symbols-outlined" style="font-size: 14px;">verified_user</span>
+          <span>Admin</span>
+        </div>
       </div>
     </div>
 
@@ -1107,11 +1125,12 @@
 
     <div class="header-right">
       <button id="edit-header-btn" class="header-icon" style="visibility: hidden" onclick="toggleEdit()">
-        <span class="material-symbols-outlined">edit</span>
+        <span class="material-symbols-outlined" style="font-size: 18px;">settings_suggest</span>
       </button>
-      <div id="non-admin-login-trigger" style="width: 24px; visibility: hidden;"></div>
+      <div id="non-admin-login-trigger" style="width: 24px; pointer-events: none;"></div>
     </div>
   </header>
+
 
   <div class="page-container">
     <div id="ana-sayfa" class="page active-page">
@@ -1677,7 +1696,6 @@
       if (adminIndicator) {
         if (isAdmin) {
           adminIndicator.classList.add('active');
-          adminIndicator.innerHTML = '<span class="loading" style="width:6px;height:6px;margin-right:4px;"></span> Admin';
         } else {
           adminIndicator.classList.remove('active');
         }
@@ -1688,6 +1706,7 @@
         editBtn.style.visibility = (isAdmin && currentPage === 'player-profile') ? 'visible' : 'hidden';
       }
     }
+
 
 
 
