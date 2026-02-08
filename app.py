@@ -475,6 +475,7 @@ def api_player_detail(id):
             player.position = data.get('position', player.position)
             player.preferred_foot = data.get('preferred_foot', player.preferred_foot)
 
+            db.session.commit()
             return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
