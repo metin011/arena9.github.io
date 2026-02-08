@@ -331,6 +331,15 @@
       box-shadow: 0 0 15px rgba(31, 249, 86, 0.1);
     }
 
+
+    .emoji-icon {
+      color: #1ff956;
+      vertical-align: middle;
+      margin-right: 8px;
+      font-size: 20px;
+      text-shadow: 0 0 10px rgba(31, 249, 86, 0.4);
+    }
+
     .admin-badge:hover {
       background: rgba(31, 249, 86, 0.25);
       box-shadow: 0 0 20px rgba(31, 249, 86, 0.3);
@@ -1150,6 +1159,9 @@
       <button id="edit-header-btn" class="header-icon" style="visibility: hidden" onclick="toggleEdit()">
         <span class="material-symbols-outlined" style="font-size: 20px;">settings_suggest</span>
       </button>
+      <button id="add-header-btn" class="header-icon" style="display: none" onclick="handleAddClick()">
+        <span class="material-symbols-outlined" style="font-size: 22px; color: #1ff956;">add</span>
+      </button>
       <div id="login_trigger_icon" class="login-icon-trigger" onclick="showLogin()">
         <span class="material-symbols-outlined" style="font-size: 18px;">admin_panel_settings</span>
       </div>
@@ -1173,7 +1185,7 @@
               font-size: 18px;
               font-weight: 600;
             ">
-          ⚽ Son Matçlar
+          <span class="material-symbols-outlined emoji-icon">sports_soccer</span> Son Matçlar
         </h3>
         <div id="recent-matches-list"></div>
       </div>
@@ -1193,7 +1205,7 @@
                 font-size: 18px;
                 font-weight: 600;
               ">
-            🥅 Qol Krallığı (Top 5)
+            <span class="material-symbols-outlined emoji-icon">sports_score</span> Qol Krallığı (Top 5)
           </h3>
           <div id="top-goals-list"></div>
         </div>
@@ -1211,7 +1223,7 @@
                 font-size: 18px;
                 font-weight: 600;
               ">
-            🎯 Asist Krallığı (Top 5)
+            <span class="material-symbols-outlined emoji-icon">track_changes</span> Asist Krallığı (Top 5)
           </h3>
           <div id="top-assists-list"></div>
         </div>
@@ -1267,9 +1279,11 @@
         </button>
 
       </div>
-      <div style="margin-bottom: 15px">
-        <input type="text" id="player-search" placeholder="🔍 Oyunçu ara..." oninput="filterPlayers(this.value)"
-          style="font-size: 13px" />
+      <div style="margin-bottom: 15px; position: relative;">
+        <span class="material-symbols-outlined"
+          style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary-green); opacity: 0.6; font-size: 18px;">search</span>
+        <input type="text" id="player-search" placeholder="Oyunçu ara..." oninput="filterPlayers(this.value)"
+          style="font-size: 13px; padding-left: 40px;" />
       </div>
       <div id="full-player-list"></div>
     </div>
@@ -1277,7 +1291,8 @@
     <!-- Dream Team Page -->
     <div id="dream-team" class="page">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h2 style="color: var(--gold); margin: 0; font-size: 18px;">⭐ Dream Team</h2>
+        <h2 style="color: var(--gold); margin: 0; font-size: 18px;"><span class="material-symbols-outlined emoji-icon"
+            style="color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">star</span> Dream Team</h2>
         <div style="display: flex; gap: 5px;">
           <select id="team-size-select" onchange="updateFormationOptions()"
             style="width: auto; padding: 6px; font-size: 11px; background: #222; color: white; border: 1px solid #444; border-radius: 6px;">
@@ -1514,11 +1529,14 @@
               color: var(--primary-green);
               border: 1px dashed var(--primary-green);
             ">
-          ⚽ Qol Əlavə Et
+          <span class="material-symbols-outlined"
+            style="font-size: 18px; margin-right: 5px; vertical-align: middle;">sports_soccer</span> Qol Əlavə Et
         </button>
       </div>
       <div class="form-group" style="margin-top: 15px">
-        <label style="color: var(--gold)">⭐ MOTM</label><select id="match_motm"></select>
+        <label style="color: var(--gold)"><span class="material-symbols-outlined emoji-icon"
+            style="color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">star</span> MOTM</label><select
+          id="match_motm"></select>
       </div>
       <div id="temp_event_list" style="font-size: 12px; color: #aaa; margin: 10px 0"></div>
       <button class="main-btn" onclick="saveMatch()">
@@ -1744,10 +1762,17 @@
       if (editBtn) {
         editBtn.style.visibility = (isAdmin && currentPage === 'player-profile') ? 'visible' : 'hidden';
       }
+
+      const addHeaderBtn = document.getElementById('add-header-btn');
+      if (addHeaderBtn) {
+        addHeaderBtn.style.display = (isAdmin && (currentPage === 'maclar' || currentPage === 'oyuncular')) ? 'flex' : 'none';
+      }
     }
 
-
-
+    function handleAddClick() {
+      if (currentPage === 'maclar') showMatchForm();
+      else if (currentPage === 'oyuncular') showAddPlayerForm();
+    }
 
 
     // Feature 2: Login Logic
@@ -1975,6 +2000,7 @@
 
       if (historyStack[historyStack.length - 1] !== pageId)
         historyStack.push(pageId);
+
     }
 
     window.onpopstate = function (event) {
@@ -2002,7 +2028,7 @@
       a.download = `Arena9_${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast("Məlumatlar yükləndi ✓", "success");
+      showToast("Məlumatlar yükləndi", "success");
     }
 
     function goBack() {
@@ -2163,7 +2189,7 @@
       if (players.length === 0) {
         list.innerHTML = `
             <div class="empty-state">
-              <div class="empty-state-icon">👥</div>
+              <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">group</span></div>
               <div class="empty-state-text">Hələ oyunçu yoxdur</div>
               <div style="margin-top: 15px;">
                 <button class="main-btn" style="max-width: 200px; margin: 0 auto;" onclick="showAddPlayerForm()">
@@ -2185,7 +2211,7 @@
                     <div style="font-weight:600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.name}</div>
                     <div style="font-size:11px; color:var(--text-gray); margin-top: 2px;">OVR: <span style="color: var(--primary-green); font-weight: 600;">${getOverall(p.stats)}</span> | Yaş: ${p.age}</div>
                   </div>
-                  <button class="btn-danger" onclick="deletePlayer(${idx})" title="Sil">🗑️</button>
+                  <button class="btn-danger" onclick="deletePlayer(${idx})" title="Sil"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>
                 </div>
               `,
         )
@@ -2203,7 +2229,7 @@
       if (filtered.length === 0) {
         list.innerHTML = `
             <div class="empty-state">
-              <div class="empty-state-icon">🔍</div>
+              <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">search</span></div>
               <div class="empty-state-text">Oyunçu tapılmadı</div>
             </div>
           `;
@@ -2220,7 +2246,7 @@
                     <div style="font-weight:600; font-size: 14px;">${p.name}</div>
                     <div style="font-size:11px; color:var(--text-gray); margin-top: 2px;">OVR: <span style="color: var(--primary-green); font-weight: 600;">${getOverall(p.stats)}</span> | Yaş: ${p.age}</div>
                   </div>
-                  <button class="btn-danger" onclick="deletePlayer(${actualIdx})" title="Sil">🗑️</button>
+                  <button class="btn-danger" onclick="deletePlayer(${actualIdx})" title="Sil"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>
                 </div>
               `;
         })
@@ -2264,7 +2290,7 @@
                     <div>
                       <small style="color:var(--primary-green)">${m.type} (${m.season})</small>
                       <div style="font-weight: bold; font-size: 14px; margin: 4px 0;">${m.home} vs ${m.away}</div>
-                      <div style="font-size: 12px; color: var(--text-gray);">📅 ${new Date(m.date).toLocaleDateString("az-AZ")}</div>
+                      <div style="font-size: 12px; color: var(--text-gray);"><span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">calendar_month</span> ${new Date(m.date).toLocaleDateString("az-AZ")}</div>
                     </div>
                     <div style="text-align: right;">
                       <div style="font-size: 18px; font-weight: bold; color: var(--primary-green);">${m.s1} - ${m.s2}</div>
@@ -2276,8 +2302,8 @@
                     <div class="match-footer">
                        <span class="match-date-info">ID: ${m.id}</span>
                        <div class="admin-actions">
-                         <button class="edit-btn btn-danger" onclick="editMatch(${idx}); event.stopPropagation();">✎</button>
-                         <button class="delete-btn btn-danger" onclick="deleteMatch(${idx}); event.stopPropagation();" title="Sil">🗑️</button>
+                         <button class="edit-btn btn-danger" onclick="editMatch(${idx}); event.stopPropagation();"><span class="material-symbols-outlined" style="font-size: 16px;">edit</span></button>
+                         <button class="delete-btn btn-danger" onclick="deleteMatch(${idx}); event.stopPropagation();" title="Sil"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>
                        </div>
                     </div>
                   </div>
@@ -2374,7 +2400,7 @@
             const k = s.replace("/", "");
             return `<tr>
               <td>${s}</td>
-              <td>${isEditMode ? `<input type="number" id="season-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.om || 0}`}</td> 
+              <td>${isEditMode ? `<input type="number" id="season-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.om || 0}`}</td>
               <td>${isEditMode ? `<input type="number" id="season-g-${k}" value="${data.g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.g}`}</td>
               <td>${isEditMode ? `<input type="number" id="season-a-${k}" value="${data.a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.a}`}</td>
               <td>${isEditMode ? `<input type="number" id="season-m-${k}" value="${data.m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.m}`}</td>
@@ -2444,7 +2470,7 @@
 
 
     <div class="season-table" style="grid-column: span 2;">
-      <div class="table-title">📅 Sezon Statistikası</div>
+      <div class="table-title"><span class="material-symbols-outlined emoji-icon">calendar_month</span> Sezon Statistikası</div>
       <table>
         <thead><tr><th>SEZON</th><th>OM</th><th>G</th><th>A</th><th>MOTM</th></tr></thead>
         <tbody>${seasonRows}</tbody>
@@ -2452,7 +2478,7 @@
     </div>
 
     <div class="season-table" style="grid-column: span 2;">
-      <div class="table-title">🏆 Turnir/Matç Növü</div>
+      <div class="table-title"><span class="material-symbols-outlined emoji-icon">emoji_events</span> Turnir/Matç Növü</div>
       <table>
         <thead><tr><th>NÖV</th><th>OM</th><th>G</th><th>A</th><th>MOTM</th></tr></thead>
         <tbody>${typeRows}</tbody>
@@ -2600,6 +2626,10 @@
       seasonOptions.forEach((s) => {
         let k = s.replace("/", "");
         p.pastData[s] = {
+          om: Math.max(
+            0,
+            parseInt(document.getElementById(`ps-om-${k}`).value) || 0,
+          ),
           g: Math.max(
             0,
             parseInt(document.getElementById(`ps-g-${k}`).value) || 0,
@@ -2637,12 +2667,6 @@
         };
       });
 
-      // map stats/season/type back to backend structure?
-      // For now, updating frontend object and sending relevant parts
-      // NOTE: Detailed season/type stats syncing to DB is complex, simplified to basic stats for now in this iteration
-      // Unless we expand the PUT endpoint to handle nested JSONs or use separate endpoints.
-      // Based on app.py, api_player_detail PUT accepts 'stats' dict.
-
       const payload = {
         name: p.name,
         age: p.age,
@@ -2652,6 +2676,7 @@
         position: p.position,
         preferred_foot: p.preferred_foot,
         stats: p.stats,
+        pastData: p.pastData
       };
 
       try {
@@ -2753,7 +2778,8 @@
         weight: p.weight,
         position: p.position,
         preferred_foot: p.preferred_foot,
-        photo_url: p.photo_url
+        photo_url: p.photo_url,
+        pastData: p.pastData
       };
 
 
@@ -2920,15 +2946,18 @@
       updateTeamOptions();
     }
 
-    function deleteMatch(idx) {
+    function deleteMatch(idx, event) {
+      if (event) event.stopPropagation();
       const m = matches[idx];
-      showConfirm(`Matç silinsin?`, async () => {
+      showConfirm(`${m.home} - ${m.away} matçı silinsin?`, async () => {
         try {
           const res = await fetch(`/api/matches/${m.id}`, { method: 'DELETE' });
           if (res.ok) {
-            matches.splice(idx, 1);
-            showToast("Matç silindi", "success");
-            renderRecentMatches(); // Refresh list
+            showToast("Matç silindi ✓", "success");
+            fetchAllData();
+          } else {
+            const data = await res.json();
+            showToast("Xəta: " + (data.message || "Bilinməyən xəta"), "error");
           }
         } catch (e) { showToast("Server xətası", "error"); }
       });
@@ -2979,7 +3008,7 @@
             <div style="font-size: 12px; font-weight: bold; color: var(--primary-green); margin-bottom: 8px;">Qollar (${tempEvents.length}):</div>
             ${tempEvents.map((e, i) => `
                 <div style="font-size: 11px; padding: 4px 0; color: #ccc; display: flex; justify-content: space-between; align-items: center;">
-                  <span>⚽ <b>${e.team}:</b> ${e.player} ${e.assist ? "<small style='color:#888'>(A: " + e.assist + ")</small>" : ""}</span>
+                  <span><span class="material-symbols-outlined" style="font-size: 14px; color: #1ff956; vertical-align: middle;">sports_soccer</span> <b>${e.team}:</b> ${e.player} ${e.assist ? "<small style='color:#888'>(A: " + e.assist + ")</small>" : ""}</span>
                   <button class="btn-danger" style="padding: 2px 6px; font-size: 9px; margin-left: 10px;" onclick="removeTempEvent(${i})">Sil</button>
                 </div>
             `).join("")}
@@ -3091,25 +3120,6 @@
         .join("");
     }
 
-    function deleteMatch(idx, event) {
-      if (event) event.stopPropagation();
-      const match = matches[idx];
-      showConfirm(
-        `${match.home} - ${match.away} matçı silinsin?`,
-        async () => {
-          try {
-            const res = await fetch(`/api/matches/${match.id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) {
-              showToast("Matç silindi ✓", "success");
-              fetchAllData(); // Refresh from server
-            } else {
-              showToast("Xəta: " + data.message, "error");
-            }
-          } catch (e) { showToast("Server xətası", "error"); }
-        },
-      );
-    }
 
 
     function viewMatch(idx) {
@@ -3154,7 +3164,7 @@
               (e, i) => `
                   <div style="display: flex; align-items: center; margin-bottom: 16px; ${i % 2 === 0 ? "justify-content: flex-start;" : "justify-content: flex-end; flex-direction: row-reverse;"}">
                     <div style="background: ${e.team === match.home ? "var(--primary-green)" : "var(--danger-red)"}; color: #000; padding: 8px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; z-index: 1;">
-                      ⚽ ${e.player}
+                      <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">sports_soccer</span> ${e.player}
                       ${e.assist ? ` (A: ${e.assist})` : ""}
                     </div>
                   </div>
@@ -3169,7 +3179,7 @@
           
           <!-- Match Stats -->
           <div style="background: var(--card-gray); padding: 24px; border-radius: 16px; margin-bottom: 24px;">
-            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600;">📊 Statistika</h3>
+            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600;"><span class="material-symbols-outlined emoji-icon">bar_chart</span> Statistika</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div style="text-align: center;">
                 <div style="font-size: 24px; font-weight: bold; color: var(--text-light);">${match.events.filter((e) => e.team === match.home).length}</div>
@@ -3184,9 +3194,9 @@
           
           <!-- Man of the Match -->
           <div style="background: var(--card-gray); padding: 24px; border-radius: 16px;">
-            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600;">⭐ Man of the Match</h3>
+            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600;"><span class="material-symbols-outlined emoji-icon" style="color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">star</span> Man of the Match</h3>
             <div style="display: flex; align-items: center;">
-              <div style="width: 50px; height: 50px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 20px;">⭐</div>
+              <div style="width: 50px; height: 50px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 20px;"><span class="material-symbols-outlined" style="color: #000; font-size: 28px;">star</span></div>
               <div>
                 <div style="font-size: 18px; font-weight: 600; color: var(--gold);">${match.motm || "Seçilmədi"}</div>
                 <div style="font-size: 12px; color: var(--text-gray);">Ən yaxşı oyunçu</div>
@@ -3550,7 +3560,8 @@
                 border-radius: 8px;
                 cursor: pointer;
               ">
-            ✕ Bağla
+            <span class="material-symbols-outlined"
+              style="font-size: 18px; vertical-align: middle; margin-right: 4px;">close</span> Bağla
           </button>
         </div>
         <div id="modal-content" style="padding: 24px"></div>

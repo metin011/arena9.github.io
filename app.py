@@ -13,6 +13,8 @@ from sqlalchemy import or_, func, desc
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+from datetime import timedelta
+app.permanent_session_lifetime = timedelta(days=31)
 
 # File Upload Configuration
 UPLOAD_FOLDER = 'static/uploads'
@@ -141,6 +143,7 @@ class SeasonStats(db.Model):
     matches = db.Column(db.Integer, default=0)
     goals = db.Column(db.Integer, default=0)
     assists = db.Column(db.Integer, default=0)
+    motm = db.Column(db.Integer, default=0)
     xg = db.Column(db.Float, default=0.0)
     pass_accuracy = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -292,6 +295,7 @@ def api_login():
         session['user_id'] = user.id
         session['username'] = user.username
         session['is_admin'] = user.is_admin
+        session.permanent = True
         return jsonify({'success': True, 'is_admin': user.is_admin})
     
     return jsonify({'success': False, 'message': 'İstifadəçi adı və ya şifrə yanlışdır'}), 401
@@ -356,6 +360,9 @@ def api_players():
             
             db.session.add(new_player)
             db.session.commit()
+            
+            log_action(session.get('user_id'), 'CREATE', 'Player', new_player.id, {'name': new_player.name})
+            
             return jsonify({'success': True, 'id': new_player.id})
         except Exception as e:
             db.session.rollback()
@@ -377,7 +384,7 @@ def api_players():
         try:
             seasons = SeasonStats.query.filter_by(player_id=p.id).all()
             for s in seasons:
-                past_data[s.season] = {'g': s.goals, 'a': s.assists, 'm': s.matches, 'om': 0}
+                past_data[s.season] = {'g': s.goals, 'a': s.assists, 'm': s.matches, 'om': s.motm or 0}
         except Exception as e:
             # Handle schema mismatch or missing columns gracefully
             print(f"SeasonStats error for player {p.id}: {e}")
@@ -438,8 +445,13 @@ def api_player_detail(id):
                 pass  # These tables might not exist yet
             
             # Finally delete the player
+            player_id_for_log = player.id
+            player_name_for_log = player.name
             db.session.delete(player)
             db.session.commit()
+            
+            log_action(session.get('user_id'), 'DELETE', 'Player', player_id_for_log, {'name': player_name_for_log})
+            
             return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
@@ -475,7 +487,23 @@ def api_player_detail(id):
             player.position = data.get('position', player.position)
             player.preferred_foot = data.get('preferred_foot', player.preferred_foot)
 
+            # Update Season Statistics from pastData
+            if 'pastData' in data:
+                for season, stats in data['pastData'].items():
+                    s_stat = SeasonStats.query.filter_by(player_id=id, season=season).first()
+                    if not s_stat:
+                        s_stat = SeasonStats(player_id=id, season=season)
+                        db.session.add(s_stat)
+                    
+                    s_stat.goals = safe_int(stats.get('g'), s_stat.goals)
+                    s_stat.assists = safe_int(stats.get('a'), s_stat.assists)
+                    s_stat.matches = safe_int(stats.get('m'), s_stat.matches)
+                    s_stat.motm = safe_int(stats.get('om'), s_stat.motm)
+
             db.session.commit()
+            
+            log_action(session.get('user_id'), 'UPDATE', 'Player', player.id, {'name': player.name})
+            
             return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
@@ -533,6 +561,9 @@ def api_matches():
                     db.session.add(g)
             
             db.session.commit()
+            
+            log_action(session.get('user_id'), 'CREATE', 'Match', m.id, {'home': m.home_team, 'away': m.away_team})
+            
             return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
@@ -579,8 +610,13 @@ def api_match_detail(id):
         return jsonify({'success': False, 'message': 'Match not found'}), 404
         
     if request.method == 'DELETE':
+        match_id_for_log = match.id
+        match_info_for_log = {'home': match.home_team, 'away': match.away_team}
         db.session.delete(match)
         db.session.commit()
+        
+        log_action(session.get('user_id'), 'DELETE', 'Match', match_id_for_log, match_info_for_log)
+        
         return jsonify({'success': True})
         
     if request.method == 'PUT':
@@ -617,630 +653,13 @@ def api_match_detail(id):
                 db.session.add(g)
         
         db.session.commit()
+        
+        log_action(session.get('user_id'), 'UPDATE', 'Match', match.id, {'home': match.home_team, 'away': match.away_team})
+        
         return jsonify({'success': True})
 
 
 
-@app.route('/dashboard')
-def dashboard():
-    # Yalnız ilk dəfə session yoxdursa guest olaraq təyin et
-    if 'user_id' not in session and 'is_admin' not in session:
-        session['is_admin'] = False
-        session['username'] = 'Misafir'
-    
-    try:
-        # KPI Stats
-        total_players = Player.query.count()
-        total_matches = Match.query.count()
-        total_goals = Goal.query.count()
-        
-        # Recent Matches
-        matches = Match.query.order_by(Match.match_date.desc()).limit(10).all()
-        
-        # Top Scorers (Real calculation from Goals)
-        # Returns list of (Player, goal_count) tuples
-        top_scorers_data = db.session.query(
-            Player, func.count(Goal.id).label('total_goals')
-        ).join(Goal, Goal.scorer_id == Player.id)\
-         .group_by(Player.id)\
-         .order_by(desc('total_goals'))\
-         .limit(5).all()
-         
-        # Calculate Average Rating
-        avg_rating = db.session.query(func.avg(Player.overall_rating)).scalar() or 0
-        
-        # Recent activity placeholders (or actual queries if available)
-        recent_comments = PlayerComment.query.order_by(PlayerComment.timestamp.desc()).limit(5).all()
-        user_rating = 0 # Default if not logged in
-        form_data = [] # Placeholder
-        
-    except Exception as e:
-        print(f"Dashboard error: {e}")
-        matches = []
-        top_scorers_data = []
-        total_players = 0
-        total_matches = 0
-        total_goals = 0
-        avg_rating = 0
-        recent_comments = []
-        user_rating = 0
-        form_data = []
-    
-    is_admin = session.get('is_admin', False)
-    return render_template('dashboard.html', 
-                         matches=matches, 
-                         top_scorers=top_scorers_data,
-                         total_players=total_players,
-                         total_matches=total_matches,
-                         total_goals=total_goals,
-                         avg_rating=round(avg_rating, 1),
-                         recent_comments=recent_comments,
-                         user_rating=user_rating,
-                         form_data=form_data,
-                         is_admin=is_admin)
-
-@app.route('/api/rate-player', methods=['POST'])
-def rate_player():
-    if not session.get('user_id'):
-        return jsonify({'success': False, 'message': 'Giriş etməlisiniz'}), 401
-    
-    data = request.json
-    player_id = data.get('player_id')
-    rating_val = data.get('rating')
-    
-    if not player_id or not rating_val:
-        return jsonify({'success': False, 'message': 'Məlumat çatışmır'}), 400
-    
-    existing = PlayerRating.query.filter_by(player_id=player_id, user_id=session.get('user_id')).first()
-    if existing:
-        existing.rating = rating_val
-    else:
-        new_rating = PlayerRating(player_id=player_id, user_id=session.get('user_id'), rating=rating_val)
-        db.session.add(new_rating)
-    
-    db.session.commit()
-    return jsonify({'success': True})
-
-@app.route('/api/comment-player', methods=['POST'])
-def comment_player():
-    if not session.get('user_id'):
-        return jsonify({'success': False, 'message': 'Giriş etməlisiniz'}), 401
-    
-    data = request.json
-    player_id = data.get('player_id')
-    comment_text = data.get('comment')
-    
-    if not player_id or not comment_text:
-        return jsonify({'success': False, 'message': 'Məlumat çatışmır'}), 400
-    
-    new_comment = PlayerComment(player_id=player_id, user_id=session.get('user_id'), comment=comment_text)
-    db.session.add(new_comment)
-    db.session.commit()
-    
-    return jsonify({
-        'success': True, 
-        'comment': {
-            'username': session.get('username'),
-            'text': comment_text,
-            'timestamp': datetime.utcnow().strftime('%d.%m.%Y')
-        }
-    })
-
-@app.route('/player-vs')
-def player_vs():
-    p1_id = request.args.get('p1', type=int)
-    p2_id = request.args.get('p2', type=int)
-    
-    p1 = Player.query.get(p1_id) if p1_id else None
-    p2 = Player.query.get(p2_id) if p2_id else None
-    
-    all_players = Player.query.all()
-    
-    return render_template('player_vs.html', p1=p1, p2=p2, all_players=all_players)
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    role = request.args.get('role', 'user')
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        try:
-            user = User.query.filter_by(username=username).first()
-            
-            if user and check_password_hash(user.password, password):
-                session['user_id'] = user.id
-                session['username'] = user.username
-                session['is_admin'] = user.is_admin
-                flash('✅ Giriş uğurlu oldu!', 'success')
-                return redirect(url_for('dashboard'))
-            else:
-                flash('❌ İstifadəçi adı və ya şifrə yanlışdır!', 'error')
-        except Exception as e:
-            print(f"Login error: {e}")
-            flash('⚠️ Giriş zamanı xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.', 'error')
-    
-    return render_template('login.html', role=role)
-
-@app.route('/admin/match/add', methods=['GET', 'POST'])
-def admin_add_match():
-    if not session.get('is_admin'):
-        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    if request.method == 'POST':
-        data = request.form
-        match_date_str = data.get('match_date')
-        match_time = data.get('match_time', '00:00')
-        match_datetime = datetime.strptime(f"{match_date_str} {match_time}", '%Y-%m-%d %H:%M')
-        
-        image_url = data.get('image_url')
-        
-        # Şəkil yükləmə
-        if 'match_image' in request.files:
-            file = request.files['match_image']
-            if file and file.filename != '':
-                uploaded_path = save_uploaded_file(file, folder='matches')
-                if uploaded_path:
-                    image_url = uploaded_path
-
-        mvp_id = data.get('mvp_player_id')
-        if mvp_id:
-            mvp_id = int(mvp_id)
-        else:
-            mvp_id = None
-
-        home_score = int(data.get('home_score', 0))
-        away_score = int(data.get('away_score', 0))
-
-        new_match = Match(
-            name=data.get('name'),
-            home_team=data.get('home_team'),
-            away_team=data.get('away_team'),
-            home_score=home_score,
-            away_score=away_score,
-            match_date=match_datetime,
-            match_time=match_time,
-            stadium=data.get('stadium'),
-            image_url=image_url,
-            status='finished',
-            mvp_player_id=mvp_id,
-            season=data.get('season'),
-            home_xg=float(data.get('home_xg', 0.0)),
-            away_xg=float(data.get('away_xg', 0.0)),
-            lineups=json.dumps({
-                "home": json.loads(request.form.get('home_lineup') or '[]'),
-                "away": json.loads(request.form.get('away_lineup') or '[]')
-            })
-        )
-        db.session.add(new_match)
-        db.session.commit()
-        
-        # Gol verilerini işle
-        goals_data = data.get('goals_data')
-        if goals_data:
-            try:
-                goals_list = json.loads(goals_data)
-                for goal_info in goals_list:
-                    new_goal = Goal(
-                        match_id=new_match.id,
-                        minute=goal_info.get('minute'),
-                        scorer_id=int(goal_info.get('scorer_id')),
-                        assist_id=int(goal_info.get('assist_id')) if goal_info.get('assist_id') else None,
-                        team=goal_info.get('team')
-                    )
-                    db.session.add(new_goal)
-                db.session.commit()
-            except Exception as e:
-                print(f"Gol ekleme hatası: {e}")
-        
-        # Audit Log
-        log_action(
-            user_id=session.get('user_id'),
-            action='CREATE',
-            target_type='Match',
-            target_id=new_match.id,
-            details={'home_team': new_match.home_team, 'away_team': new_match.away_team}
-        )
-        
-        flash('Maç başarıyla eklendi!', 'success')
-        return redirect(url_for('matches'))
-    
-    unique_teams = [t[0] for t in db.session.query(Player.team).filter(Player.team != None).distinct().order_by(Player.team).all()]
-    players = Player.query.order_by(Player.name).all()
-    return render_template('admin_add_match_new.html', players=players, teams=unique_teams)
-
-@app.route('/admin/player/add', methods=['GET', 'POST'])
-def admin_add_player():
-    if not session.get('is_admin'):
-        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    if request.method == 'POST':
-        data = request.form
-        
-        # Detaylı yetenekleri formdan al - Daha ətraflı statistika
-        detailed_skills = {
-            'pace': {
-                'acceleration': int(data.get('acceleration', 0) or 0),
-                'sprint_speed': int(data.get('sprint_speed', 0) or 0)
-            },
-            'shooting': {
-                'finishing': int(data.get('finishing', 0) or 0),
-                'long_shots': int(data.get('long_shots', 0) or 0),
-                'shot_power': int(data.get('shot_power', 0) or 0),
-                'positioning': int(data.get('positioning', 0) or 0),
-                'volleys': int(data.get('volleys', 0) or 0),
-                'penalties': int(data.get('penalties', 0) or 0)
-            },
-            'passing': {
-                'short_pass': int(data.get('short_pass', 0) or 0),
-                'long_pass': int(data.get('long_pass', 0) or 0),
-                'vision': int(data.get('vision', 0) or 0),
-                'crossing': int(data.get('crossing', 0) or 0),
-                'curve': int(data.get('curve', 0) or 0),
-                'free_kick': int(data.get('free_kick', 0) or 0)
-            },
-            'dribbling': {
-                'dribbling': int(data.get('dribbling', 0) or 0),
-                'balance': int(data.get('balance', 0) or 0),
-                'agility': int(data.get('agility', 0) or 0),
-                'reactions': int(data.get('reactions', 0) or 0),
-                'ball_control': int(data.get('ball_control', 0) or 0)
-            },
-            'defending': {
-                'man_marking': int(data.get('man_marking', 0) or 0),
-                'standing_tackle': int(data.get('standing_tackle', 0) or 0),
-                'interceptions': int(data.get('interceptions', 0) or 0),
-                'heading': int(data.get('heading', 0) or 0)
-            },
-            'physical': {
-                'strength': int(data.get('strength', 0) or 0),
-                'aggression': int(data.get('aggression', 0) or 0),
-                'jumping': int(data.get('jumping', 0) or 0),
-                'stamina': int(data.get('stamina', 0) or 0)
-            }
-        }
-        
-        # Ana yetenekleri detaylı yeteneklerin ortalamasından hesapla
-        try:
-            pace_avg = sum(detailed_skills['pace'].values()) // len(detailed_skills['pace']) if detailed_skills['pace'] else 75
-            shooting_avg = sum(detailed_skills['shooting'].values()) // len(detailed_skills['shooting']) if detailed_skills['shooting'] else 75
-            passing_avg = sum(detailed_skills['passing'].values()) // len(detailed_skills['passing']) if detailed_skills['passing'] else 75
-            dribbling_avg = sum(detailed_skills['dribbling'].values()) // len(detailed_skills['dribbling']) if detailed_skills['dribbling'] else 75
-            physical_avg = sum(detailed_skills['physical'].values()) // len(detailed_skills['physical']) if detailed_skills['physical'] else 75
-            defending_avg = sum(detailed_skills['defending'].values()) // len(detailed_skills['defending']) if detailed_skills['defending'] else 75
-        except Exception as e:
-            print(f"Stats calculation error: {e}")
-            pace_avg = shooting_avg = passing_avg = dribbling_avg = physical_avg = defending_avg = 75
-        
-        # Basit pozisyon haritası oluştur
-        position_map = {'ST': 'green', 'CF': 'green'}
-        
-        # Şəkil yükləmə
-        photo_url = data.get('photo_url') or 'https://via.placeholder.com/150'
-        if 'photo' in request.files:
-            file = request.files['photo']
-            if file and file.filename != '':
-                uploaded_path = save_uploaded_file(file, folder='players')
-                if uploaded_path:
-                    photo_url = uploaded_path
-
-        new_player = Player(
-            name=data.get('name'),
-            position=data.get('position'),
-            team=data.get('team'),
-            jersey_number=int(data.get('jersey_number', 0) or 0),
-            age=int(data.get('age', 0) or 0),
-            height=int(data.get('height', 0) or 0),
-            weight=int(data.get('weight', 0) or 0),
-            preferred_foot=data.get('preferred_foot'),
-            photo_url=photo_url,
-            overall_rating=int(data.get('overall_rating', 75) or 75),
-            pace=pace_avg,
-            shooting=shooting_avg,
-            passing=passing_avg,
-            dribbling=dribbling_avg,
-            defending=defending_avg,
-            physical=physical_avg,
-            xg_total=float(data.get('xg_total', 0.0) or 0.0),
-            pass_accuracy=float(data.get('pass_accuracy', 0.0) or 0.0),
-            position_map=json.dumps(position_map),
-            detailed_skills=json.dumps(detailed_skills)
-        )
-        
-        db.session.add(new_player)
-        db.session.commit()
-        
-        # Audit Log
-        log_action(
-            user_id=session.get('user_id'),
-            action='CREATE',
-            target_type='Player',
-            target_id=new_player.id,
-            details={'name': new_player.name, 'team': new_player.team}
-        )
-        
-        flash('✅ Oyuncu başarıyla eklendi!', 'success')
-        return redirect(url_for('players'))
-    
-    return render_template('admin_add_player.html')
-
-# Oyunçu redaktə route - edit_player funksiyasında birləşdirildi
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        if User.query.filter_by(username=username).first():
-            flash('Bu kullanıcı adı zaten kullanılıyor!', 'error')
-            return redirect(url_for('register'))
-        
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password, is_admin=False)
-        db.session.add(new_user)
-        db.session.commit()
-        
-        flash('Kayıt başarılı! Giriş yapabilirsiniz.', 'success')
-        return redirect(url_for('login'))
-    
-    return render_template('register.html')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('Çıkış yapıldı.', 'info')
-    return redirect(url_for('index'))
-
-@app.route('/welcome_page')
-def welcome_page():
-    matches = Match.query.order_by(Match.match_date.desc()).all()
-    players = Player.query.all()
-    return render_template('index.html', matches=matches, players=players)
-
-@app.route('/matches')
-def matches():
-    try:
-        all_matches = Match.query.order_by(Match.match_date.desc()).all()
-    except Exception as e:
-        print(f"Matches error: {e}")
-        all_matches = []
-    is_admin = session.get('is_admin', False)
-    return render_template('matches_list.html', matches=all_matches, is_admin=is_admin)
-
-@app.route('/match/<int:match_id>')
-def match_detail(match_id):
-    match = Match.query.get_or_404(match_id)
-    is_admin = session.get('is_admin', False)
-    
-    # Lineups yuklə
-    home_players = []
-    away_players = []
-    players_dict = {}
-    
-    try:
-        lineups = json.loads(match.lineups) if match.lineups else {}
-        home_ids = lineups.get('home', [])
-        away_ids = lineups.get('away', [])
-        
-        if home_ids:
-            home_players = Player.query.filter(Player.id.in_(home_ids)).all()
-            for player in home_players:
-                players_dict[player.id] = player
-        if away_ids:
-            away_players = Player.query.filter(Player.id.in_(away_ids)).all()
-            for player in away_players:
-                players_dict[player.id] = player
-            
-    except Exception as e:
-        print(f"Lineup loading error: {e}")
-        
-    # Əgər lineup yoxdursa, köhnə üsulla (team adına görə) tapmağa çalış (fallback)
-    if not home_players and match.home_team:
-        home_players = Player.query.filter(Player.team == match.home_team).all()
-    if not away_players and match.away_team:
-        away_players = Player.query.filter(Player.team == match.away_team).all()
-    
-    # Get goals for this match
-    goals = Goal.query.filter_by(match_id=match_id).order_by(Goal.minute).all()
-    
-    # Get MVP player if set
-    mvp_player = None
-    if match.mvp_player_id:
-        mvp_player = Player.query.get(match.mvp_player_id)
-        match.mvp_player = mvp_player
-        
-    return render_template('match_detail.html', match=match, is_admin=is_admin, 
-                         home_players=home_players, away_players=away_players,
-                         players_dict=players_dict, goals=goals)
-
-@app.route('/players')
-def players():
-    try:
-        all_players = Player.query.order_by(Player.overall_rating.desc()).all()
-    except Exception as e:
-        print(f"Players error: {e}")
-        all_players = []
-    is_admin = session.get('is_admin', False)
-    return render_template('players_new.html', players=all_players, is_admin=is_admin)
-
-@app.route('/teams')
-def teams():
-    try:
-        all_teams = Team.query.all()
-    except Exception as e:
-        print(f"Teams error: {e}")
-        all_teams = []
-    return render_template('teams.html', teams=all_teams)
-
-@app.route('/leaderboard')
-def leaderboard():
-    # Gol krallığı - Goal tablosundan gol sayılarını hesapla
-    from sqlalchemy import func
-    
-    scorers_query = db.session.query(
-        Player,
-        func.count(Goal.id).label('goals')
-    ).join(Goal, Player.id == Goal.scorer_id)\
-     .group_by(Player.id)\
-     .order_by(func.count(Goal.id).desc())\
-     .limit(20)\
-     .all()
-    
-    # Row objelerini dict'e çevir
-    top_scorers = [{'player': row[0], 'goals': row[1]} for row in scorers_query]
-    
-    # Asist krallığı - Goal tablosundan asist sayılarını hesapla
-    assists_query = db.session.query(
-        Player,
-        func.count(Goal.id).label('assists')
-    ).join(Goal, Player.id == Goal.assist_id)\
-     .filter(Goal.assist_id.isnot(None))\
-     .group_by(Player.id)\
-     .order_by(func.count(Goal.id).desc())\
-     .limit(20)\
-     .all()
-    
-    # Row objelerini dict'e çevir
-    top_assists = [{'player': row[0], 'assists': row[1]} for row in assists_query]
-    
-    # POTM Liderlik (Most Man of the Matches) - Using MVP field
-    potm_query = db.session.query(
-        Player,
-        func.count(Match.id).label('potm_count')
-    ).join(Match, Player.id == Match.mvp_player_id)\
-     .group_by(Player.id)\
-     .order_by(func.count(Match.id).desc())\
-     .limit(10)\
-     .all()
-     
-    top_potm = [{'player': row[0], 'count': row[1]} for row in potm_query]
-    
-    # Mövqe üzrə ortalama reytinq
-    position_ratings = db.session.query(
-        Player.position,
-        func.avg(Player.overall_rating).label('avg_rating'),
-        func.count(Player.id).label('player_count')
-    ).filter(Player.position.isnot(None))\
-     .group_by(Player.position)\
-     .order_by(func.avg(Player.overall_rating).desc())\
-     .all()
-    
-    position_stats = [{'position': row[0], 'avg_rating': round(row[1], 1), 'count': row[2]} for row in position_ratings]
-    
-    return render_template('leaderboard.html', 
-                         top_scorers=top_scorers,
-                         top_assists=top_assists,
-                         top_potm=top_potm,
-                         position_stats=position_stats)
-
-@app.route('/player/<int:player_id>')
-def player_profile(player_id):
-    try:
-        player = Player.query.get_or_404(player_id)
-        
-        # Reytinqləri və Şərhləri al - Hataları önlemek için filter_by kullanıyoruz
-        avg_rating = 0
-        try:
-            avg_rating = db.session.query(func.avg(PlayerRating.rating)).filter(PlayerRating.player_id == player_id).scalar() or 0
-        except: pass
-        
-        recent_comments = []
-        try:
-            recent_comments = PlayerComment.query.filter_by(player_id=player_id).order_by(PlayerComment.timestamp.desc()).limit(5).all()
-        except: pass
-        
-        user_rating = 0
-        if session.get('user_id'):
-            try:
-                existing_rating = PlayerRating.query.filter_by(player_id=player_id, user_id=session.get('user_id')).first()
-                if existing_rating:
-                    user_rating = existing_rating.rating
-            except: pass
-
-        # Son 5 mac performansı (Form)
-        form_data = []
-        try:
-            # Goal tablosundan bu oyunçunun iştirak etdiyi son 5 macı tapırıq
-            last_matches = db.session.query(Match).join(Goal, Match.id == Goal.match_id)\
-                .filter((Goal.scorer_id == player_id) | (Goal.assist_id == player_id))\
-                .order_by(Match.match_date.desc()).limit(5).all()
-            
-            # Form hesablanması (qol=2 xal, asist=1 xal, MVP=3 xal)
-            for m in last_matches:
-                score = 0
-                goals_in_match = Goal.query.filter_by(match_id=m.id, scorer_id=player_id).count()
-                assists_in_match = Goal.query.filter_by(match_id=m.id, assist_id=player_id).count()
-                score += (goals_in_match * 2) + assists_in_match
-                if m.mvp_player_id == player_id:
-                    score += 3
-                form_data.append({'date': m.match_date.strftime('%d.%m'), 'score': score})
-            form_data.reverse() # Xronoloji ardıcıllıq
-        except Exception as e:
-            print(f"Form calculation error: {e}")
-        
-        # JSON verilerini parse et
-        position_map = {}
-        try:
-            position_map = json.loads(player.position_map) if player.position_map else {}
-        except: pass
-        
-        detailed_skills = {}
-        try:
-            detailed_skills = json.loads(player.detailed_skills) if player.detailed_skills else {}
-        except: pass
-        
-        # Sezon istatistiklerini al
-        season_stats = []
-        try:
-            season_stats = SeasonStats.query.filter_by(player_id=player_id).order_by(SeasonStats.season.desc()).all()
-        except: pass
-        
-        is_admin = session.get('is_admin', False)
-        
-        return render_template('player_profile_new.html', 
-                             player=player, 
-                             position_map=position_map,
-                             detailed_skills=detailed_skills,
-                             season_stats=season_stats,
-                             avg_rating=round(avg_rating, 1),
-                             recent_comments=recent_comments,
-                             user_rating=user_rating,
-                             form_data=form_data,
-                             is_admin=is_admin)
-    except Exception as e:
-        print(f"Profile loading error: {e}")
-        flash('Oyunçu profili yüklənərkən xəta baş verdi.', 'error')
-        return redirect(url_for('players'))
-
-@app.route('/compare')
-def compare_players():
-    p1_id = request.args.get('p1')
-    p2_id = request.args.get('p2')
-    
-    player1 = None
-    player2 = None
-    
-    if p1_id:
-        player1 = Player.query.get(p1_id)
-    if p2_id:
-        player2 = Player.query.get(p2_id)
-        
-    all_players = Player.query.order_by(Player.name).all()
-    
-    return render_template('player_compare.html', 
-                         player1=player1, 
-                         player2=player2, 
-                         all_players=all_players)
-
-@app.route('/dream-team')
-def dream_team():
-    all_players = Player.query.order_by(Player.name).all()
-    return render_template('dream_team.html', all_players=all_players)
-
-# API Endpoints for Charts
 @app.route('/api/player/<int:player_id>/stats')
 def api_player_stats(player_id):
     """Oyunçu statistika məlumatları (Chart.js üçün)"""
@@ -1294,122 +713,6 @@ def api_dashboard_stats():
     })
 
 
-# Removed old add_player route - now using admin_add_player with dedicated page
-
-@app.route('/admin/player/edit/<int:player_id>', methods=['GET', 'POST'])
-def admin_edit_player(player_id):
-    if not session.get('is_admin'):
-        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    player = Player.query.get_or_404(player_id)
-    
-    if request.method == 'POST':
-        data = request.form
-        
-        # Detaylı yetenekleri güncelle
-        detailed_skills = {
-            'pace': {
-                'acceleration': int(data.get('acceleration', 0) or 0),
-                'sprint_speed': int(data.get('sprint_speed', 0) or 0)
-            },
-            'shooting': {
-                'finishing': int(data.get('finishing', 0) or 0),
-                'long_shots': int(data.get('long_shots', 0) or 0),
-                'shot_power': int(data.get('shot_power', 0) or 0),
-                'positioning': int(data.get('positioning', 0) or 0),
-                'volleys': int(data.get('volleys', 0) or 0),
-                'penalties': int(data.get('penalties', 0) or 0)
-            },
-            'passing': {
-                'short_pass': int(data.get('short_pass', 0) or 0),
-                'long_pass': int(data.get('long_pass', 0) or 0),
-                'vision': int(data.get('vision', 0) or 0),
-                'crossing': int(data.get('crossing', 0) or 0),
-                'curve': int(data.get('curve', 0) or 0),
-                'free_kick': int(data.get('free_kick', 0) or 0)
-            },
-            'dribbling': {
-                'dribbling': int(data.get('dribbling', 0) or 0),
-                'balance': int(data.get('balance', 0) or 0),
-                'agility': int(data.get('agility', 0) or 0),
-                'reactions': int(data.get('reactions', 0) or 0),
-                'ball_control': int(data.get('ball_control', 0) or 0)
-            },
-            'defending': {
-                'man_marking': int(data.get('man_marking', 0) or 0),
-                'standing_tackle': int(data.get('standing_tackle', 0) or 0),
-                'interceptions': int(data.get('interceptions', 0) or 0),
-                'heading': int(data.get('heading', 0) or 0)
-            },
-            'physical': {
-                'strength': int(data.get('strength', 0) or 0),
-                'aggression': int(data.get('aggression', 0) or 0),
-                'jumping': int(data.get('jumping', 0) or 0),
-                'stamina': int(data.get('stamina', 0) or 0)
-            }
-        }
-        
-        # Ana yetenekleri detaylı yeteneklerin ortalamasından hesapla
-        try:
-            player.pace = sum(detailed_skills['pace'].values()) // len(detailed_skills['pace']) if detailed_skills['pace'] else 75
-            player.shooting = sum(detailed_skills['shooting'].values()) // len(detailed_skills['shooting']) if detailed_skills['shooting'] else 75
-            player.passing = sum(detailed_skills['passing'].values()) // len(detailed_skills['passing']) if detailed_skills['passing'] else 75
-            player.dribbling = sum(detailed_skills['dribbling'].values()) // len(detailed_skills['dribbling']) if detailed_skills['dribbling'] else 75
-            player.physical = sum(detailed_skills['physical'].values()) // len(detailed_skills['physical']) if detailed_skills['physical'] else 75
-            player.defending = sum(detailed_skills['defending'].values()) // len(detailed_skills['defending']) if detailed_skills['defending'] else 75
-        except Exception as e:
-            print(f"Stats calculation error during edit: {e}")
-        
-        # Ana məlumatları yenilə
-        player.name = data.get('name')
-        player.position = data.get('position')
-        player.team = data.get('team')
-        player.jersey_number = int(data.get('jersey_number', 0) or 0)
-        player.age = int(data.get('age', 0) or 0)
-        player.height = int(data.get('height', 0) or 0)
-        player.weight = int(data.get('weight', 0) or 0)
-        player.preferred_foot = data.get('preferred_foot')
-        
-        # Şəkil yükləmə
-        if 'photo' in request.files:
-            file = request.files['photo']
-            if file and file.filename != '':
-                uploaded_path = save_uploaded_file(file, folder='players')
-                if uploaded_path:
-                    player.photo_url = uploaded_path
-        elif data.get('photo_url'):
-            player.photo_url = data.get('photo_url')
-        
-        # Reytinqləri yenilə - OVR formdan gələ bilər və ya avtomatlaşdırıla bilər
-        player.overall_rating = int(data.get('overall_rating', 75) or 75)
-        player.xg_total = float(data.get('xg_total', 0.0) or 0.0)
-        player.pass_accuracy = float(data.get('pass_accuracy', 0.0) or 0.0)
-        
-        # Detaylı bacarıqları yenilə
-        player.detailed_skills = json.dumps(detailed_skills)
-        
-        db.session.commit()
-        # Audit Log
-        log_action(
-            user_id=session.get('user_id'),
-            action='UPDATE',
-            target_type='Player',
-            target_id=player.id,
-            details={'name': player.name}
-        )
-        
-        flash('✅ Oyuncu başarıyla güncellendi!', 'success')
-        return redirect(url_for('player_profile', player_id=player.id))
-    
-    # GET isteği - redaktə formu göstər
-    position_map = json.loads(player.position_map) if player.position_map else {}
-    detailed_skills = json.loads(player.detailed_skills) if player.detailed_skills else {}
-    
-    return render_template('player_edit_full.html', 
-                         player=player, 
-                         position_map=position_map,
-                         detailed_skills=detailed_skills)
 
 @app.route('/admin/export/players')
 def admin_export_players():
@@ -1434,98 +737,6 @@ def admin_export_players():
     
     return flask_send_file(output, mimetype="text/csv", as_attachment=True, download_name="players_export.csv")
 
-@app.route('/admin/match/edit/<int:match_id>', methods=['GET', 'POST'])
-def admin_edit_match(match_id):
-    if not session.get('is_admin'):
-        return redirect(url_for('login'))
-        
-    match = Match.query.get_or_404(match_id)
-    all_players = Player.query.order_by(Player.name).all()
-    unique_teams = [t[0] for t in db.session.query(Player.team).filter(Player.team != None).distinct().order_by(Player.team).all()]
-    
-    if request.method == 'POST':
-        data = request.form
-        
-        # Update basic fields
-        match.name = data.get('name')
-        match.home_team = data.get('home_team')
-        match.away_team = data.get('away_team')
-        match.home_score = int(data.get('home_score', 0))
-        match.away_score = int(data.get('away_score', 0))
-        match.stadium = data.get('stadium')
-        match.match_time = data.get('match_time')
-        match.home_xg = float(data.get('home_xg', 0.0))
-        match.away_xg = float(data.get('away_xg', 0.0))
-        match.season = data.get('season')
-        
-        match_date_str = data.get('match_date')
-        if match_date_str:
-            match.match_date = datetime.strptime(match_date_str, '%Y-%m-%d')
-            
-        # Update MVP (POTM)
-        mvp_id = data.get('mvp_player_id')
-        if mvp_id:
-            match.mvp_player_id = int(mvp_id)
-        else:
-            match.mvp_player_id = None
-            
-        # Lineupları güncəllə
-        match.lineups = json.dumps({
-            "home": json.loads(request.form.get('home_lineup', '[]')),
-            "away": json.loads(request.form.get('away_lineup', '[]'))
-        })
-            
-        # Update Image
-        if 'photo' in request.files:
-            file = request.files['photo']
-            if file and file.filename != '':
-                photo_url = save_uploaded_file(file, folder='matches')
-                if photo_url:
-                    match.image_url = photo_url
-                    
-        # Update Goals
-        # Simple strategy: Delete all existing goals and re-create them
-        # This keeps it in sync with the frontend list
-        try:
-            # First, delete existing goals
-            Goal.query.filter_by(match_id=match.id).delete()
-            
-            # Add new goals from JSON
-            goals_json = data.get('goals_data')
-            if goals_json:
-                goals_list = json.loads(goals_json)
-                for g in goals_list:
-                    scorer_id = g.get('scorer_id')
-                    if not scorer_id: continue
-                    
-                    assist_id = g.get('assist_id')
-                    new_goal = Goal(
-                        match_id=match.id,
-                        scorer_id=int(scorer_id),
-                        assist_id=int(assist_id) if assist_id else None,
-                        minute=g.get('minute'),
-                        team=g.get('team')
-                    )
-                    db.session.add(new_goal)
-            
-            db.session.commit()
-            
-            # Audit Log
-            log_action(
-                user_id=session.get('user_id'),
-                action='UPDATE',
-                target_type='Match',
-                target_id=match.id,
-                details={'home_team': match.home_team, 'away_team': match.away_team}
-            )
-            
-            return redirect(url_for('match_detail', match_id=match.id))
-            
-        except Exception as e:
-            db.session.rollback()
-            return f"Xəta baş verdi: {e}"
-            
-    return render_template('admin_edit_match.html', match=match, players=all_players, teams=unique_teams)
 
 @app.route('/admin/bulk-import', methods=['POST'])
 def admin_bulk_import():
@@ -1583,115 +794,6 @@ def admin_bulk_import():
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Xəta: {str(e)}'})
 
-@app.route('/admin/player/delete/<int:player_id>', methods=['POST'])
-def delete_player(player_id):
-    if not session.get('is_admin'):
-        flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    player = Player.query.get_or_404(player_id)
-    player_name = player.name
-    
-    try:
-        # Manually delete related records to avoid ForeignKey errors
-        # 1. Delete Goals (Scorer)
-        Goal.query.filter_by(scorer_id=player_id).delete()
-        # 2. Delete Goals (Assist)
-        Goal.query.filter_by(assist_id=player_id).delete()
-        
-        # MatchStats and Assist tables do not exist separately, so skipping.
-        # 3. Delete Logs references
-        # AuditLog usually references target_id but not with FK constraint, so it's fine.
-        
-        # 4. Check for other potential relationships (Injury, Suspension if they exist)
-        # Assuming only basic stats for now based on imported models.
-        
-        # Finally delete the player
-        db.session.delete(player)
-        db.session.commit()
-        
-        # Log action
-        log_action(session.get('user_id'), 'DELETE', 'Player', player_id, {'name': player_name})
-        
-        flash(f'✅ {player_name} başarıyla silindi!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        print(f"Delete Error: {e}")
-        flash(f'❌ Oyunçu silinərkən xəta baş verdi. Zəhmət olmasa assosiasiya olunmuş məlumatları yoxlayın.', 'error')
-        
-    return redirect(url_for('players'))
-
-@app.route('/admin/season-stats/add', methods=['POST'])
-def add_season_stats():
-    if not session.get('is_admin'):
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    data = request.form
-    new_stats = SeasonStats(
-        player_id=int(data.get('player_id')),
-        season=data.get('season'),
-        matches=int(data.get('matches', 0)),
-        goals=int(data.get('goals', 0)),
-        assists=int(data.get('assists', 0))
-    )
-    db.session.add(new_stats)
-    db.session.commit()
-    
-    flash('Sezon istatistiği eklendi!', 'success')
-    return redirect(url_for('edit_player', player_id=data.get('player_id')))
-
-# Match Admin Routes (ikinci route silindi, yuxarıda admin_add_match var)
-
-@app.route('/admin/match/edit/<int:match_id>', methods=['POST'])
-def edit_match(match_id):
-    if not session.get('is_admin'):
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    match = Match.query.get_or_404(match_id)
-    data = request.form
-    
-    match.home_team = data.get('home_team')
-    match.away_team = data.get('away_team')
-    match.home_score = int(data.get('home_score', 0))
-    match.away_score = int(data.get('away_score', 0))
-    match.match_date = datetime.strptime(data.get('match_date'), '%Y-%m-%dT%H:%M')
-    match.stadium = data.get('stadium')
-    match.status = data.get('status')
-    
-    # Şəkil yükləmə
-    if 'match_image' in request.files:
-        file = request.files['match_image']
-        if file and file.filename != '':
-            uploaded_path = save_uploaded_file(file, folder='matches')
-            if uploaded_path:
-                match.image_url = uploaded_path
-    
-    db.session.commit()
-    flash('Maç güncellendi!', 'success')
-    return redirect(url_for('matches'))
-
-@app.route('/admin/logs')
-def admin_logs():
-    if not session.get('is_admin'):
-        flash('⛔ Bu səhifəyə giriş üçün admin icazəniz yoxdur!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    # Son 100 audit log qeydini gətir
-    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(100).all()
-    
-    return render_template('admin_logs.html', logs=logs)
-
-@app.route('/admin/match/delete/<int:match_id>', methods=['POST'])
-def delete_match(match_id):
-    if not session.get('is_admin'):
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    match = Match.query.get_or_404(match_id)
-    db.session.delete(match)
-    db.session.commit()
-    
-    flash('Maç silindi!', 'success')
-    return redirect(url_for('admin_panel'))
 
 # Initialize database and create admin user
 def init_db():
@@ -1938,6 +1040,7 @@ with app.app_context():
             # SeasonStats üçün xg və pass_accuracy yoxla
             db.session.execute(text('ALTER TABLE season_stats ADD COLUMN IF NOT EXISTS xg FLOAT DEFAULT 0.0'))
             db.session.execute(text('ALTER TABLE season_stats ADD COLUMN IF NOT EXISTS pass_accuracy FLOAT DEFAULT 0.0'))
+            db.session.execute(text('ALTER TABLE season_stats ADD COLUMN IF NOT EXISTS motm INTEGER DEFAULT 0'))
             # Match üçün type yoxla
             db.session.execute(text('ALTER TABLE match ADD COLUMN IF NOT EXISTS type VARCHAR(100) DEFAULT \'Dostluq\''))
             db.session.commit()
