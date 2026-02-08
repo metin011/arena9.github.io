@@ -262,17 +262,17 @@
     }
 
     header {
-      padding: 10px 16px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
-      background: #050505;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 2px solid rgba(31, 249, 86, 0.1);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+      background: rgba(5, 5, 5, 0.85);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
       z-index: 1000;
     }
 
@@ -280,7 +280,7 @@
     .header-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       flex: 1;
     }
 
@@ -291,50 +291,73 @@
     .header-logo-container {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .header-logo {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
       color: #fff;
-      letter-spacing: -1.2px;
+      letter-spacing: -1.5px;
       text-transform: uppercase;
       font-family: 'Outfit', sans-serif;
+      cursor: pointer;
     }
 
     .header-logo span {
-      background: linear-gradient(180deg, #1ff956 0%, #059669 100%);
+      background: linear-gradient(135deg, #1ff956 0%, #059669 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(31, 249, 86, 0.3);
     }
 
     .admin-badge {
       font-size: 10px;
-      background: rgba(31, 249, 86, 0.08);
+      background: linear-gradient(135deg, rgba(31, 249, 86, 0.2), rgba(5, 150, 105, 0.1));
       color: #1ff956;
-      border: 1px solid rgba(31, 249, 86, 0.2);
-      padding: 3px 8px;
-      border-radius: 6px;
+      border: 1px solid rgba(31, 249, 86, 0.3);
+      padding: 4px 10px;
+      border-radius: 8px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       cursor: pointer;
       display: none;
       /* Controlled by JS */
       align-items: center;
-      gap: 5px;
-      transition: all 0.3s ease;
+      gap: 6px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 15px rgba(31, 249, 86, 0.1);
     }
 
     .admin-badge:hover {
-      background: rgba(31, 249, 86, 0.15);
-      box-shadow: 0 0 10px rgba(31, 249, 86, 0.2);
+      background: rgba(31, 249, 86, 0.25);
+      box-shadow: 0 0 20px rgba(31, 249, 86, 0.3);
+      transform: translateY(-1px);
     }
 
     .admin-badge.active {
       display: inline-flex;
+    }
+
+    .login-icon-trigger {
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .login-icon-trigger:hover {
+      color: #1ff956;
+      background: rgba(31, 249, 86, 0.1);
+      transform: rotate(15deg);
     }
 
     #page-header-title {
@@ -1110,7 +1133,7 @@
   <header>
     <div class="header-left">
       <div id="back-header-btn" class="header-icon" style="visibility: hidden" onclick="goBack()">
-        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back_ios_new</span>
+        <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back_ios_new</span>
       </div>
       <div class="header-logo-container">
         <span class="header-logo" onclick="changePage('ana-sayfa', 'Əsas')"><span>ARENA</span>9</span>
@@ -1125,9 +1148,11 @@
 
     <div class="header-right">
       <button id="edit-header-btn" class="header-icon" style="visibility: hidden" onclick="toggleEdit()">
-        <span class="material-symbols-outlined" style="font-size: 18px;">settings_suggest</span>
+        <span class="material-symbols-outlined" style="font-size: 20px;">settings_suggest</span>
       </button>
-      <div id="non-admin-login-trigger" style="width: 24px; pointer-events: none;"></div>
+      <div id="login_trigger_icon" class="login-icon-trigger" onclick="showLogin()">
+        <span class="material-symbols-outlined" style="font-size: 18px;">admin_panel_settings</span>
+      </div>
     </div>
   </header>
 
@@ -1693,11 +1718,15 @@
       });
 
       const adminIndicator = document.getElementById('admin-indicator');
+      const loginTrigger = document.getElementById('login_trigger_icon');
+
       if (adminIndicator) {
         if (isAdmin) {
           adminIndicator.classList.add('active');
+          if (loginTrigger) loginTrigger.style.display = 'none';
         } else {
           adminIndicator.classList.remove('active');
+          if (loginTrigger) loginTrigger.style.display = 'flex';
         }
       }
 
@@ -1706,6 +1735,7 @@
         editBtn.style.visibility = (isAdmin && currentPage === 'player-profile') ? 'visible' : 'hidden';
       }
     }
+
 
 
 
