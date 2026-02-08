@@ -262,90 +262,100 @@
     }
 
     header {
-      padding: 24px 28px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: relative;
-      background: linear-gradient(180deg,
-          var(--card-gray) 0%,
-          var(--bg-dark) 100%);
-      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
     }
 
-    .header-left {
-      position: absolute;
-      left: 28px;
+    .header-left,
+    .header-right {
       display: flex;
       align-items: center;
       gap: 12px;
-      z-index: 10;
+      flex: 1;
     }
 
     .header-right {
-      position: absolute;
-      right: 28px;
+      justify-content: flex-end;
+    }
+
+    .header-logo-container {
       display: flex;
       align-items: center;
-      gap: 12px;
-      z-index: 10;
+      gap: 8px;
     }
 
     .header-logo {
-      font-size: 32px;
+      font-size: 22px;
       font-weight: 800;
-      color: var(--primary-green);
-      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #1ff956 0%, #059669 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
     }
 
-    .header-subtitle {
-      font-size: 11px;
-      color: var(--text-gray);
+    .admin-badge {
+      font-size: 9px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #1ff956;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 6px;
+      border-radius: 20px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: none;
+      /* Controlled by JS */
+    }
+
+    .admin-badge.active {
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
 
     #page-header-title {
       font-weight: 700;
-      font-size: 20px;
+      font-size: 16px;
       text-align: center;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg,
-          var(--primary-green),
-          var(--primary-green-light));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-
+      letter-spacing: -0.3px;
+      color: #fff;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: calc(100vw - 240px);
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+      flex: 2;
     }
 
     .header-icon {
-      font-size: 24px;
-      width: 48px;
-      height: 40px;
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
       cursor: pointer;
-      text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
-      transition: all 0.3s ease;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+      color: #fff;
     }
 
     .header-icon:hover {
       background: rgba(16, 185, 129, 0.2);
-      transform: scale(1.05);
+      border-color: #1ff956;
+      color: #1ff956;
     }
 
     .page-container {
@@ -1084,25 +1094,23 @@
 <body>
   <header>
     <div class="header-left">
-      <span class="header-logo">⚽ Arena9</span>
-      <span id="back-header-btn" class="header-icon" style="visibility: hidden" onclick="goBack()" title="Geri">←</span>
-      <span onclick="showLogin()"
-        style="font-size: 10px; margin-left: 10px; cursor: pointer; color: var(--primary-green); border: 1px solid var(--primary-green); padding: 2px 6px; border-radius: 4px;">Admin</span>
+      <div id="back-header-btn" class="header-icon" style="visibility: hidden" onclick="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </div>
+      <div class="header-logo-container">
+        <span class="header-logo" onclick="changePage('ana-sayfa', 'Əsas')">Arena9</span>
+        <div id="admin-indicator" class="admin-badge" onclick="showLogin()">Admin</div>
+      </div>
     </div>
 
     <span id="page-header-title">Əsas</span>
-    <div class="header-right">
-      <button id="edit-header-btn" class="header-icon" style="
-            visibility: hidden;
-            border: none;
-            background: none;
-            color: inherit;
-            cursor: pointer;
-          " onclick="toggleEdit()" title="Redaktə et">
-        ✏️
-      </button>
-    </div>
 
+    <div class="header-right">
+      <button id="edit-header-btn" class="header-icon" style="visibility: hidden" onclick="toggleEdit()">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+      <div id="non-admin-login-trigger" style="width: 24px; visibility: hidden;"></div>
+    </div>
   </header>
 
   <div class="page-container">
@@ -1665,12 +1673,22 @@
         el.style.display = isAdmin ? '' : 'none';
       });
 
+      const adminIndicator = document.getElementById('admin-indicator');
+      if (adminIndicator) {
+        if (isAdmin) {
+          adminIndicator.classList.add('active');
+          adminIndicator.innerHTML = '<span class="loading" style="width:6px;height:6px;margin-right:4px;"></span> Admin';
+        } else {
+          adminIndicator.classList.remove('active');
+        }
+      }
+
       const editBtn = document.getElementById('edit-header-btn');
       if (editBtn) {
-        editBtn.style.visibility = isAdmin ? 'visible' : 'hidden';
-        editBtn.style.display = 'flex';
+        editBtn.style.visibility = (isAdmin && currentPage === 'player-profile') ? 'visible' : 'hidden';
       }
     }
+
 
 
     // Feature 2: Login Logic
@@ -1866,14 +1884,13 @@
 
 
       document.getElementById("edit-header-btn").style.visibility =
+        (isAdmin && pageId === "player-profile") ? "visible" : "hidden";
 
-        pageId === "player-profile"
-          ? "visible"
-          : "hidden";
       if (pageId === "player-profile") {
-        document.getElementById("edit-header-btn").innerHTML = "✏️";
+        document.getElementById("edit-header-btn").querySelector('.material-symbols-outlined').innerText = "edit";
         document.getElementById("edit-header-btn").title = "Redaktə et";
       }
+
 
       document.getElementById("back-header-btn").style.visibility =
         pageId === "player-profile" ||
