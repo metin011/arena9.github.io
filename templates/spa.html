@@ -1148,30 +1148,6 @@
         font-size: 10px;
       }
     }
-
-    .fab-btn {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--primary-green);
-      color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px rgba(31, 249, 86, 0.5);
-      cursor: pointer;
-      z-index: 900;
-      border: none;
-      transition: transform 0.2s;
-    }
-
-    .fab-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 30px rgba(31, 249, 86, 0.8);
-    }
   </style>
 
 </head>
@@ -1179,9 +1155,7 @@
 <body>
   <header>
     <div class="header-left">
-      <div id="back-header-btn" class="header-icon" style="visibility: hidden" onclick="goBack()">
-        <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back_ios_new</span>
-      </div>
+
       <div class="header-logo-container">
         <span class="header-logo" onclick="changePage('ana-sayfa', 'Əsas')"><span>ARENA</span>9</span>
         <div id="admin-indicator" class="admin-badge" onclick="showLogin()">
@@ -1289,9 +1263,6 @@
 
       </div>
       <div id="match-list"></div>
-      <button class="fab-btn" onclick="showMatchForm()">
-        <span class="material-symbols-outlined" style="font-size: 28px;">add</span>
-      </button>
     </div>
 
     <div id="oyuncular" class="page">
@@ -1327,9 +1298,6 @@
           style="font-size: 13px; padding-left: 40px;" />
       </div>
       <div id="full-player-list"></div>
-      <button class="fab-btn" onclick="showAddPlayerForm()">
-        <span class="material-symbols-outlined" style="font-size: 28px;">add</span>
-      </button>
     </div>
 
     <!-- Dream Team Page -->
@@ -1497,18 +1465,28 @@
     </div>
 
     <div id="istatistikler" class="page">
-      <div class="tab-container" style="display: flex; gap: 5px; margin-bottom: 20px">
-        <button class="tab-btn active" id="btn-gol" onclick="showStats('gol')">
-          <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">sports_soccer</span>
-          Qol
-        </button>
-        <button class="tab-btn" id="btn-asist" onclick="showStats('asist')">
-          <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">assist_walker</span>
-          Asist
-        </button>
-        <button class="tab-btn" id="btn-motm" onclick="showStats('motm')">
-          <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">star</span> MOTM
-        </button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:8px;">
+        <div class="tab-container" style="display: flex; gap: 5px;">
+          <button class="tab-btn active" id="btn-gol" onclick="showStats('gol')">
+            <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">sports_soccer</span>
+            Qol
+          </button>
+          <button class="tab-btn" id="btn-asist" onclick="showStats('asist')">
+            <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">assist_walker</span>
+            Asist
+          </button>
+          <button class="tab-btn" id="btn-mvp" onclick="showStats('mvp')">
+            <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">star</span> MVP
+          </button>
+        </div>
+        <div style="font-size:11px; color:var(--text-gray); display:flex; align-items:center; gap:4px;">
+          <span class="material-symbols-outlined" style="font-size:16px;">calendar_month</span>
+          <select id="stats-season-select"
+            onchange="showStats(currentStatsType || 'gol')"
+            style="background:#111; color:#fff; border:1px solid #333; border-radius:999px; padding:4px 10px; font-size:11px;">
+            <option value="ALL">Bütün mövsümlər</option>
+          </select>
+        </div>
       </div>
       <div id="stats-list"></div>
     </div>
@@ -1651,8 +1629,8 @@
       </div>
       <div class="form-group" style="margin-top: 15px">
         <label style="color: var(--gold)"><span class="material-symbols-outlined emoji-icon"
-            style="color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">star</span> MOTM</label><select
-          id="match_motm"></select>
+            style="color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">star</span> MVP</label><select
+          id="match_mvp"></select>
       </div>
       <div id="temp_event_list" style="font-size: 12px; color: #aaa; margin: 10px 0"></div>
       <button class="main-btn" onclick="saveMatch()">
@@ -1663,21 +1641,55 @@
 
     <div id="player-profile" class="page">
       <div id="profile-details" class="stat-grid"></div>
+      <div id="profile-extras" class="stat-grid" style="margin-top:16px;"></div>
     </div>
 
     <div id="edit-page" class="page">
-      <div id="edit-form-container"></div>
-      <h3 style="color: var(--primary-green); font-size: 14px; margin-top: 20px">
-        SEZON STATİSTİKASINI DÜZƏLT
-      </h3>
-      <div id="past-seasons-edit"></div>
-      <h3 style="color: var(--primary-green); font-size: 14px; margin-top: 20px">
-        MATÇ NÖVLƏRİNİ DÜZƏLT
-      </h3>
-      <div id="match-types-edit"></div>
-      <button class="main-btn" onclick="savePlayerStats()">
-        Yadda Saxla
-      </button>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+
+        <!-- Basic Info & Attribute Card -->
+        <div class="stat-card" style="margin-bottom: 0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:14px; color:var(--primary-green); display:flex; align-items:center; gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
+              Oyunçu Məlumatları
+            </h3>
+            <span style="font-size:11px; color:var(--text-gray);">Ad, yaş, nömrə, mövqe və əsas statlar</span>
+          </div>
+          <div id="edit-form-container" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+        </div>
+
+        <!-- Season Stats Card -->
+        <div class="stat-card" style="margin-bottom: 0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:14px; color:var(--primary-green); display:flex; align-items:center; gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:18px;">calendar_month</span>
+              Sezon Statistikası
+            </h3>
+            <span style="font-size:11px; color:var(--text-gray);">Hər mövsüm üçün G / A / M / OM</span>
+          </div>
+          <div id="past-seasons-edit"></div>
+        </div>
+
+        <!-- Match Type Stats Card -->
+        <div class="stat-card" style="margin-bottom: 0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:14px; color:var(--primary-green); display:flex; align-items:center; gap:6px;">
+              <span class="material-symbols-outlined" style="font-size:18px;">emoji_events</span>
+              Turnir / Matç Növü
+            </h3>
+            <span style="font-size:11px; color:var(--text-gray);">Sinif liqası, dostluq matçları və s.</span>
+          </div>
+          <div id="match-types-edit"></div>
+        </div>
+
+        <!-- Save Button -->
+        <div style="text-align:right; margin-top:4px;">
+          <button class="main-btn" onclick="savePlayerStats()" style="min-width:140px;">
+            Yadda Saxla
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2093,20 +2105,17 @@
       }
 
 
-      document.getElementById("back-header-btn").style.visibility =
-        pageId === "player-profile" ||
-          pageId === "edit-page" ||
-          pageId === "add-match-page" ||
-          pageId === "maclar"
-          ? "visible" // Show back button on match list too if desired, or just subpages
-          : "hidden";
+
 
       if (pageId === "ana-sayfa") {
         renderRecentMatches();
         renderTopGoals();
         renderTopAssists();
       }
-      if (pageId === "istatistikler") showStats("gol");
+      if (pageId === "istatistikler") {
+        initStatsSeasonOptions();
+        showStats("gol");
+      }
       if (pageId === "maclar") renderMatches();
       if (pageId === "oyuncular") {
         renderPlayers();
@@ -2118,6 +2127,7 @@
       if (historyStack[historyStack.length - 1] !== pageId)
         historyStack.push(pageId);
 
+      updateAdminUI(); // Ensure admin UI elements (like add button) are updated
     }
 
     window.onpopstate = function (event) {
@@ -2148,14 +2158,7 @@
       showToast("Məlumatlar yükləndi", "success");
     }
 
-    function goBack() {
-      if (historyStack.length > 1) {
-        historyStack.pop();
-        let prev = historyStack[historyStack.length - 1];
-        let title = getPageTitle(prev);
-        changePage(prev, title);
-      }
-    }
+
 
     function getPageTitle(pageId) {
       switch (pageId) {
@@ -2277,12 +2280,12 @@
 
     function createPastData() {
       let d = {};
-      seasonOptions.forEach((s) => (d[s] = { g: 0, a: 0, m: 0 }));
+      seasonOptions.forEach((s) => (d[s] = { g: 0, a: 0, om: 0, m: 0, mvp: 0 }));
       return d;
     }
     function createTypeStats() {
       let d = {};
-      matchTypes.forEach((t) => (d[t] = { g: 0, a: 0, m: 0 }));
+      matchTypes.forEach((t) => (d[t] = { g: 0, a: 0, om: 0, m: 0, mvp: 0 }));
       return d;
     }
 
@@ -2414,7 +2417,7 @@
                     </div>
                   </div>
                   <div class="match-details">
-                    <div>MVP: ${m.motm || '-'}</div>
+                    <div>MVP: ${m.mvp || '-'}</div>
                     <!-- Events list simplified -->
                     <div class="match-footer">
                        <span class="match-date-info">ID: ${m.id}</span>
@@ -2503,6 +2506,168 @@
         .join("");
     }
 
+    async function loadPlayerDetailExtras(playerId) {
+      try {
+        const res = await fetch(`/api/players/${playerId}/detail`);
+        if (!res.ok) return;
+        const d = await res.json();
+
+        const extras = document.getElementById("profile-extras");
+        if (!extras) return;
+
+        const avg = d.ratings?.average || 0;
+        const count = d.ratings?.count || 0;
+        const userRating = d.ratings?.user_rating || 0;
+        const badges = d.badges || [];
+        const comments = d.comments || [];
+
+        const starsHtml = [1, 2, 3, 4, 5]
+          .map(
+            (i) => `
+      <span 
+        class="material-symbols-outlined"
+        data-star="${i}"
+        style="cursor:pointer;font-size:22px;margin-right:2px;
+          color:${i <= userRating ? '#ffd700' : '#555'};">
+        star
+      </span>`
+          )
+          .join("");
+
+        const badgesHtml =
+          badges.length > 0
+            ? badges
+                .map(
+                  (b) => `
+        <span style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.6);
+          color:#ffd700;font-size:11px;padding:3px 8px;border-radius:999px;
+          text-transform:uppercase;margin-right:4px;display:inline-flex;align-items:center;gap:4px;">
+          <span class="material-symbols-outlined" style="font-size:14px;">emoji_events</span>${b}
+        </span>`
+                )
+                .join("")
+            : `<span style="color:var(--text-gray);font-size:12px;">Hələ badge yoxdur</span>`;
+
+        const commentsHtml =
+          comments.length === 0
+            ? `<div style="font-size:12px;color:var(--text-gray);">Hələ şərh yoxdur</div>`
+            : comments
+                .map(
+                  (c) => `
+        <div style="padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:6px;">
+          <div style="font-size:11px;color:var(--text-gray);display:flex;justify-content:space-between;">
+            <span>${c.user}</span>
+            <span>${new Date(c.timestamp).toLocaleString("az-AZ")}</span>
+          </div>
+          <div style="font-size:13px;margin-top:3px;">${c.comment}</div>
+        </div>`
+                )
+                .join("");
+
+        extras.innerHTML = `
+      <div style="grid-column:span 2;display:grid;grid-template-columns:1fr;gap:12px;">
+        <div class="stat-card" style="margin-bottom:0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-size:13px;font-weight:600;">
+              Reytinq
+              <span style="font-size:11px;color:var(--text-gray);margin-left:4px;">
+                (${count} səs)
+              </span>
+            </div>
+            <div style="font-size:18px;font-weight:700;color:#ffd700;">
+              ${avg.toFixed(2)}
+            </div>
+          </div>
+          <div id="rating-stars" style="margin-bottom:6px;">
+            ${starsHtml}
+          </div>
+          <div style="font-size:11px;color:var(--text-gray);">
+            Öz reytinqini vermək üçün ulduzlara toxun.
+          </div>
+        </div>
+
+        <div class="stat-card" style="margin-bottom:0;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px;">
+            Badge-lər
+          </div>
+          <div>${badgesHtml}</div>
+        </div>
+
+        <div class="stat-card" style="margin-bottom:0;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px;">
+            Şərhlər
+          </div>
+          <div id="player-comments" style="max-height:200px;overflow-y:auto;margin-bottom:8px;">
+            ${commentsHtml}
+          </div>
+          <div id="comment-form-container">
+            <textarea id="comment-input" rows="2" placeholder="Şərhini yaz..."
+              style="width:100%;border-radius:8px;border:1px solid #333;
+                background:#000;padding:6px 8px;font-size:12px;color:#fff;resize:none;"></textarea>
+            <button id="comment-send-btn" class="main-btn" style="margin-top:6px;width:100%;padding:6px 0;font-size:13px;">
+              Şərh göndər
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+        const stars = extras.querySelectorAll("#rating-stars span[data-star]");
+        stars.forEach((el) => {
+          el.addEventListener("click", async () => {
+            const val = parseInt(el.getAttribute("data-star") || "0", 10);
+            try {
+              const res = await fetch(`/api/players/${playerId}/rate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ rating: val }),
+              });
+              const data = await res.json();
+              if (!data.success) {
+                showToast(data.message || "Reytinq xətası", "error");
+                return;
+              }
+              showToast("Reytinq qeyd olundu", "success");
+              loadPlayerDetailExtras(playerId);
+            } catch {
+              showToast("Server xətası", "error");
+            }
+          });
+        });
+
+        const sendBtn = extras.querySelector("#comment-send-btn");
+        const commentInput = extras.querySelector("#comment-input");
+        if (sendBtn && commentInput) {
+          sendBtn.addEventListener("click", async () => {
+            const text = commentInput.value.trim();
+            if (!text) {
+              showToast("Şərh boş ola bilməz", "error");
+              return;
+            }
+            try {
+              const res = await fetch(`/api/players/${playerId}/comment`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ comment: text }),
+              });
+              const data = await res.json();
+              if (!data.success) {
+                showToast(data.message || "Şərh xətası", "error");
+                return;
+              }
+              commentInput.value = "";
+              showToast("Şərh əlavə olundu", "success");
+              loadPlayerDetailExtras(playerId);
+            } catch {
+              showToast("Server xətası", "error");
+            }
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     function viewProfile(index) {
       currentPlayerIndex = index;
       isEditMode = false;
@@ -2513,14 +2678,14 @@
       let seasonRows = seasonOptions
         .map(
           (s) => {
-            const data = (p.pastData && p.pastData[s]) ? p.pastData[s] : { g: 0, a: 0, m: 0, om: 0 };
+            const data = (p.pastData && p.pastData[s]) ? p.pastData[s] : { g: 0, a: 0, m: 0, om: 0, mvp: 0 };
             const k = s.replace("/", "");
             return `<tr>
               <td>${s}</td>
               <td>${isEditMode ? `<input type="number" id="season-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.om || 0}`}</td>
               <td>${isEditMode ? `<input type="number" id="season-g-${k}" value="${data.g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.g}`}</td>
               <td>${isEditMode ? `<input type="number" id="season-a-${k}" value="${data.a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.a}`}</td>
-              <td>${isEditMode ? `<input type="number" id="season-m-${k}" value="${data.m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.m}`}</td>
+              <td>${isEditMode ? `<input type="number" id="season-m-${k}" value="${data.mvp ?? data.m ?? 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.mvp ?? data.m ?? 0}`}</td>
             </tr>`;
           }
         )
@@ -2530,14 +2695,14 @@
       let typeRows = matchTypes
         .map(
           (t) => {
-            const data = (p.typeStats && p.typeStats[t]) ? p.typeStats[t] : { g: 0, a: 0, m: 0, om: 0 };
+            const data = (p.typeStats && p.typeStats[t]) ? p.typeStats[t] : { g: 0, a: 0, m: 0, om: 0, mvp: 0 };
             const k = t.replace(/\s+/g, "");
             return `<tr>
               <td>${t}</td>
               <td>${isEditMode ? `<input type="number" id="type-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.om || 0}`}</td>
               <td>${isEditMode ? `<input type="number" id="type-g-${k}" value="${data.g}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.g}`}</td>
               <td>${isEditMode ? `<input type="number" id="type-a-${k}" value="${data.a}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.a}`}</td>
-              <td>${isEditMode ? `<input type="number" id="type-m-${k}" value="${data.m}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.m}`}</td>
+              <td>${isEditMode ? `<input type="number" id="type-m-${k}" value="${data.mvp ?? data.m ?? 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0">` : `${data.mvp ?? data.m ?? 0}`}</td>
             </tr>`;
           }
         )
@@ -2589,7 +2754,7 @@
     <div class="season-table" style="grid-column: span 2;">
       <div class="table-title"><span class="material-symbols-outlined emoji-icon">calendar_month</span> Sezon Statistikası</div>
       <table>
-        <thead><tr><th>SEZON</th><th>OM</th><th>G</th><th>A</th><th>MOTM</th></tr></thead>
+        <thead><tr><th>SEZON</th><th>OM</th><th>G</th><th>A</th><th>MVP</th></tr></thead>
         <tbody>${seasonRows}</tbody>
       </table>
     </div>
@@ -2597,7 +2762,7 @@
     <div class="season-table" style="grid-column: span 2;">
       <div class="table-title"><span class="material-symbols-outlined emoji-icon">emoji_events</span> Turnir/Matç Növü</div>
       <table>
-        <thead><tr><th>NÖV</th><th>OM</th><th>G</th><th>A</th><th>MOTM</th></tr></thead>
+        <thead><tr><th>NÖV</th><th>OM</th><th>G</th><th>A</th><th>MVP</th></tr></thead>
         <tbody>${typeRows}</tbody>
       </table>
     </div>
@@ -2653,6 +2818,8 @@
           : ""
         }`;
 
+      loadPlayerDetailExtras(p.id);
+
     }
 
     // Redaktə (Edit) bölməsində də OM giriş sahəsi olması üçün bu hissəni də yeniləyin:
@@ -2685,32 +2852,42 @@
       );
       document.getElementById("edit-form-container").innerHTML = h;
 
-      let sH = "";
+      let sH = `<div class="season-table" style="grid-column: span 2; margin-top: 15px;">
+          <div class="table-title"><span class="material-symbols-outlined emoji-icon">calendar_month</span> Sezon Statistikası</div>
+          <table>
+            <thead><tr><th>SEZON</th><th>OM</th><th>G</th><th>A</th><th>MVP</th></tr></thead>
+            <tbody>`;
       seasonOptions.forEach((s) => {
-        let data = p.pastData[s];
+        let data = p.pastData[s] || { om: 0, g: 0, a: 0, m: 0, mvp: 0 };
         let k = s.replace("/", "");
-        sH += `<label style="font-size:9px; color:var(--text-gray);">${s}</label>
-           <div class="edit-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
-             <div><label>OM</label><input type="number" id="ps-om-${k}" value="${data.om || 0}"></div>
-             <div><label>G</label><input type="number" id="ps-g-${k}" value="${data.g}"></div>
-             <div><label>A</label><input type="number" id="ps-a-${k}" value="${data.a}"></div>
-             <div><label>M</label><input type="number" id="ps-m-${k}" value="${data.m}"></div>
-           </div>`;
+        sH += `<tr>
+              <td>${s}</td>
+              <td><input type="number" id="ps-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+              <td><input type="number" id="ps-g-${k}" value="${data.g || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+              <td><input type="number" id="ps-a-${k}" value="${data.a || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+              <td><input type="number" id="ps-m-${k}" value="${data.mvp ?? data.m ?? 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+            </tr>`;
       });
+      sH += `</tbody></table></div>`;
       document.getElementById("past-seasons-edit").innerHTML = sH;
 
-      let tH = "";
+      let tH = `<div class="season-table" style="grid-column: span 2; margin-top: 15px;">
+          <div class="table-title"><span class="material-symbols-outlined emoji-icon">emoji_events</span> Turnir/Matç Növü</div>
+          <table>
+            <thead><tr><th>NÖV</th><th>OM</th><th>G</th><th>A</th><th>MVP</th></tr></thead>
+            <tbody>`;
       matchTypes.forEach((t) => {
-        let data = p.typeStats[t];
+        let data = p.typeStats[t] || { om: 0, g: 0, a: 0, m: 0, mvp: 0 };
         let k = t.replace(/\s+/g, "");
-        tH += `<label style="font-size:9px; color:var(--text-gray);">${t}</label>
-           <div class="edit-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
-             <div><label>OM</label><input type="number" id="pt-om-${k}" value="${data.om || 0}"></div>
-             <div><label>G</label><input type="number" id="pt-g-${k}" value="${data.g}"></div>
-             <div><label>A</label><input type="number" id="pt-a-${k}" value="${data.a}"></div>
-             <div><label>M</label><input type="number" id="pt-m-${k}" value="${data.m}"></div>
-           </div>`;
+        tH += `<tr>
+              <td>${t}</td>
+              <td><input type="number" id="pt-om-${k}" value="${data.om || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+              <td><input type="number" id="pt-g-${k}" value="${data.g || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+              <td><input type="number" id="pt-a-${k}" value="${data.a || 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+              <td><input type="number" id="pt-m-${k}" value="${data.mvp ?? data.m ?? 0}" style="width:100%; border:none; background:none; color:inherit; text-align:center;" min="0"></td>
+            </tr>`;
       });
+      tH += `</tbody></table></div>`;
       document.getElementById("match-types-edit").innerHTML = tH;
     }
 
@@ -2784,6 +2961,7 @@
         };
       });
 
+      // API Update
       const payload = {
         name: p.name,
         age: p.age,
@@ -2793,7 +2971,8 @@
         position: p.position,
         preferred_foot: p.preferred_foot,
         stats: p.stats,
-        pastData: p.pastData
+        pastData: p.pastData,
+        typeStats: p.typeStats
       };
 
       try {
@@ -2858,9 +3037,13 @@
             0,
             parseInt(document.getElementById(`season-a-${k}`).value) || 0,
           ),
-          m: Math.max(
+          mvp: Math.max(
             0,
             parseInt(document.getElementById(`season-m-${k}`).value) || 0,
+          ),
+          m: Math.max(
+            0,
+            parseInt(document.getElementById(`season-om-${k}`).value) || 0,
           ),
         };
       });
@@ -2868,23 +3051,17 @@
       // Save type stats
       matchTypes.forEach((t) => {
         let k = t.replace(/\s+/g, "");
+        const omVal = document.getElementById(`type-om-${k}`);
+        const gVal = document.getElementById(`type-g-${k}`);
+        const aVal = document.getElementById(`type-a-${k}`);
+        const mVal = document.getElementById(`type-m-${k}`);
+        
         p.typeStats[t] = {
-          om: Math.max(
-            0,
-            parseInt(document.getElementById(`type-om-${k}`).value) || 0,
-          ),
-          g: Math.max(
-            0,
-            parseInt(document.getElementById(`type-g-${k}`).value) || 0,
-          ),
-          a: Math.max(
-            0,
-            parseInt(document.getElementById(`type-a-${k}`).value) || 0,
-          ),
-          m: Math.max(
-            0,
-            parseInt(document.getElementById(`type-m-${k}`).value) || 0,
-          ),
+          om: Math.max(0, parseInt(omVal ? omVal.value : 0) || 0),
+          g: Math.max(0, parseInt(gVal ? gVal.value : 0) || 0),
+          a: Math.max(0, parseInt(aVal ? aVal.value : 0) || 0),
+          mvp: Math.max(0, parseInt(mVal ? mVal.value : 0) || 0),
+          m: Math.max(0, parseInt(omVal ? omVal.value : 0) || 0),
         };
       });
 
@@ -2896,7 +3073,8 @@
         position: p.position,
         preferred_foot: p.preferred_foot,
         photo_url: p.photo_url,
-        pastData: p.pastData
+        pastData: p.pastData,
+        typeStats: p.typeStats
       };
 
 
@@ -2921,7 +3099,11 @@
 
     function toggleEdit() {
       if (currentPage === "player-profile") {
-        showAddPlayerForm(currentPlayerIndex);
+        // Profil görünüşündəki edit düyməsi:
+        // Məlumatları "edit-page" xüsusi redaktə ekranında açırıq
+        if (typeof openEditPage === "function") {
+          openEditPage(currentPlayerIndex);
+        }
       } else if (currentPage === "maclar") {
         showMatchForm();
       } else if (currentPage === "oyuncular") {
@@ -2930,20 +3112,53 @@
     }
 
 
+    let currentStatsType = "gol";
+
+    function initStatsSeasonOptions() {
+      const select = document.getElementById("stats-season-select");
+      if (!select) return;
+
+      // Mövcud options-u təmizlə, "ALL" saxla
+      select.innerHTML = `<option value="ALL">Bütün mövsümlər</option>`;
+      seasonOptions.forEach((s) => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        select.appendChild(opt);
+      });
+    }
+
     function showStats(type) {
+      currentStatsType = type;
+
       document
         .querySelectorAll(".tab-btn")
         .forEach((b) => b.classList.remove("active"));
       document.getElementById("btn-" + type).classList.add("active");
 
+      const select = document.getElementById("stats-season-select");
+      const selectedSeason = select ? select.value : "ALL";
+
       let sorted = [...players]
         .map((p) => {
           let total = 0;
-          seasonOptions.forEach((s) => {
-            if (type === "gol") total += p.pastData[s].g;
-            else if (type === "asist") total += p.pastData[s].a;
-            else if (type === "motm") total += p.pastData[s].m;
-          });
+
+          if (selectedSeason === "ALL") {
+            seasonOptions.forEach((s) => {
+              const d = p.pastData && p.pastData[s] ? p.pastData[s] : { g: 0, a: 0, m: 0, om: 0, mvp: 0 };
+              if (type === "gol") total += d.g;
+              else if (type === "asist") total += d.a;
+              else if (type === "mvp") total += (d.mvp ?? d.m ?? 0);
+            });
+          } else {
+            const d = p.pastData && p.pastData[selectedSeason]
+              ? p.pastData[selectedSeason]
+              : { g: 0, a: 0, m: 0, om: 0, mvp: 0 };
+            if (type === "gol") total = d.g;
+            else if (type === "asist") total = d.a;
+            else if (type === "mvp") total = (d.mvp ?? d.m ?? 0);
+          }
+
           return { name: p.name, val: total, num: p.num };
         })
         .filter((p) => p.val > 0)
@@ -3028,7 +3243,7 @@
       document.getElementById("player-datalist").innerHTML = players
         .map((p) => `<option value="${p.name}">`)
         .join("");
-      document.getElementById("match_motm").innerHTML =
+      document.getElementById("match_mvp").innerHTML =
         `<option value="">Seçin...</option>` +
         players
           .map((p) => `<option value="${p.name}">${p.name}</option>`)
@@ -3047,7 +3262,7 @@
 
 
       document.getElementById("match_season").value = m.season;
-      document.getElementById("match_motm").value = m.motm || '';
+      document.getElementById("match_mvp").value = m.mvp || '';
 
       // Load events
       tempEvents = m.events.map(e => ({
@@ -3092,20 +3307,38 @@
     }
 
     function addMatchEvent() {
-      const team = document.getElementById("event_scoring_team").value;
-      const player = document.getElementById("event_player_manual").value.trim();
-      const assist = document.getElementById("event_assist_manual").value.trim();
+      const teamLabel = document.getElementById("event_scoring_team").value;
+      const playerInput = document.getElementById("event_player_manual").value.trim();
+      const assistInput = document.getElementById("event_assist_manual").value.trim();
 
-      if (!player) {
+      if (!playerInput) {
         showToast("Oyunçu adını daxil edin!", "error");
         return;
       }
 
-      if (team === document.getElementById("match_input_home").value) s1++;
+      const homeName = document.getElementById("match_input_home").value;
+      const awayName = document.getElementById("match_input_away").value;
+      const team = teamLabel === homeName ? "home" : "away";
+
+      // Adı siyahıdakı oyunçulardan biri ilə uyğunlaşdır (əgər varsa)
+      const foundPlayer = players.find(
+        (p) => p.name.toLowerCase() === playerInput.toLowerCase()
+      );
+      const foundAssist = players.find(
+        (p) => p.name.toLowerCase() === assistInput.toLowerCase()
+      );
+
+      if (team === "home") s1++;
       else s2++;
       updateScoreDisplay();
 
-      tempEvents.push({ team, player, assist: assist || null });
+      tempEvents.push({
+        team,
+        player: playerInput,            // Həmişə göstəriləcək ad (bizim və ya qonaq)
+        assist: assistInput || null,    // Həmişə göstəriləcək assist adı
+        player_id: foundPlayer ? foundPlayer.id : null,   // Yalnız bizim oyunçu üçün dolu
+        assist_id: foundAssist ? foundAssist.id : null,   // Yalnız bizim oyunçu üçün dolu
+      });
       renderTempEvents();
 
       document.getElementById("event_player_manual").value = "";
@@ -3135,7 +3368,7 @@
 
     function removeTempEvent(idx) {
       const ev = tempEvents[idx];
-      if (ev.team === document.getElementById("match_input_home").value) s1 = Math.max(0, s1 - 1);
+      if (ev.team === "home") s1 = Math.max(0, s1 - 1);
       else s2 = Math.max(0, s2 - 1);
 
       tempEvents.splice(idx, 1);
@@ -3161,7 +3394,8 @@
         date: document.getElementById("match_input_date").value,
 
         season: document.getElementById("m_season").value,
-        motm: document.getElementById("match_motm").value,
+        mvp: document.getElementById("match_mvp").value,
+        // Bütün event məlumatını backend-ə keçirik (player_id ilə birlikdə)
         events: [...tempEvents],
       };
 
@@ -3241,82 +3475,122 @@
 
     function viewMatch(idx) {
       const match = matches[idx];
+      const homeGoals = (match.events || []).filter((e) => e.team === "home");
+      const awayGoals = (match.events || []).filter((e) => e.team === "away");
+
       document.getElementById("modal-title").innerText =
         `${match.home} vs ${match.away}`;
       document.getElementById("modal-content").innerHTML = `
           <!-- Match Header -->
-          <div style="background: linear-gradient(135deg, var(--card-gray) 0%, var(--bg-dark) 100%); padding: 24px; border-radius: 16px; margin-bottom: 24px; box-shadow: var(--shadow);">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <div style="font-size: 14px; color: var(--text-gray); margin-bottom: 8px;">${match.type} • ${match.season}</div>
-              <div style="font-size: 12px; color: var(--text-gray);">📅 ${new Date(match.date).toLocaleString("az-AZ")}</div>
+          <div style="background: linear-gradient(135deg, var(--card-gray) 0%, var(--bg-dark) 100%); padding: 20px; border-radius: 16px; margin-bottom: 18px; box-shadow: var(--shadow);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12px; color:var(--text-gray);">
+              <span>${match.type} • ${match.season}</span>
+              <span>📅 ${new Date(match.date).toLocaleString("az-AZ")}</span>
             </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <div style="text-align: center; flex: 1;">
-                <div style="font-size: 20px; font-weight: 700; color: var(--text-light); margin-bottom: 8px;">${match.home}</div>
-                <div style="width: 60px; height: 60px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px; font-weight: bold; color: #000;"><span class="material-symbols-outlined" style="font-size: 32px;">emoji_events</span></div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <div style="flex:1; text-align:left;">
+                <div style="font-size:13px; color:var(--text-gray); text-transform:uppercase; letter-spacing:0.5px;">Ev sahibi</div>
+                <div style="font-size:18px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${match.home}</div>
               </div>
-              
-              <div style="text-align: center; padding: 0 20px;">
-                <div style="font-size: 48px; font-weight: 900; color: var(--primary-green); line-height: 1; margin-bottom: 8px;">${match.s1} - ${match.s2}</div>
-                <div style="font-size: 12px; color: var(--text-gray); text-transform: uppercase;">FT</div>
+              <div style="text-align:center; min-width:90px;">
+                <div style="font-size:26px; font-weight:900; color:var(--primary-green); line-height:1;">${match.s1} - ${match.s2}</div>
+                <div style="font-size:11px; color:var(--text-gray); text-transform:uppercase; margin-top:2px;">Tam vaxt</div>
               </div>
-              
-              <div style="text-align: center; flex: 1;">
-                <div style="font-size: 20px; font-weight: 700; color: var(--text-light); margin-bottom: 8px;">${match.away}</div>
-                <div style="width: 60px; height: 60px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 24px; font-weight: bold; color: #000;"><span class="material-symbols-outlined" style="font-size: 32px;">sports_soccer</span></div>
+              <div style="flex:1; text-align:right;">
+                <div style="font-size:13px; color:var(--text-gray); text-transform:uppercase; letter-spacing:0.5px;">Qonaq</div>
+                <div style="font-size:18px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${match.away}</div>
               </div>
             </div>
           </div>
-          
-          <!-- Match Events -->
-          <div style="background: var(--card-gray); padding: 24px; border-radius: 16px; margin-bottom: 24px;">
-            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 5px;"><span class="material-symbols-outlined" style="font-size: 20px;">sports_soccer</span> Hadisələr</h3>
-            ${match.events.length > 0
-          ? `
-              <div style="position: relative;">
-                <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--primary-green); transform: translateX(-50%);"></div>
-                ${match.events
-            .map(
-              (e, i) => `
-                  <div style="display: flex; align-items: center; margin-bottom: 16px; ${i % 2 === 0 ? "justify-content: flex-start;" : "justify-content: flex-end; flex-direction: row-reverse;"}">
-                    <div style="background: ${e.team === match.home ? "var(--primary-green)" : "var(--danger-red)"}; color: #000; padding: 8px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; z-index: 1;">
-                      <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">sports_soccer</span> ${e.player}
-                      ${e.assist ? ` (A: ${e.assist})` : ""}
-                    </div>
-                  </div>
-                `,
-            )
-            .join("")}
+
+          <!-- Goals by team -->
+          <div style="background: var(--card-gray); padding: 18px; border-radius: 16px; margin-bottom: 16px;">
+            <h3 style="color: var(--primary-green); margin-bottom: 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+              <span class="material-symbols-outlined" style="font-size:18px;">sports_soccer</span>
+              Qollar
+            </h3>
+            ${
+              (homeGoals.length + awayGoals.length) === 0
+                ? `<div style="text-align:center; color:var(--text-gray); padding:20px 0;">Bu matçda qol yoxdur</div>`
+                : `
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <div style="font-size:12px; color:var(--text-gray); margin-bottom:4px;">${match.home}</div>
+                  ${
+                    homeGoals.length === 0
+                      ? `<div style="font-size:12px; color:var(--text-gray);">Qol yoxdur</div>`
+                      : homeGoals
+                          .map(
+                            (e) => `
+                              <div style="display:flex; align-items:center; gap:6px; font-size:13px; margin-bottom:3px;">
+                                <span class="material-symbols-outlined" style="font-size:16px; color:var(--primary-green);">sports_soccer</span>
+                                <span>${e.player}${e.assist ? ` <span style="color:var(--text-gray); font-size:11px;">(A: ${e.assist})</span>` : ""}</span>
+                              </div>
+                            `
+                          )
+                          .join("")
+                  }
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:12px; color:var(--text-gray); margin-bottom:4px;">${match.away}</div>
+                  ${
+                    awayGoals.length === 0
+                      ? `<div style="font-size:12px; color:var(--text-gray);">Qol yoxdur</div>`
+                      : awayGoals
+                          .map(
+                            (e) => `
+                              <div style="display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:13px; margin-bottom:3px;">
+                                <span>${e.player}${e.assist ? ` <span style="color:var(--text-gray); font-size:11px;">(A: ${e.assist})</span>` : ""}</span>
+                                <span class="material-symbols-outlined" style="font-size:16px; color:var(--danger-red);">sports_soccer</span>
+                              </div>
+                            `
+                          )
+                          .join("")
+                  }
+                </div>
               </div>
             `
-          : '<div style="text-align: center; color: var(--text-gray); padding: 40px 0;">Qol yoxdur</div>'
-        }
+            }
           </div>
-          
-          <!-- Match Stats -->
-          <div style="background: var(--card-gray); padding: 24px; border-radius: 16px; margin-bottom: 24px;">
-            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 5px;"><span class="material-symbols-outlined" style="font-size: 20px;">bar_chart</span> Statistika</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <div style="text-align: center;">
-                <div style="font-size: 24px; font-weight: bold; color: var(--text-light);">${match.events.filter((e) => e.team === match.home).length}</div>
-                <div style="font-size: 12px; color: var(--text-gray);">${match.home} Qolları</div>
-              </div>
-              <div style="text-align: center;">
-                <div style="font-size: 24px; font-weight: bold; color: var(--text-light);">${match.events.filter((e) => e.team === match.away).length}</div>
-                <div style="font-size: 12px; color: var(--text-gray);">${match.away} Qolları</div>
-              </div>
-            </div>
+
+          <!-- Simple events feed -->
+          <div style="background: var(--card-gray); padding: 18px; border-radius: 16px; margin-bottom: 16px;">
+            <h3 style="color: var(--primary-green); margin-bottom: 12px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+              <span class="material-symbols-outlined" style="font-size:18px;">timeline</span>
+              Matç xülasəsi
+            </h3>
+            ${
+              (match.events || []).length === 0
+                ? `<div style="font-size:12px; color:var(--text-gray);">Qol hadisəsi qeyd olunmayıb.</div>`
+                : (match.events || [])
+                    .map(
+                      (e) => `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:12px;">
+                          <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="material-symbols-outlined" style="font-size:16px; color:var(--primary-green);">sports_soccer</span>
+                            <span>${e.player}${e.assist ? ` (A: ${e.assist})` : ""}</span>
+                          </div>
+                          <span style="color:var(--text-gray);">${e.team === "home" ? match.home : match.away}</span>
+                        </div>
+                      `
+                    )
+                    .join("")
+            }
           </div>
-          
+
           <!-- Man of the Match -->
-          <div style="background: var(--card-gray); padding: 24px; border-radius: 16px;">
-            <h3 style="color: var(--primary-green); margin-bottom: 20px; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 5px;"><span class="material-symbols-outlined" style="color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); font-size: 20px;">star</span> Man of the Match</h3>
-            <div style="display: flex; align-items: center;">
-              <div style="width: 50px; height: 50px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 20px;"><span class="material-symbols-outlined" style="color: #000; font-size: 28px;">star</span></div>
+          <div style="background: var(--card-gray); padding: 18px; border-radius: 16px;">
+            <h3 style="color: var(--primary-green); margin-bottom: 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+              <span class="material-symbols-outlined" style="color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); font-size: 18px;">star</span>
+              Man of the Match
+            </h3>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display:flex; align-items:center; justify-content:center;">
+                <span class="material-symbols-outlined" style="color:#000; font-size:24px;">star</span>
+              </div>
               <div>
-                <div style="font-size: 18px; font-weight: 600; color: var(--gold);">${match.motm || "Seçilmədi"}</div>
-                <div style="font-size: 12px; color: var(--text-gray);">Ən yaxşı oyunçu</div>
+                <div style="font-size:16px; font-weight:600; color:var(--gold);">${match.mvp || "Seçilmədi"}</div>
+                <div style="font-size:11px; color:var(--text-gray);">Ən yaxşı oyunçu</div>
               </div>
             </div>
           </div>

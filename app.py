@@ -9,6 +9,7 @@ import json
 import csv
 import io
 import uuid
+import re
 from sqlalchemy import or_, func, desc
 
 app = Flask(__name__)
@@ -19,7 +20,7 @@ app.permanent_session_lifetime = timedelta(days=31)
 # File Upload Configuration
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
@@ -33,6 +34,28 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+MATCH_TYPES = ["Sinif Ligi", "Dostluq matçları", "Məktəbdənkənar", "Məktəb çempionatı"]
+
+def normalize_match_type(match_type):
+    value = (match_type or "").strip()
+    aliases = {
+        "Dostluq": "Dostluq matçları",
+        "Dostluq matçları": "Dostluq matçları",
+        "Sinif Ligi": "Sinif Ligi",
+        "Məktəbdənkənar": "Məktəbdənkənar",
+        "Məktəb çempionatı": "Məktəb çempionatı",
+    }
+    return aliases.get(value, value or "Dostluq matçları")
+
+def match_type_variants(match_type):
+    normalized = normalize_match_type(match_type)
+    if normalized == "Dostluq matçları":
+        return ["Dostluq", "Dostluq matçları"]
+    return [normalized]
+
+def is_season_key(value):
+    return bool(re.match(r"^\d{2}/\d{2}$", value or ""))
 
 # Helper Functions for File Upload
 def allowed_file(filename):
@@ -379,21 +402,26 @@ def api_players():
             'Dribling': p.dribbling, 'Defans': p.defending, 'Fizik': p.physical
         }
         
-        # Reconstruct season stats
+        # Reconstruct season and match-type stats
         past_data = {}
+        type_data = {t: {'g': 0, 'a': 0, 'm': 0, 'om': 0} for t in MATCH_TYPES}
         try:
             seasons = SeasonStats.query.filter_by(player_id=p.id).all()
             for s in seasons:
-                past_data[s.season] = {'g': s.goals, 'a': s.assists, 'm': s.matches, 'om': s.motm or 0}
+                row = {
+                    'g': s.goals,
+                    'a': s.assists,
+                    'om': s.matches,
+                    'm': s.matches,   # backward compatibility
+                    'mvp': s.motm or 0,
+                    'motm': s.motm or 0
+                }
+                if is_season_key(s.season):
+                    past_data[s.season] = row
+                else:
+                    type_data[normalize_match_type(s.season)] = row
         except Exception as e:
-            # Handle schema mismatch or missing columns gracefully
             print(f"SeasonStats error for player {p.id}: {e}")
-            past_data = {}
-            
-        # Reconstruct type stats
-        type_data = {}
-        for t in ["Sinif Ligi", "Dostluq matçları", "Məktəbdənkənar", "Məktəb çempionatı"]:
-            type_data[t] = {'g': 0, 'a': 0, 'm': 0, 'om': 0}
             
         result.append({
             'id': p.id,
@@ -490,15 +518,32 @@ def api_player_detail(id):
             # Update Season Statistics from pastData
             if 'pastData' in data:
                 for season, stats in data['pastData'].items():
-                    s_stat = SeasonStats.query.filter_by(player_id=id, season=season).first()
+                    s_stat = SeasonStats.query.filter_by(player_id=player.id, season=season).first()
                     if not s_stat:
-                        s_stat = SeasonStats(player_id=id, season=season)
+                        s_stat = SeasonStats(player_id=player.id, season=season)
                         db.session.add(s_stat)
                     
                     s_stat.goals = safe_int(stats.get('g'), s_stat.goals)
                     s_stat.assists = safe_int(stats.get('a'), s_stat.assists)
-                    s_stat.matches = safe_int(stats.get('m'), s_stat.matches)
-                    s_stat.motm = safe_int(stats.get('om'), s_stat.motm)
+                    s_stat.matches = safe_int(stats.get('om', stats.get('m')), s_stat.matches)
+                    s_stat.motm = safe_int(stats.get('mvp', stats.get('motm')), s_stat.motm)
+            
+            # Update Type Statistics from typeStats if exists
+            if 'typeStats' in data:
+                for match_type, stats in data['typeStats'].items():
+                    normalized_type = normalize_match_type(match_type)
+                    # We store type stats in SeasonStats with a special prefix or similar
+                    # But the current DB schema only has 'season'.
+                    # Let's use SeasonStats for match types too by storing them with type name
+                    t_stat = SeasonStats.query.filter_by(player_id=player.id, season=normalized_type).first()
+                    if not t_stat:
+                        t_stat = SeasonStats(player_id=player.id, season=normalized_type)
+                        db.session.add(t_stat)
+                    
+                    t_stat.goals = safe_int(stats.get('g'), t_stat.goals)
+                    t_stat.assists = safe_int(stats.get('a'), t_stat.assists)
+                    t_stat.matches = safe_int(stats.get('om', stats.get('m')), t_stat.matches)
+                    t_stat.motm = safe_int(stats.get('mvp', stats.get('motm')), t_stat.motm)
 
             db.session.commit()
             
@@ -532,12 +577,13 @@ def api_matches():
                 match_date=datetime.strptime(data.get('date'), '%Y-%m-%dT%H:%M') if data.get('date') else datetime.utcnow(),
                 season=data.get('season', '24/25'),
                 status='finished',
-                type=data.get('type', 'Dostluq')
+                type=normalize_match_type(data.get('type', 'Dostluq matçları'))
             )
             
             # MVP
-            if data.get('motm'):
-                p = Player.query.filter_by(name=data.get('motm')).first()
+            mvp_name = data.get('mvp') or data.get('motm')
+            if mvp_name:
+                p = Player.query.filter_by(name=mvp_name).first()
                 if p: m.mvp_player_id = p.id
                 
             db.session.add(m)
@@ -545,12 +591,22 @@ def api_matches():
             
             # Events
             for ev in data.get('events', []):
-                scorer_name = ev.get('player')
-                assist_name = ev.get('assist')
-                
-                scorer = Player.query.filter_by(name=scorer_name).first()
-                assist = Player.query.filter_by(name=assist_name).first() if assist_name else None
-                
+                scorer = None
+                assist = None
+
+                scorer_id = ev.get('player_id')
+                assist_id = ev.get('assist_id')
+
+                if scorer_id:
+                    scorer = Player.query.get(scorer_id)
+                if not scorer and ev.get('player'):
+                    scorer = Player.query.filter_by(name=ev.get('player')).first()
+
+                if assist_id:
+                    assist = Player.query.get(assist_id)
+                if not assist and ev.get('assist'):
+                    assist = Player.query.filter_by(name=ev.get('assist')).first()
+
                 if scorer:
                     g = Goal(
                         match_id=m.id,
@@ -561,6 +617,12 @@ def api_matches():
                     db.session.add(g)
             
             db.session.commit()
+
+            # Matç əlavə edildikdən sonra bütün mövsüm statistikalarını yenilə
+            try:
+                recalculate_all_season_stats()
+            except Exception as e:
+                print(f"Season stats recalculation error after match create: {e}")
             
             log_action(session.get('user_id'), 'CREATE', 'Match', m.id, {'home': m.home_team, 'away': m.away_team})
             
@@ -593,8 +655,8 @@ def api_matches():
             's2': m.away_score,
             'date': m.match_date.isoformat(),
             'season': m.season,
-            'type': m.type or 'Dostluq',
-
+            'type': normalize_match_type(m.type),
+            'mvp': mvp_name,
             'motm': mvp_name,
             'events': events
         })
@@ -614,6 +676,12 @@ def api_match_detail(id):
         match_info_for_log = {'home': match.home_team, 'away': match.away_team}
         db.session.delete(match)
         db.session.commit()
+
+        # Matç silindikdən sonra bütün mövsüm statistikalarını yenilə
+        try:
+            recalculate_all_season_stats()
+        except Exception as e:
+            print(f"Season stats recalculation error after match delete: {e}")
         
         log_action(session.get('user_id'), 'DELETE', 'Match', match_id_for_log, match_info_for_log)
         
@@ -626,6 +694,7 @@ def api_match_detail(id):
         match.home_score = data.get('s1', match.home_score)
         match.away_score = data.get('s2', match.away_score)
         match.season = data.get('season', match.season)
+        match.type = normalize_match_type(data.get('type', match.type))
         
         if data.get('date'):
              try:
@@ -633,16 +702,30 @@ def api_match_detail(id):
              except: pass
              
         # MVP update
-        if data.get('motm'):
-            p = Player.query.filter_by(name=data.get('motm')).first()
+        mvp_name = data.get('mvp') or data.get('motm')
+        if mvp_name:
+            p = Player.query.filter_by(name=mvp_name).first()
             if p: match.mvp_player_id = p.id
             
         # Re-create goals (events) - simpler to clear and re-add
         Goal.query.filter_by(match_id=match.id).delete()
         for ev in data.get('events', []):
-            scorer = Player.query.filter_by(name=ev.get('player')).first()
-            assist = Player.query.filter_by(name=ev.get('assist')).first() if ev.get('assist') else None
-            
+            scorer = None
+            assist = None
+
+            scorer_id = ev.get('player_id')
+            assist_id = ev.get('assist_id')
+
+            if scorer_id:
+                scorer = Player.query.get(scorer_id)
+            if not scorer and ev.get('player'):
+                scorer = Player.query.filter_by(name=ev.get('player')).first()
+
+            if assist_id:
+                assist = Player.query.get(assist_id)
+            if not assist and ev.get('assist'):
+                assist = Player.query.filter_by(name=ev.get('assist')).first()
+
             if scorer:
                 g = Goal(
                     match_id=match.id,
@@ -653,6 +736,12 @@ def api_match_detail(id):
                 db.session.add(g)
         
         db.session.commit()
+
+        # Matç yeniləndikdən sonra bütün mövsüm statistikalarını yenilə
+        try:
+            recalculate_all_season_stats()
+        except Exception as e:
+            print(f"Season stats recalculation error after match update: {e}")
         
         log_action(session.get('user_id'), 'UPDATE', 'Match', match.id, {'home': match.home_team, 'away': match.away_team})
         
@@ -686,6 +775,179 @@ def api_season_stats(player_id):
         'assists': [stat.assists for stat in season_stats],
         'matches': [stat.matches for stat in season_stats]
     })
+
+
+@app.route('/api/players/<int:player_id>/detail')
+def api_player_detail_full(player_id):
+    """Oyunçu üçün tam profil detalları"""
+    player = Player.query.get_or_404(player_id)
+
+    # Mövsüm statistikaları
+    season_stats = SeasonStats.query.filter_by(player_id=player_id).all()
+    total_goals = sum(s.goals or 0 for s in season_stats)
+    total_assists = sum(s.assists or 0 for s in season_stats)
+    total_matches = sum(s.matches or 0 for s in season_stats)
+    motm_count = sum(s.motm or 0 for s in season_stats if hasattr(s, 'motm'))
+
+    season_data = [
+        {
+            'season': s.season,
+            'matches': s.matches,
+            'goals': s.goals,
+            'assists': s.assists,
+            'motm': getattr(s, 'motm', 0)
+        }
+        for s in season_stats
+    ]
+
+    # Rating məlumatları
+    ratings_qs = PlayerRating.query.filter_by(player_id=player_id).all()
+    rating_count = len(ratings_qs)
+    avg_rating = round(
+        sum(r.rating for r in ratings_qs) / rating_count, 2
+    ) if rating_count > 0 else 0.0
+
+    user_rating = None
+    if 'user_id' in session:
+        ur = PlayerRating.query.filter_by(
+            player_id=player_id, user_id=session['user_id']
+        ).first()
+        if ur:
+            user_rating = ur.rating
+
+    # Şərhlər
+    comments_qs = (
+        PlayerComment.query.filter_by(player_id=player_id)
+        .order_by(PlayerComment.timestamp.desc())
+        .limit(10)
+        .all()
+    )
+    comments = [
+        {
+            'id': c.id,
+            'user': c.user.username if c.user else 'Anonim',
+            'comment': c.comment,
+            'timestamp': c.timestamp.isoformat()
+        }
+        for c in comments_qs
+    ]
+
+    # Sadə badge sistemi
+    badges = []
+    if total_goals >= 10:
+        badges.append('Goal Machine')
+    if total_assists >= 10:
+        badges.append('Playmaker')
+    if total_matches >= 20:
+        badges.append('Iron Man')
+    if motm_count >= 5:
+        badges.append('MOTM King')
+
+    return jsonify({
+        'id': player.id,
+        'name': player.name,
+        'num': player.jersey_number,
+        'age': player.age,
+        'height': player.height,
+        'weight': player.weight,
+        'position': player.position,
+        'team': player.team,
+        'preferred_foot': player.preferred_foot,
+        'photo_url': player.photo_url,
+        'overall_rating': player.overall_rating,
+        'stats': {
+            'pace': player.pace,
+            'shooting': player.shooting,
+            'passing': player.passing,
+            'dribbling': player.dribbling,
+            'defending': player.defending,
+            'physical': player.physical,
+        },
+        'seasonStats': season_data,
+        'totals': {
+            'matches': total_matches,
+            'goals': total_goals,
+            'assists': total_assists,
+            'motm': motm_count,
+        },
+        'ratings': {
+            'average': avg_rating,
+            'count': rating_count,
+            'user_rating': user_rating,
+        },
+        'comments': comments,
+        'badges': badges,
+    })
+
+
+@app.route('/api/players/<int:player_id>/rate', methods=['POST'])
+def api_player_rate(player_id):
+    """Oyunçu üçün reytinq (1–5) əlavə / yenilə"""
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Giriş tələb olunur'}), 401
+
+    player = Player.query.get_or_404(player_id)
+    data = request.json or {}
+    try:
+        rating_val = int(data.get('rating', 0))
+    except (TypeError, ValueError):
+        rating_val = 0
+
+    if rating_val < 1 or rating_val > 5:
+        return jsonify({'success': False, 'message': 'Reytinq 1-5 arası olmalıdır'}), 400
+
+    pr = PlayerRating.query.filter_by(
+        player_id=player.id, user_id=session['user_id']
+    ).first()
+    if not pr:
+        pr = PlayerRating(
+            player_id=player.id,
+            user_id=session['user_id'],
+            rating=rating_val
+        )
+        db.session.add(pr)
+    else:
+        pr.rating = rating_val
+
+    db.session.commit()
+
+    # Yeni ortalama
+    ratings_qs = PlayerRating.query.filter_by(player_id=player.id).all()
+    rating_count = len(ratings_qs)
+    avg_rating = round(
+        sum(r.rating for r in ratings_qs) / rating_count, 2
+    ) if rating_count > 0 else 0.0
+
+    return jsonify({
+        'success': True,
+        'average': avg_rating,
+        'count': rating_count,
+        'user_rating': rating_val,
+    })
+
+
+@app.route('/api/players/<int:player_id>/comment', methods=['POST'])
+def api_player_comment(player_id):
+    """Oyunçu üçün şərh əlavə et"""
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Giriş tələb olunur'}), 401
+
+    player = Player.query.get_or_404(player_id)
+    data = request.json or {}
+    comment_text = (data.get('comment') or '').strip()
+
+    if not comment_text:
+        return jsonify({'success': False, 'message': 'Şərh boş ola bilməz'}), 400
+
+    pc = PlayerComment(
+        player_id=player.id,
+        user_id=session['user_id'],
+        comment=comment_text
+    )
+    db.session.add(pc)
+    db.session.commit()
+
+    return jsonify({'success': True})
 
 @app.route('/api/dashboard/stats')
 def api_dashboard_stats():
@@ -981,12 +1243,42 @@ def admin_recalculate_stats():
     if not session.get('is_admin'):
         flash('⛔ Bu işlem için yönetici izniniz yok!', 'error')
         return redirect(url_for('login'))
-        
+
+    from sqlalchemy.exc import SQLAlchemyError
+
+    try:
+        success, message = recalculate_all_season_stats()
+        if success:
+            flash('Bütün mövsüm statistikaları uğurla hesablandı!', 'success')
+        else:
+            flash(f'Xəta baş verdi: {message}', 'error')
+    except SQLAlchemyError as e:
+        flash(f'Xəta baş verdi: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Xəta baş verdi: {str(e)}', 'error')
+
+    return redirect(url_for('admin_dashboard'))
+
+
+def recalculate_all_season_stats():
+    """
+    Bütün mövsüm statistikalarını Match və Goal cədvəlləri əsasında yenidən hesablayır.
+    Bu funksiya həm admin route-dan, həm də API-lərdən çağırıla bilər.
+    """
     try:
         players = Player.query.all()
         # Mövcud mövsümləri tapırıq
-        seasons = [s[0] for s in db.session.query(Match.season).filter(Match.season != None).distinct().all()]
-        
+        seasons = [
+            s[0]
+            for s in db.session.query(Match.season)
+            .filter(Match.season != None)
+            .distinct()
+            .all()
+        ]
+        match_types = sorted(
+            {normalize_match_type(t[0]) for t in db.session.query(Match.type).filter(Match.type != None).distinct().all()}
+        )
+
         for player in players:
             for season in seasons:
                 # Bu mövsümdə oyunçunun iştirak etdiyi matçlar
@@ -997,43 +1289,120 @@ def admin_recalculate_stats():
                         lineups = json.loads(m.lineups) if m.lineups else {}
                         if player.id in lineups.get('home', []) or player.id in lineups.get('away', []):
                             matches_count += 1
-                    except:
+                    except Exception:
                         continue
-                
+
                 # Qol sayı
-                goals_count = Goal.query.join(Match).filter(
-                    Match.season == season,
-                    Goal.scorer_id == player.id
-                ).count()
-                
+                goals_count = (
+                    Goal.query.join(Match)
+                    .filter(
+                        Match.season == season,
+                        Goal.scorer_id == player.id,
+                    )
+                    .count()
+                )
+
                 # Asist sayı
-                assists_count = Goal.query.join(Match).filter(
-                    Match.season == season,
-                    Goal.assist_id == player.id
-                ).count()
-                
+                assists_count = (
+                    Goal.query.join(Match)
+                    .filter(
+                        Match.season == season,
+                        Goal.assist_id == player.id,
+                    )
+                    .count()
+                )
+                mvp_count = (
+                    Match.query.filter(
+                        Match.season == season,
+                        Match.mvp_player_id == player.id,
+                    ).count()
+                )
+
                 # Mövsüm statistikalarını tap və ya yarat
-                s_stat = SeasonStats.query.filter_by(player_id=player.id, season=season).first()
+                s_stat = SeasonStats.query.filter_by(
+                    player_id=player.id, season=season
+                ).first()
                 if not s_stat:
                     s_stat = SeasonStats(player_id=player.id, season=season)
                     db.session.add(s_stat)
-                
+
                 s_stat.matches = matches_count
                 s_stat.goals = goals_count
                 s_stat.assists = assists_count
-        
+                s_stat.motm = mvp_count
+
+            for m_type in match_types:
+                type_values = match_type_variants(m_type)
+                type_matches = Match.query.filter(Match.type.in_(type_values)).all()
+                matches_count = 0
+                for m in type_matches:
+                    try:
+                        lineups = json.loads(m.lineups) if m.lineups else {}
+                        if player.id in lineups.get('home', []) or player.id in lineups.get('away', []):
+                            matches_count += 1
+                    except Exception:
+                        continue
+
+                goals_count = (
+                    Goal.query.join(Match)
+                    .filter(
+                        Match.type.in_(type_values),
+                        Goal.scorer_id == player.id,
+                    )
+                    .count()
+                )
+
+                assists_count = (
+                    Goal.query.join(Match)
+                    .filter(
+                        Match.type.in_(type_values),
+                        Goal.assist_id == player.id,
+                    )
+                    .count()
+                )
+                mvp_count = (
+                    Match.query.filter(
+                        Match.type.in_(type_values),
+                        Match.mvp_player_id == player.id,
+                    ).count()
+                )
+
+                t_stat = SeasonStats.query.filter_by(
+                    player_id=player.id, season=m_type
+                ).first()
+                if not t_stat:
+                    t_stat = SeasonStats(player_id=player.id, season=m_type)
+                    db.session.add(t_stat)
+
+                t_stat.matches = matches_count
+                t_stat.goals = goals_count
+                t_stat.assists = assists_count
+                t_stat.motm = mvp_count
+
         db.session.commit()
-        flash('Bütün mövsüm statistikaları uğurla hesablandı!', 'success')
+        return True, None
     except Exception as e:
         db.session.rollback()
-        flash(f'Xəta baş verdi: {str(e)}', 'error')
-        
-    return redirect(url_for('admin_dashboard'))
+        return False, str(e)
 
 # Database initialize et (həm lokal, həm production üçün)
 with app.app_context():
     try:
         db.create_all()
+        
+        # Create or update 'arena' admin user
+        admin = User.query.filter_by(username='arena').first()
+        if not admin:
+            admin = User(username='arena', is_admin=True)
+            admin.password = generate_password_hash('arena123')
+            db.session.add(admin)
+            print("Admin user 'arena' created.")
+        else:
+            admin.password = generate_password_hash('arena123')
+            admin.is_admin = True
+            print("Admin user 'arena' updated.")
+        
+        db.session.commit()
         # Production-da köhnə database varsa, yeni sütunları əlavə etmək üçün manual check
         from sqlalchemy import text
         try:
