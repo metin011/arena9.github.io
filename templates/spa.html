@@ -1581,10 +1581,38 @@
     /* === RESPONSIVE DESIGN (Mobile First) === */
     @media (max-width: 480px) {
       .home-hero-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        gap: 10px;
+        align-items: start;
       }
 
+      .home-panel {
+        padding: 12px;
+      }
+
+      #ana-sayfa .home-panel h3 {
+        font-size: 15px !important;
+        margin-bottom: 10px !important;
+        line-height: 1.2;
+      }
+
+      .mvp-boost-card {
+        padding: 8px;
+      }
+
+      .mvp-boost-card .card-frame {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 320 / 460;
+      }
+
+      .mvp-boost-card .potw-meta {
+        font-size: 11px;
+      }
+
+      #recent-matches-list .match-card {
+        margin-bottom: 6px !important;
+      }
       .page-container {
         padding: 55px 10px 170px 10px;
         min-height: calc(100vh - 72px);
@@ -1756,7 +1784,7 @@
                 font-size: 18px;
                 font-weight: 600;
               ">
-            <span class="material-symbols-outlined emoji-icon">sports_score</span> Qol Krall? (Top 5)
+            <span class="material-symbols-outlined emoji-icon">sports_score</span> Qol Krallığı (Top 5)
           </h3>
           <div id="top-goals-list"></div>
         </div>
@@ -1774,7 +1802,7 @@
                 font-size: 18px;
                 font-weight: 600;
               ">
-            <span class="material-symbols-outlined emoji-icon">track_changes</span> Asist Krall? (Top 5)
+            <span class="material-symbols-outlined emoji-icon">track_changes</span> Asist Krallığı (Top 5)
           </h3>
           <div id="top-assists-list"></div>
         </div>
@@ -1788,7 +1816,7 @@
             align-items: center;
             margin-bottom: 15px;
           ">
-        <h2>Matç Tarix??si</h2>
+        <h2>Matç Tarixçəsi</h2>
         <button class="admin-only" onclick="showMatchForm()" style="
               background: var(--primary-green);
               color: #000;
@@ -1903,7 +1931,7 @@
         </button>
         <button class="main-btn" onclick="downloadSquadImage()" style="width: auto; padding: 10px 20px;">
           <span class="material-symbols-outlined"
-            style="font-size: 18px; vertical-align: middle; margin-right: 5px;">download</span> Y?kl?
+            style="font-size: 18px; vertical-align: middle; margin-right: 5px;">download</span> Yüklə
         </button>
       </div>
       <div class="dream-help">
@@ -2019,7 +2047,7 @@
 
       <button class="main-btn" onclick="saveNewPlayer()">
         <span class="material-symbols-outlined"
-          style="font-size: 18px; vertical-align: middle; margin-right: 5px;">save</span> OYUN?UNU YADDA SAXLA
+          style="font-size: 18px; vertical-align: middle; margin-right: 5px;">save</span> OYUNÇUNU YADDA SAXLA
       </button>
     </div>
 
@@ -2043,7 +2071,7 @@
           <select id="stats-season-select"
             onchange="showStats(currentStatsType || 'gol')"
             style="background:#111; color:#fff; border:1px solid #333; border-radius:999px; padding:4px 10px; font-size:11px;">
-            <option value="ALL">Bütün mövsüml?r</option>
+            <option value="ALL">Bütün mövsümlər</option>
           </select>
         </div>
       </div>
@@ -2339,18 +2367,18 @@
   <!-- Login Modal -->
   <div id="login-modal" class="login-overlay" style="display: none;">
     <div class="login-box">
-      <h2 style="color: var(--primary-green); margin-bottom: 20px;">Admin Giri?i</h2>
-      <input type="text" id="login-user" placeholder="istifadı?i adı" style="margin-bottom: 10px;">
+      <h2 style="color: var(--primary-green); margin-bottom: 20px;">Admin Girişi</h2>
+      <input type="text" id="login-user" placeholder="istifadəçi adı" style="margin-bottom: 10px;">
       <input type="password" id="login-pass" placeholder="Şifrə" style="margin-bottom: 20px;">
-      <button class="main-btn" onclick="performLogin()">Giri?</button>
-      <button class="btn-secondary" style="margin-top: 10px; width: 100%;" onclick="closeLogin()">Ba?la</button>
+      <button class="main-btn" onclick="performLogin()">Giriş</button>
+      <button class="btn-secondary" style="margin-top: 10px; width: 100%;" onclick="closeLogin()">Bağla</button>
     </div>
   </div>
 
 
   <div id="confirm-modal" class="modal-overlay">
     <div class="modal-content">
-      <div class="modal-title">T?sdiq</div>
+      <div class="modal-title">Təsdiq</div>
       <div class="modal-text" id="confirm-text"></div>
       <div class="modal-buttons">
         <button class="modal-btn secondary" onclick="closeConfirmModal()">
@@ -2483,7 +2511,7 @@
 
       if (data.success) {
         isAdmin = true;
-        showToast("Xo? g?ldiniz!", "success");
+        showToast("Xoş gəldiniz!", "success");
         document.getElementById('login-modal').style.display = 'none';
         updateAdminUI();
       } else {
@@ -2576,7 +2604,7 @@
       const age = document.getElementById("new-p-age").value;
 
       if (!name) {
-        showToast("Oyunçu adı boş ola bilm?z!", "error");
+        showToast("Oyunçu adı boş ola bilməz!", "error");
         return false;
       }
       if (name.length < 2) {
@@ -2584,7 +2612,7 @@
         return false;
       }
       if (age < 10 || age > 50) {
-        showToast("Yaş 10 il? 50 aras?nda olmalıdır!", "error");
+        showToast("Yaş 10 ilə 50 arasında olmalıdır!", "error");
         return false;
       }
       return true;
@@ -2763,7 +2791,7 @@
       a.download = `Arena9_${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast("Məlumatlar y?kl?ndi", "success");
+      showToast("Məlumatlar yükləndi", "success");
     }
 
 
@@ -2824,7 +2852,7 @@
       if (newPhoto) photoUrl = newPhoto;
 
       if (!isEditMode && players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
-        showToast("Bu oyun?u zaten m?vcuddur!", "error");
+        showToast("Bu oyunçu artıq mövcuddur!", "error");
         return;
       }
 
@@ -2918,7 +2946,7 @@
         list.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">group</span></div>
-              <div class="empty-state-text">Hələ oyun?u yoxdur</div>
+              <div class="empty-state-text">Hələ oyunçu yoxdur</div>
               <div style="margin-top: 15px;">
                 <button class="main-btn" style="max-width: 200px; margin: 0 auto;" onclick="showAddPlayerForm()">
                   + Oyunçu Əlavə Et
@@ -2958,7 +2986,7 @@
         list.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">search</span></div>
-              <div class="empty-state-text">Oyunçu tap?lmadı</div>
+              <div class="empty-state-text">Oyunçu tapılmadı</div>
             </div>
           `;
         return;
@@ -3099,12 +3127,12 @@
       renderLatestMvpCard();
       if (matches.length === 0) {
         list.innerHTML =
-          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ mat? yoxdur</div>';
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ matç yoxdur</div>';
         return;
       }
       const recent = [...matches]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
+                .slice(0, (window.innerWidth <= 480 ? 3 : 5));
       list.innerHTML = recent
         .map(
           (m) => `
@@ -3275,7 +3303,7 @@
             <div style="font-size:13px;font-weight:600;">
               Reytinq
               <span style="font-size:11px;color:var(--text-gray);margin-left:4px;">
-                (${count} s?s)
+                (${count} səs)
               </span>
             </div>
             <div style="font-size:18px;font-weight:700;color:#ffd700;">
@@ -3292,14 +3320,14 @@
 
         <div class="stat-card" style="margin-bottom:0;">
           <div style="font-size:13px;font-weight:600;margin-bottom:6px;">
-            Badge-l?r
+            Badge-lər
           </div>
           <div>${badgesHtml}</div>
         </div>
 
         <div class="stat-card" style="margin-bottom:0;">
           <div style="font-size:13px;font-weight:600;margin-bottom:6px;">
-            ??rhl?r
+            Şərhlər
           </div>
           <div id="player-comments" style="max-height:200px;overflow-y:auto;margin-bottom:8px;">
             ${commentsHtml}
@@ -3309,7 +3337,7 @@
               style="width:100%;border-radius:8px;border:1px solid #333;
                 background:#000;padding:6px 8px;font-size:12px;color:#fff;resize:none;"></textarea>
             <button id="comment-send-btn" class="main-btn" style="margin-top:6px;width:100%;padding:6px 0;font-size:13px;">
-              ??rh g?nd?r
+              Şərh göndər
             </button>
           </div>
         </div>
@@ -3345,7 +3373,7 @@
           sendBtn.addEventListener("click", async () => {
             const text = commentInput.value.trim();
             if (!text) {
-              showToast("Şərh boş ola bilm?z", "error");
+              showToast("Şərh boş ola bilməz", "error");
               return;
             }
             try {
@@ -3383,7 +3411,7 @@
         });
         const data = await res.json();
         if (!data.success) {
-          showToast(data.message || "Şərh silinm?di", "error");
+          showToast(data.message || "Şərh silinmədi", "error");
           return;
         }
         showToast("rh silindi", "success");
@@ -3810,7 +3838,7 @@
           body: JSON.stringify(payload)
         });
         if (res.ok) {
-          showToast("Profil statistikalar? yadda saxlan?ld? âœ“", "success");
+          showToast("Profil statistikaları yadda saxlanıldı ✓", "success");
           isEditMode = false;
           viewProfile(currentPlayerIndex);
           document.getElementById("edit-header-btn").innerHTML = '<span class="material-symbols-outlined">edit</span>';
@@ -3824,7 +3852,7 @@
 
     function toggleEdit() {
       if (currentPage === "player-profile") {
-        // Profil g?r?n?nd?ki edit d?ym?si:
+        // Profil görünəndəki edit düyməsi:
         // Məlumatları "edit-page" xüsusi redaktə ekranında açırıq
         if (typeof openEditPage === "function") {
           openEditPage(currentPlayerIndex);
@@ -3844,7 +3872,7 @@
       if (!select) return;
 
       // Mövcud options-u təmizlə, "ALL" saxla
-      select.innerHTML = `<option value="ALL">Bütün mövsüml?r</option>`;
+      select.innerHTML = `<option value="ALL">Bütün mövsümlər</option>`;
       seasonOptions.forEach((s) => {
         const opt = document.createElement("option");
         opt.value = s;
@@ -4010,7 +4038,7 @@
         try {
           const res = await fetch(`/api/matches/${m.id}`, { method: 'DELETE' });
           if (res.ok) {
-            showToast("Matç silindi âœ“", "success");
+            showToast("Matç silindi ✓", "success");
             fetchAllData();
           } else {
             const data = await res.json();
@@ -4037,7 +4065,7 @@
       const assistInput = document.getElementById("event_assist_manual").value.trim();
 
       if (!playerInput) {
-        showToast("Oyunçu adın? daxil edin!", "error");
+        showToast("Oyunçu adını daxil edin!", "error");
         return;
       }
 
@@ -4045,7 +4073,7 @@
       const awayName = document.getElementById("match_input_away").value;
       const team = teamLabel === homeName ? "home" : "away";
 
-      // Ad? siyah?dak? oyun?ulardan biri il? uy?unla?d?r (?g?r varsa)
+      // Adı siyahıdakı oyunçulardan biri ilə uyğunlaşdır (əgər varsa)
       const foundPlayer = players.find(
         (p) => p.name.toLowerCase() === playerInput.toLowerCase()
       );
@@ -4120,7 +4148,7 @@
 
         season: document.getElementById("m_season").value,
         mvp: document.getElementById("match_mvp").value,
-        // Bütün event m?lumat?n? backend-? ke?irik (player_id il? birlikd?)
+        // Bütün event məlumatını backend-ə keçiririk (player_id ilə birlikdə)
         events: [...tempEvents],
       };
 
@@ -4141,7 +4169,7 @@
         const data = await res.json();
 
         if (data.success) {
-          showToast(isEditMode ? "Matç yenil?ndi! âœ“" : "Matç u?urla saxlan?ld?! âœ“", "success");
+          showToast(isEditMode ? "Matç yeniləndi! ✓" : "Matç uğurla saxlanıldı! ✓", "success");
           isEditMode = false;
           currentMatchId = null;
           fetchAllData(); // key: refresh all data from backend
@@ -4167,7 +4195,7 @@
         list.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">sports_soccer</span></div>
-              <div class="empty-state-text">Hələ mat? yoxdur</div>
+              <div class="empty-state-text">Hələ matç yoxdur</div>
               <div style="margin-top: 15px;">
                 <button class="main-btn" style="max-width: 200px; margin: 0 auto;" onclick="showMatchForm()">
                   <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">add_circle</span> Yeni Matç
@@ -4239,8 +4267,8 @@
           <!-- Match Header -->
           <div style="background: linear-gradient(135deg, var(--card-gray) 0%, var(--bg-dark) 100%); padding: 20px; border-radius: 16px; margin-bottom: 18px; box-shadow: var(--shadow);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12px; color:var(--text-gray);">
-              <span>${match.type} â€¢ ${match.season}</span>
-              <span>ðŸ“… ${new Date(match.date).toLocaleString("az-AZ")}</span>
+              <span>${match.type} • ${match.season}</span>
+              <span>📅 ${new Date(match.date).toLocaleString("az-AZ")}</span>
             </div>
             <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
               <div style="flex:1; text-align:left;">
@@ -4606,7 +4634,7 @@
       const select = document.getElementById('formation-select');
       select.innerHTML = formationConfig[size].map(f => `<option value="${f.val}">${f.text}</option>`).join('');
       const badge = document.getElementById("squad-meta-badge");
-      if (badge) badge.textContent = `${size}v${size} â€¢ ${select.value}`;
+      if (badge) badge.textContent = `${size}v${size} • ${select.value}`;
       changeFormation();
     }
 
@@ -4711,7 +4739,7 @@
       const badge = document.getElementById("squad-meta-badge");
       if (badge) {
         const size = document.getElementById("team-size-select")?.value || "5";
-        badge.textContent = `${size}v${size} â€¢ ${currentFormation}`;
+        badge.textContent = `${size}v${size} • ${currentFormation}`;
       }
       const container = document.getElementById("formation-layer");
       container.innerHTML = "";
@@ -4758,7 +4786,7 @@
                   ${getDreamAvatarHtml(p, 40)}
                   <div>
                     <div style="font-weight: bold;">${p.name}</div>
-                    <div style="font-size: 12px; color: #888;">Nömrə: ${p.num}${inUse ? " â€¢ Seçilib" : ""}</div>
+                    <div style="font-size: 12px; color: #888;">Nömrə: ${p.num}${inUse ? " • Seçilib" : ""}</div>
                   </div>
                 </div>
               `;
@@ -4776,7 +4804,7 @@
       const playerKey = getDreamTeamPlayerKey(player);
       const occupiedSlot = getDreamTeamAssignedSlot(playerKey, selectedSlotId);
       if (occupiedSlot) {
-        showToast("Bu oyun?u art?q hey?td? se?ilib.", "error");
+        showToast("Bu oyunçu artıq heyətdə seçilib.", "error");
         return;
       }
 
@@ -4806,7 +4834,7 @@
     }
 
     function resetDreamTeam() {
-      if (!confirm("Dream Team sifirlansin?")) return;
+      if (!confirm("Dream Team sıfırlansın?")) return;
       dreamTeamState.assignments = {};
       const subs = document.getElementById("substitutes-container");
       if (subs) subs.innerHTML = "";
@@ -4881,7 +4909,7 @@
               align-items: center;
             ">
           <h2 id="modal-title" style="margin: 0; color: var(--primary-green); margin-right: 10px">
-            Matç Detallar?
+            Matç Detalları
           </h2>
           <button onclick="closeMatchModal()" style="
                 background: var(--danger-red);
@@ -4892,7 +4920,7 @@
                 cursor: pointer;
               ">
             <span class="material-symbols-outlined"
-              style="font-size: 18px; vertical-align: middle; margin-right: 4px;">close</span> Ba?la
+              style="font-size: 18px; vertical-align: middle; margin-right: 4px;">close</span> Bağla
           </button>
         </div>
         <div id="modal-content" style="padding: 24px"></div>
@@ -4902,6 +4930,10 @@
 </body>
 
 </html>
+
+
+
+
 
 
 
