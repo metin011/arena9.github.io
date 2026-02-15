@@ -639,8 +639,8 @@
 
     .card-frame {
       position: relative;
-      width: 320px;
-      height: 460px;
+      width: 300px;
+      height: 430px;
       background: #0a0a0a;
       border: 3px solid rgba(31, 249, 86, 0.65);
       overflow: hidden;
@@ -678,7 +678,7 @@
       writing-mode: vertical-rl;
       text-orientation: mixed;
       transform: rotate(-6deg);
-      font-size: 24px;
+      font-size: 22px;
       line-height: 0.9;
       letter-spacing: 0;
       color: #1ff956;
@@ -717,7 +717,7 @@
       writing-mode: vertical-rl;
       text-orientation: mixed;
       transform: rotate(-6deg);
-      font-size: 16px;
+      font-size: 14px;
       line-height: 0.9;
       color: rgba(31, 249, 86, 0.86);
       font-weight: 900;
@@ -825,11 +825,11 @@
     }
 
     .card-rating-block .rating {
-      font-size: 60px;
+      font-size: 54px;
     }
 
     .card-rating-block .position {
-      font-size: 40px;
+      font-size: 34px;
       margin-top: 4px;
     }
 
@@ -846,7 +846,7 @@
     }
 
     .player-name-ribbon .name {
-      font-size: 34px;
+      font-size: 30px;
       color: #fff;
       font-weight: 900;
       line-height: 0.9;
@@ -946,8 +946,8 @@
       bottom: -5px;
       left: 50%;
       transform: translateX(-50%);
-      width: 240px;
-      height: 80px;
+      width: 220px;
+      height: 72px;
       background: #000;
       border: 2px solid rgba(31, 249, 86, 0.55);
       border-radius: 20px 20px 0 0;
@@ -1581,7 +1581,7 @@
     /* === RESPONSIVE DESIGN (Mobile First) === */
     @media (max-width: 480px) {
       .home-hero-grid {
-        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
         align-items: start;
       }
@@ -1598,16 +1598,135 @@
 
       .mvp-boost-card {
         padding: 8px;
+        overflow: hidden;
       }
 
       .mvp-boost-card .card-frame {
         width: 100%;
         height: auto;
         aspect-ratio: 320 / 460;
+        border-width: 2px;
+      }
+
+      .mvp-boost-card .card-rating-block {
+        left: 8px;
+        top: 8px;
+        letter-spacing: 0;
+      }
+
+      .mvp-boost-card .card-rating-block .rating {
+        font-size: 40px;
+        line-height: 0.82;
+      }
+
+      .mvp-boost-card .card-rating-block .position {
+        font-size: 24px;
+        margin-top: 2px;
+      }
+
+      .mvp-boost-card .player-name-ribbon {
+        left: 8px;
+        right: 8px;
+        bottom: 48px;
+        padding: 3px 6px 2px;
+        border-left-width: 2px;
+      }
+
+      .mvp-boost-card .player-name-ribbon .name {
+        font-size: 18px;
+      }
+
+      .mvp-boost-card .text-potw-main {
+        right: 4px;
+        top: 12px;
+        font-size: 12px;
+        line-height: 0.95;
+        max-height: 72%;
+      }
+
+      .mvp-boost-card .text-potw-sub {
+        right: 16px;
+        top: 112px;
+        font-size: 8px;
+        letter-spacing: 0.4px;
+      }
+
+      .mvp-boost-card .text-season {
+        right: 8px;
+        top: 172px;
+        font-size: 10px;
+      }
+
+      .mvp-boost-card .chevron-container {
+        left: 4px;
+        bottom: 46px;
+        gap: 4px;
+      }
+
+      .mvp-boost-card .chevron {
+        width: 34px;
+        height: 22px;
+      }
+
+      .mvp-boost-card .chevron::before,
+      .mvp-boost-card .chevron::after {
+        width: 19px;
+        height: 6px;
+      }
+
+      .mvp-boost-card .chevron::before {
+        left: 3px;
+      }
+
+      .mvp-boost-card .chevron::after {
+        right: 3px;
+      }
+
+      .mvp-boost-card .black-stripe {
+        bottom: 64px;
+        height: 22px;
+      }
+
+      .mvp-boost-card .bottom-panel {
+        width: 150px;
+        height: 54px;
+        border-radius: 14px 14px 0 0;
+      }
+
+      .mvp-boost-card .hexagon-logo {
+        margin-top: 3px;
+      }
+
+      .mvp-boost-card .hexagon-logo svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .mvp-boost-card .stars-row {
+        font-size: 12px;
+        letter-spacing: 1px;
+      }
+
+      .mvp-boost-card .efootball-logo {
+        left: 10px;
+        bottom: 10px;
+        transform: scale(0.65);
+        transform-origin: left bottom;
+      }
+
+      .mvp-boost-card .outer-border {
+        border-width: 4px;
+      }
+
+      .mvp-boost-card .card-frame::before,
+      .mvp-boost-card .card-frame::after {
+        width: 56px;
+        height: 16px;
       }
 
       .mvp-boost-card .potw-meta {
-        font-size: 11px;
+        font-size: 10px;
+        margin-top: 6px;
       }
 
       #recent-matches-list .match-card {
@@ -1701,6 +1820,33 @@
       }
 
       .season-table table {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .mvp-boost-card .card-rating-block .rating {
+        font-size: 34px;
+      }
+
+      .mvp-boost-card .card-rating-block .position {
+        font-size: 20px;
+      }
+
+      .mvp-boost-card .player-name-ribbon .name {
+        font-size: 16px;
+      }
+
+      .mvp-boost-card .text-potw-sub {
+        display: none;
+      }
+
+      .mvp-boost-card .text-season {
+        top: 146px;
+        font-size: 8px;
+      }
+
+      .mvp-boost-card .text-potw-main {
         font-size: 10px;
       }
     }
