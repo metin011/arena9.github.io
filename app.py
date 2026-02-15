@@ -949,6 +949,18 @@ def api_player_comment(player_id):
 
     return jsonify({'success': True})
 
+
+@app.route('/api/players/comments/<int:comment_id>', methods=['DELETE'])
+def api_player_comment_delete(comment_id):
+    """Admin: oyunçu şərhini sil"""
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'İcazə yoxdur'}), 403
+
+    comment = PlayerComment.query.get_or_404(comment_id)
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({'success': True})
+
 @app.route('/api/dashboard/stats')
 def api_dashboard_stats():
     """Dashboard statistikaları"""

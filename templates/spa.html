@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="az">
 
 <head>
@@ -65,22 +65,59 @@
 
 
     /* Dream Team Pitch Styles */
+    .squad-capture {
+      background:
+        radial-gradient(circle at 20% 0%, rgba(31, 249, 86, 0.16), transparent 40%),
+        linear-gradient(180deg, #0a140d 0%, #070c09 100%);
+      border: 1px solid rgba(31, 249, 86, 0.28);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .squad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .squad-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #d5ffe0;
+      text-transform: uppercase;
+    }
+
+    .squad-meta {
+      font-size: 11px;
+      color: rgba(214, 255, 223, 0.7);
+      border: 1px solid rgba(31, 249, 86, 0.35);
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(31, 249, 86, 0.08);
+    }
+
     .pitch-container {
       position: relative;
-      width: 100%;
-      max-width: 600px;
-      aspect-ratio: 2/3;
-      background: #1a3c2a;
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
+      width: min(100%, 420px);
+      aspect-ratio: 3 / 4.2;
+      background:
+        linear-gradient(180deg, #1f673a 0%, #174f2f 100%);
+      border: 2px solid rgba(222, 255, 234, 0.28);
+      border-radius: 18px;
       margin: 0 auto;
       overflow: hidden;
-      background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0, rgba(255, 255, 255, 0.02) 10%, transparent 10%, transparent 20%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0, rgba(255, 255, 255, 0.045) 9%, transparent 9%, transparent 18%);
     }
 
     .pitch-line {
       position: absolute;
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 1.6px solid rgba(255, 255, 255, 0.34);
     }
 
     .center-circle {
@@ -110,10 +147,17 @@
       border-bottom: none;
     }
 
+    .pitch-midline {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      border-top: 1.5px solid rgba(255, 255, 255, 0.32);
+    }
+
     .player-spot {
       position: absolute;
-      width: 60px;
-      height: 60px;
+      width: 54px;
+      height: 54px;
       transform: translate(-50%, -50%);
       cursor: pointer;
       z-index: 10;
@@ -141,10 +185,10 @@
 
 
     .player-icon {
-      width: 48px;
-      height: 48px;
-      background: rgba(0, 0, 0, 0.6);
-      border: 2px dashed rgba(255, 255, 255, 0.2);
+      width: 44px;
+      height: 44px;
+      background: rgba(6, 16, 10, 0.7);
+      border: 1.8px dashed rgba(255, 255, 255, 0.3);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -153,10 +197,10 @@
 
     .player-spot.filled .player-icon {
       border-style: solid;
-      border-color: #10b981;
-      background: #10b981;
+      border-color: #1ff956;
+      background: rgba(31, 249, 86, 0.16);
       color: black;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 14px rgba(31, 249, 86, 0.3);
     }
 
     .player-spot-name {
@@ -167,10 +211,24 @@
       white-space: nowrap;
       font-size: 10px;
       font-weight: bold;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(2, 8, 5, 0.72);
       padding: 2px 6px;
       border-radius: 4px;
       margin-top: 4px;
+    }
+
+    .substitutes-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .dream-help {
+      text-align: center;
+      margin-top: 10px;
+      color: #92a39a;
+      font-size: 11px;
     }
 
     /* Login Modal */
@@ -419,11 +477,17 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
-      padding-bottom: 80px;
+      padding-bottom: 160px;
+      min-height: calc(100vh - 72px);
     }
 
     .page {
       display: none;
+      min-height: calc(100vh - 260px);
+    }
+
+    #bottom-nav-wrap {
+      bottom: -8px;
     }
 
     .active-page {
@@ -540,6 +604,464 @@
       font-weight: 700;
       width: 40px;
       font-size: 16px;
+    }
+
+    .home-hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+      align-items: stretch;
+    }
+
+    .home-panel {
+      background: var(--card-gray);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(31, 249, 86, 0.12);
+    }
+
+    .mvp-boost-card {
+      min-height: 100%;
+      padding: 12px;
+      background: #060606;
+      border: 1px solid rgba(31, 249, 86, 0.45);
+      box-shadow: 0 0 22px rgba(31, 249, 86, 0.18);
+    }
+
+    .card-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    .card-frame {
+      position: relative;
+      width: 320px;
+      height: 460px;
+      background: #0a0a0a;
+      border: 3px solid rgba(31, 249, 86, 0.65);
+      overflow: hidden;
+      box-shadow: 0 0 18px rgba(31, 249, 86, 0.18), 0 12px 22px rgba(0, 0, 0, 0.35);
+      font-family: 'Oswald', 'Arial Black', sans-serif;
+    }
+
+    .bg-gray-left {
+      position: absolute;
+      top: 0;
+      left: -50px;
+      width: 150px;
+      height: 100%;
+      background-color: #5e6661;
+      transform: skewX(-15deg);
+      z-index: 1;
+    }
+
+    .bg-white-center {
+      position: absolute;
+      top: 0;
+      left: 80px;
+      width: 220px;
+      height: 100%;
+      background-color: #fff;
+      transform: skewX(-15deg);
+      z-index: 1;
+    }
+
+    .text-potw-main {
+      position: absolute;
+      right: 8px;
+      top: 20px;
+      z-index: 9;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(-6deg);
+      font-size: 24px;
+      line-height: 0.9;
+      letter-spacing: 0;
+      color: #1ff956;
+      text-shadow: 0 0 8px rgba(31, 249, 86, 0.25), 0 3px 7px rgba(0, 0, 0, 0.35);
+      font-weight: 900;
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+      max-height: 85%;
+      overflow: hidden;
+    }
+
+    .text-potw-sub {
+      position: absolute;
+      right: 36px;
+      top: 200px;
+      z-index: 9;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(-6deg);
+      font-size: 12px;
+      line-height: 1;
+      color: rgba(31, 249, 86, 0.9);
+      font-weight: 900;
+      letter-spacing: 1px;
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .text-season {
+      position: absolute;
+      right: 18px;
+      top: 286px;
+      z-index: 9;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(-6deg);
+      font-size: 16px;
+      line-height: 0.9;
+      color: rgba(31, 249, 86, 0.86);
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .chevron-container {
+      position: absolute;
+      left: 10px;
+      bottom: 40px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      z-index: 7;
+    }
+
+    .chevron {
+      width: 60px;
+      height: 40px;
+      position: relative;
+      filter: drop-shadow(2px 3px 0 rgba(16, 120, 54, 0.55));
+    }
+
+    .chevron::before,
+    .chevron::after {
+      content: "";
+      position: absolute;
+      width: 35px;
+      height: 10px;
+      background: rgba(31, 249, 86, 0.85);
+    }
+
+    .chevron::before {
+      transform: rotate(45deg);
+      left: 5px;
+    }
+
+    .chevron::after {
+      transform: rotate(-45deg);
+      right: 5px;
+    }
+
+    .black-stripe {
+      position: absolute;
+      bottom: 100px;
+      width: 120%;
+      height: 40px;
+      background: rgba(12, 14, 13, 0.82);
+      transform: rotate(-10deg) translateX(-10%);
+      z-index: 8;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
+    }
+
+    .player-photo-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      overflow: hidden;
+    }
+
+    .player-photo-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      filter: saturate(1.1) contrast(1.08);
+    }
+
+    .player-photo-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 25%, #3a3a3a, #0d0d0d 70%);
+      color: #f3f3f3;
+      font-size: 22px;
+      font-weight: 800;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .player-photo-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      background:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.08) 35%, rgba(0, 0, 0, 0.45)),
+        radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.3), transparent 40%);
+    }
+
+    .card-rating-block {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      z-index: 9;
+      color: #fff;
+      line-height: 0.9;
+      font-weight: 900;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      letter-spacing: -1px;
+    }
+
+    .card-rating-block .rating {
+      font-size: 60px;
+    }
+
+    .card-rating-block .position {
+      font-size: 40px;
+      margin-top: 4px;
+    }
+
+    .player-name-ribbon {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 70px;
+      z-index: 12;
+      transform: rotate(-6deg);
+      background: rgba(0, 0, 0, 0.5);
+      border-left: 3px solid rgba(31, 249, 86, 0.75);
+      padding: 6px 10px 4px;
+    }
+
+    .player-name-ribbon .name {
+      font-size: 34px;
+      color: #fff;
+      font-weight: 900;
+      line-height: 0.9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    .potw-player-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 2;
+    }
+
+    .potw-photo-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.95);
+      z-index: 2;
+      background: radial-gradient(circle at 60% 40%, #222 0%, #050505 65%);
+    }
+
+    .potw-vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.08) 35%, rgba(0, 0, 0, 0.55) 100%),
+        radial-gradient(circle at 20% 20%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.75) 72%);
+    }
+
+    .potw-rating {
+      position: absolute;
+      left: 18px;
+      top: 14px;
+      z-index: 9;
+      color: #fff;
+      line-height: 0.95;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .potw-rating .num {
+      font-size: 82px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+
+    .potw-rating .pos {
+      margin-top: 6px;
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .potw-name-banner {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 78px;
+      z-index: 12;
+      background: rgba(0, 0, 0, 0.58);
+      transform: rotate(-6deg);
+      padding: 4px 12px;
+      border-left: 4px solid #00ff00;
+    }
+
+    .potw-name-banner .name {
+      color: #fff;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .efootball-logo {
+      position: absolute;
+      bottom: 20px;
+      left: 40px;
+      z-index: 10;
+      opacity: 0.9;
+    }
+
+    .bottom-panel {
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 80px;
+      background: #000;
+      border: 2px solid rgba(31, 249, 86, 0.55);
+      border-radius: 20px 20px 0 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    }
+
+    .panel-top-glow {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(31, 249, 86, 0.7);
+      box-shadow: 0 0 10px rgba(31, 249, 86, 0.4);
+    }
+
+    .hexagon-logo {
+      margin-top: 5px;
+      filter: drop-shadow(0 0 4px rgba(31, 249, 86, 0.45));
+    }
+
+    .stars-row {
+      color: #ffeb3b;
+      font-size: 20px;
+      letter-spacing: 2px;
+      margin-top: 2px;
+      line-height: 1;
+    }
+
+    .outer-border {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 6px solid rgba(31, 249, 86, 0.5);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .card-frame::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 30px;
+      background: rgba(31, 249, 86, 0.7);
+      clip-path: polygon(0 100%, 100% 100%, 0 0);
+      z-index: 15;
+    }
+
+    .card-frame::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100px;
+      height: 30px;
+      background: rgba(31, 249, 86, 0.7);
+      clip-path: polygon(0 100%, 100% 100%, 100% 0);
+      z-index: 15;
+    }
+
+    .mvp-boost-rating {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 8px;
+      justify-content: center;
+    }
+
+    .mvp-boost-value {
+      font-size: 40px;
+      line-height: 1;
+      font-weight: 900;
+      color: var(--gold);
+      text-shadow: 0 0 16px rgba(255, 215, 0, 0.25);
+      letter-spacing: -1px;
+    }
+
+    .mvp-boost-plus {
+      font-size: 12px;
+      color: #0a0a0a;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 249, 86, 0.55);
+      background: rgba(31, 249, 86, 0.72);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .potw-meta {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .potw-side-title {
+      position: absolute;
+      right: 2px;
+      top: 18px;
+      z-index: 9;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      color: #00ff00;
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 0.85;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
     }
 
     .rating-box {
@@ -1058,8 +1580,14 @@
 
     /* === RESPONSIVE DESIGN (Mobile First) === */
     @media (max-width: 480px) {
+      .home-hero-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
       .page-container {
-        padding: 55px 10px 80px 10px;
+        padding: 55px 10px 170px 10px;
+        min-height: calc(100vh - 72px);
       }
 
       .header-logo {
@@ -1075,8 +1603,8 @@
       }
 
       .pitch-container {
-        height: 350px;
-        width: 100%;
+        width: min(100%, 340px);
+        aspect-ratio: 3 / 4.3;
         margin: 0 auto;
       }
 
@@ -1180,26 +1708,37 @@
     </div>
   </header>
 
+  <input type="file" id="quick-photo-input" accept="image/*" style="display:none" onchange="handleQuickPhotoUpload()">
+
 
   <div class="page-container">
     <div id="ana-sayfa" class="page active-page">
-      <!-- Recent Matches Section -->
-      <div style="
-            background: var(--card-gray);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 24px;
-          ">
-        <h3 style="
-              color: var(--primary-green);
-              margin: 0 0 16px 0;
-              font-size: 18px;
-              font-weight: 600;
-            ">
-          <span class="material-symbols-outlined emoji-icon">sports_soccer</span> Son Matçlar
-        </h3>
-        <div id="recent-matches-list"></div>
+      <div class="home-hero-grid">
+        <!-- Recent Matches Section -->
+        <div class="home-panel">
+          <h3 style="
+                color: var(--primary-green);
+                margin: 0 0 16px 0;
+                font-size: 18px;
+                font-weight: 600;
+              ">
+            <span class="material-symbols-outlined emoji-icon">sports_soccer</span> Son Matçlar
+          </h3>
+          <div id="recent-matches-list"></div>
+        </div>
+
+        <!-- Latest Match MVP -->
+        <div class="home-panel mvp-boost-card">
+          <h3 style="
+                color: var(--gold);
+                margin: 0 0 16px 0;
+                font-size: 18px;
+                font-weight: 700;
+              ">
+            <span class="material-symbols-outlined emoji-icon" style="color: var(--gold);">star</span> Son Matç MVP
+          </h3>
+          <div id="latest-mvp-card"></div>
+        </div>
       </div>
 
       <!-- Top Rankings Section -->
@@ -1217,7 +1756,7 @@
                 font-size: 18px;
                 font-weight: 600;
               ">
-            <span class="material-symbols-outlined emoji-icon">sports_score</span> Qol Krallığı (Top 5)
+            <span class="material-symbols-outlined emoji-icon">sports_score</span> Qol Krall? (Top 5)
           </h3>
           <div id="top-goals-list"></div>
         </div>
@@ -1235,7 +1774,7 @@
                 font-size: 18px;
                 font-weight: 600;
               ">
-            <span class="material-symbols-outlined emoji-icon">track_changes</span> Asist Krallığı (Top 5)
+            <span class="material-symbols-outlined emoji-icon">track_changes</span> Asist Krall? (Top 5)
           </h3>
           <div id="top-assists-list"></div>
         </div>
@@ -1249,7 +1788,7 @@
             align-items: center;
             margin-bottom: 15px;
           ">
-        <h2>Matç Tarixçəsi</h2>
+        <h2>Matç Tarix??si</h2>
         <button class="admin-only" onclick="showMatchForm()" style="
               background: var(--primary-green);
               color: #000;
@@ -1261,6 +1800,20 @@
           + Yeni Matç
         </button>
 
+      </div>
+      <div style="display:flex; justify-content:flex-end; margin-bottom: 12px;">
+        <select id="match-season-filter" onchange="renderMatches()" style="
+              width: auto;
+              min-width: 150px;
+              padding: 8px 10px;
+              font-size: 12px;
+              background: #111;
+              color: #fff;
+              border: 1px solid #2b2b2b;
+              border-radius: 8px;
+            ">
+          <option value="ALL">Bütün sezonlar</option>
+        </select>
       </div>
       <div id="match-list"></div>
     </div>
@@ -1319,20 +1872,23 @@
       </div>
 
       <!-- Capture Area -->
-      <div id="squad-capture-area" style="background: var(--bg-dark); padding: 10px; border-radius: 10px;">
+      <div id="squad-capture-area" class="squad-capture">
+        <div class="squad-header">
+          <div class="squad-title">Arena9 Dream Team</div>
+          <div class="squad-meta" id="squad-meta-badge">Formasiya</div>
+        </div>
         <div class="pitch-container" id="pitch-container">
           <div class="pitch-line center-circle"></div>
           <div class="pitch-line penalty-area-top"></div>
           <div class="pitch-line penalty-area-bottom"></div>
-          <div class="absolute top-1/2 left-0 right-0 border-t-2 border-white/20"
-            style="position: absolute; top:50%; width:100%; border-top: 1px solid rgba(255,255,255,0.2);"></div>
+          <div class="pitch-midline"></div>
           <div id="formation-layer"></div>
         </div>
 
-        <div id="substitutes-section" style="margin-top: 20px;">
+        <div id="substitutes-section" style="margin-top: 14px;">
           <h3 style="color: var(--text-gray); font-size: 14px; margin-bottom: 10px; text-align: center;">Ehtiyat
             Oyunçular</h3>
-          <div id="substitutes-container" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+          <div id="substitutes-container" class="substitutes-grid">
             <!-- Substitutes will be added here -->
           </div>
         </div>
@@ -1342,13 +1898,16 @@
         <button class="btn-secondary" onclick="addSubstituteSlot()">
           + Ehtiyat Əlavə Et
         </button>
+        <button class="btn-secondary" onclick="resetDreamTeam()">
+          Heyeti Sifirla
+        </button>
         <button class="main-btn" onclick="downloadSquadImage()" style="width: auto; padding: 10px 20px;">
           <span class="material-symbols-outlined"
-            style="font-size: 18px; vertical-align: middle; margin-right: 5px;">download</span> Yüklə
+            style="font-size: 18px; vertical-align: middle; margin-right: 5px;">download</span> Y?kl?
         </button>
       </div>
-      <div style="text-align: center; margin-top: 10px;">
-        <small style="color: #666;">Oyunçu seçmək üçün mövqeyə toxunun</small>
+      <div class="dream-help">
+        Oyunçu seçmək üçün mövqeyə toxun
       </div>
     </div>
 
@@ -1356,7 +1915,7 @@
 
     <div id="add-player-page" class="page">
       <h2 style="display: flex; align-items: center; gap: 10px;">
-        <span class="material-symbols-outlined" style="color: var(--primary-green);">person_add</span> Yeni Oyunçu Əlavə
+        <span class="material-symbols-outlined" style="color: var(--primary-green);">person_add</span> Yeni Oyunçu Əlav
         Et
       </h2>
       <div style="display: flex; justify-content: center; margin-bottom: 20px;">
@@ -1411,7 +1970,7 @@
         </div>
         <div class="form-group">
           <label><span class="material-symbols-outlined"
-              style="font-size: 16px; vertical-align: middle;">monitor_weight</span> Çəki (kg)</label><input
+              style="font-size: 16px; vertical-align: middle;">monitor_weight</span> ki (kg)</label><input
             type="number" id="new-p-weight" value="65" />
         </div>
       </div>
@@ -1454,13 +2013,13 @@
             align-items: center;
             gap: 5px;
           ">
-        <span class="material-symbols-outlined" style="font-size: 18px;">tune</span> TEXNİKİ GÖSTƏRİCİLƏR (0-99)
+        <span class="material-symbols-outlined" style="font-size: 18px;">tune</span> TEXNİKİ GSTƏRİCİLƏR (0-99)
       </h3>
       <div id="new-p-stats-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"></div>
 
       <button class="main-btn" onclick="saveNewPlayer()">
         <span class="material-symbols-outlined"
-          style="font-size: 18px; vertical-align: middle; margin-right: 5px;">save</span> OYUNÇUNU YADDA SAXLA
+          style="font-size: 18px; vertical-align: middle; margin-right: 5px;">save</span> OYUN?UNU YADDA SAXLA
       </button>
     </div>
 
@@ -1484,7 +2043,7 @@
           <select id="stats-season-select"
             onchange="showStats(currentStatsType || 'gol')"
             style="background:#111; color:#fff; border:1px solid #333; border-radius:999px; padding:4px 10px; font-size:11px;">
-            <option value="ALL">Bütün mövsümlər</option>
+            <option value="ALL">Bütün mövsüml?r</option>
           </select>
         </div>
       </div>
@@ -1693,7 +2252,7 @@
     </div>
   </div>
 
-  <div class="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-gradient-to-t from-[#0f2314]/90 to-transparent z-[1000]">
+  <div id="bottom-nav-wrap" class="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-gradient-to-t from-[#0f2314]/90 to-transparent z-[1000]">
     <div class="max-w-md mx-auto w-full">
       <div
         class="bg-black/90 backdrop-blur-xl border border-white/10 rounded-full h-20 flex items-center justify-around px-2 shadow-2xl">
@@ -1780,22 +2339,22 @@
   <!-- Login Modal -->
   <div id="login-modal" class="login-overlay" style="display: none;">
     <div class="login-box">
-      <h2 style="color: var(--primary-green); margin-bottom: 20px;">Admin Girişi</h2>
-      <input type="text" id="login-user" placeholder="İstifadəçi adı" style="margin-bottom: 10px;">
+      <h2 style="color: var(--primary-green); margin-bottom: 20px;">Admin Giri?i</h2>
+      <input type="text" id="login-user" placeholder="istifadı?i adı" style="margin-bottom: 10px;">
       <input type="password" id="login-pass" placeholder="Şifrə" style="margin-bottom: 20px;">
-      <button class="main-btn" onclick="performLogin()">Giriş</button>
-      <button class="btn-secondary" style="margin-top: 10px; width: 100%;" onclick="closeLogin()">Bağla</button>
+      <button class="main-btn" onclick="performLogin()">Giri?</button>
+      <button class="btn-secondary" style="margin-top: 10px; width: 100%;" onclick="closeLogin()">Ba?la</button>
     </div>
   </div>
 
 
   <div id="confirm-modal" class="modal-overlay">
     <div class="modal-content">
-      <div class="modal-title">Təsdiq</div>
+      <div class="modal-title">T?sdiq</div>
       <div class="modal-text" id="confirm-text"></div>
       <div class="modal-buttons">
         <button class="modal-btn secondary" onclick="closeConfirmModal()">
-          Ləğv Et
+          Lv Et
         </button>
         <button class="modal-btn primary" onclick="confirmAction()">
           Bəli
@@ -1858,6 +2417,8 @@
         renderRecentMatches();
         renderTopGoals();
         renderTopAssists();
+        updateFormationOptions();
+        restoreDreamTeamState();
         const initialRoute = routeMap[location.pathname] || routeMap["/"];
         changePage(initialRoute.id, initialRoute.title, false);
 
@@ -1894,13 +2455,17 @@
 
       const addHeaderBtn = document.getElementById('add-header-btn');
       if (addHeaderBtn) {
-        addHeaderBtn.style.display = (isAdmin && (currentPage === 'maclar' || currentPage === 'oyuncular')) ? 'flex' : 'none';
+        addHeaderBtn.style.display = (isAdmin && (currentPage === 'maclar' || currentPage === 'oyuncular' || currentPage === 'player-profile')) ? 'flex' : 'none';
       }
     }
 
     function handleAddClick() {
       if (currentPage === 'maclar') showMatchForm();
       else if (currentPage === 'oyuncular') showAddPlayerForm();
+      else if (currentPage === 'player-profile') {
+        const input = document.getElementById("quick-photo-input");
+        if (input) input.click();
+      }
     }
 
 
@@ -1918,7 +2483,7 @@
 
       if (data.success) {
         isAdmin = true;
-        showToast("Xoş gəldiniz!", "success");
+        showToast("Xo? g?ldiniz!", "success");
         document.getElementById('login-modal').style.display = 'none';
         updateAdminUI();
       } else {
@@ -1940,6 +2505,42 @@
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await res.json();
       return data.success ? data.url : null;
+    }
+
+    async function handleQuickPhotoUpload() {
+      try {
+        if (currentPlayerIndex === null || !players[currentPlayerIndex]) return;
+        const input = document.getElementById("quick-photo-input");
+        if (!input || !input.files[0]) return;
+
+        const photoUrl = await uploadImage("quick-photo-input");
+        if (!photoUrl) {
+          showToast("Sekil yuklenmedi", "error");
+          input.value = "";
+          return;
+        }
+
+        const p = players[currentPlayerIndex];
+        p.photo_url = photoUrl;
+
+        const res = await fetch(`/api/players/${p.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ photo_url: photoUrl }),
+        });
+
+        if (!res.ok) {
+          showToast("Sekil yadda saxlanmadi", "error");
+          input.value = "";
+          return;
+        }
+
+        showToast("Sekil elave olundu", "success");
+        viewProfile(currentPlayerIndex);
+        input.value = "";
+      } catch (e) {
+        showToast("Server xetasi", "error");
+      }
     }
 
 
@@ -1975,7 +2576,7 @@
       const age = document.getElementById("new-p-age").value;
 
       if (!name) {
-        showToast("Oyunçu adı boş ola bilməz!", "error");
+        showToast("Oyunçu adı boş ola bilm?z!", "error");
         return false;
       }
       if (name.length < 2) {
@@ -1983,7 +2584,7 @@
         return false;
       }
       if (age < 10 || age > 50) {
-        showToast("Yaş 10 ilə 50 arasında olmalıdır!", "error");
+        showToast("Yaş 10 il? 50 aras?nda olmalıdır!", "error");
         return false;
       }
       return true;
@@ -2101,7 +2702,14 @@
 
       if (pageId === "player-profile") {
         document.getElementById("edit-header-btn").querySelector('.material-symbols-outlined').innerText = "edit";
-        document.getElementById("edit-header-btn").title = "Redaktə et";
+        document.getElementById("edit-header-btn").title = "Redakte et";
+        const addIcon = document.getElementById("add-header-btn").querySelector('.material-symbols-outlined');
+        if (addIcon) addIcon.innerText = "add_a_photo";
+        document.getElementById("add-header-btn").title = "Sekil elave et";
+      } else {
+        const addIcon = document.getElementById("add-header-btn").querySelector('.material-symbols-outlined');
+        if (addIcon) addIcon.innerText = "add";
+        document.getElementById("add-header-btn").title = "";
       }
 
 
@@ -2155,7 +2763,7 @@
       a.download = `Arena9_${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast("Məlumatlar yükləndi", "success");
+      showToast("Məlumatlar y?kl?ndi", "success");
     }
 
 
@@ -2216,7 +2824,7 @@
       if (newPhoto) photoUrl = newPhoto;
 
       if (!isEditMode && players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
-        showToast("Bu oyunçu zaten mövcuddur!", "error");
+        showToast("Bu oyun?u zaten m?vcuddur!", "error");
         return;
       }
 
@@ -2310,7 +2918,7 @@
         list.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">group</span></div>
-              <div class="empty-state-text">Hələ oyunçu yoxdur</div>
+              <div class="empty-state-text">Hələ oyun?u yoxdur</div>
               <div style="margin-top: 15px;">
                 <button class="main-btn" style="max-width: 200px; margin: 0 auto;" onclick="showAddPlayerForm()">
                   + Oyunçu Əlavə Et
@@ -2350,7 +2958,7 @@
         list.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">search</span></div>
-              <div class="empty-state-text">Oyunçu tapılmadı</div>
+              <div class="empty-state-text">Oyunçu tap?lmadı</div>
             </div>
           `;
         return;
@@ -2394,17 +3002,112 @@
 
 
 
-    function renderRecentMatches() {
-      const list = document.getElementById("recent-matches-list");
+    function renderLatestMvpCard() {
+      const container = document.getElementById("latest-mvp-card");
+      if (!container) return;
+
       if (matches.length === 0) {
-        list.innerHTML =
-          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ matç yoxdur</div>';
+        container.innerHTML =
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hele matc tapilmayib</div>';
         return;
       }
-      const recent = matches.slice(0, 5); // Show last 5 matches
+
+      const latestMatch = [...matches].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      const mvpName = (latestMatch?.mvp || "").trim();
+      if (!mvpName) {
+        container.innerHTML =
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Son matc ucun MVP secilmeyib</div>';
+        return;
+      }
+
+      const mvpPlayer = players.find((p) => (p.name || "").trim().toLowerCase() === mvpName.toLowerCase());
+      const baseRating = mvpPlayer ? getOverall(mvpPlayer.stats) : 75;
+      const boostedRating = Math.min(99, baseRating + 2);
+      const cardPosition = (mvpPlayer?.position || "CF").toUpperCase();
+      const playerPhoto = mvpPlayer?.photo_url
+        ? `<img src="${mvpPlayer.photo_url}" alt="${mvpName}" onerror="this.remove(); this.parentElement.innerHTML='<div class=&quot;player-photo-fallback&quot;>${mvpName}</div>';">`
+        : `<div class="player-photo-fallback">${mvpName}</div>`;
+      container.innerHTML = `
+        <div class="card-container">
+          <div class="card-frame">
+            <div class="bg-gray-left"></div>
+            <div class="bg-white-center"></div>
+            <div class="player-photo-layer">
+              ${playerPhoto}
+            </div>
+            <div class="player-photo-overlay"></div>
+
+            <div class="text-potw-main">PLAYERS/WEEK</div>
+            <div class="text-potw-sub">OF THE</div>
+            <div class="text-season">${latestMatch.season || "24-25"}</div>
+            <div class="card-rating-block">
+              <div class="rating">${boostedRating}</div>
+              <div class="position">${cardPosition}</div>
+            </div>
+
+            <div class="chevron-container">
+              <div class="chevron"></div>
+              <div class="chevron"></div>
+              <div class="chevron"></div>
+              <div class="chevron"></div>
+              <div class="chevron"></div>
+              <div class="chevron"></div>
+              <div class="chevron"></div>
+              <div class="chevron"></div>
+            </div>
+
+            <div class="black-stripe"></div>
+            <div class="player-name-ribbon">
+              <div class="name">${mvpName}</div>
+            </div>
+
+            <div class="efootball-logo">
+              <svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="8"></circle>
+                <rect x="25" y="45" width="50" height="10" fill="white"></rect>
+              </svg>
+            </div>
+
+            <div class="bottom-panel">
+              <div class="panel-top-glow"></div>
+              <div class="hexagon-logo">
+                <svg viewBox="0 0 100 100" width="24" height="24" aria-hidden="true">
+                  <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="#00ff00" stroke-width="5"></path>
+                  <rect x="30" y="45" width="40" height="10" fill="#00ff00"></rect>
+                </svg>
+              </div>
+              <div class="stars-row">
+                <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+              </div>
+            </div>
+
+            <div class="outer-border"></div>
+          </div>
+        </div>
+        <div class="potw-meta">
+          <div style="font-size:12px; color:#9ca3af;">${latestMatch.home} ${latestMatch.s1}-${latestMatch.s2} ${latestMatch.away}</div>
+          <div class="mvp-boost-rating">
+            <span class="mvp-boost-plus">+2 boost</span>
+          </div>
+          <div style="font-size:11px; color:#9ca3af; margin-top:2px;">Normal: ${baseRating} -> MVP: ${boostedRating}</div>
+        </div>
+      `;
+    }
+
+    function renderRecentMatches() {
+      const list = document.getElementById("recent-matches-list");
+      renderLatestMvpCard();
+      if (matches.length === 0) {
+        list.innerHTML =
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ mat? yoxdur</div>';
+        return;
+      }
+      const recent = [...matches]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
       list.innerHTML = recent
         .map(
-          (m, idx) => `
+          (m) => `
                 <div class="match-card" onclick="viewMatch(${matches.indexOf(m)})" style="cursor: pointer; margin-bottom: 8px;">
                   <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
@@ -2422,8 +3125,8 @@
                     <div class="match-footer">
                        <span class="match-date-info">ID: ${m.id}</span>
                        <div class="admin-actions">
-                         <button class="edit-btn btn-danger" onclick="editMatch(${idx}); event.stopPropagation();"><span class="material-symbols-outlined" style="font-size: 16px;">edit</span></button>
-                         <button class="delete-btn btn-danger" onclick="deleteMatch(${idx}); event.stopPropagation();" title="Sil"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>
+                         <button class="edit-btn btn-danger" onclick="editMatch(${matches.indexOf(m)}); event.stopPropagation();"><span class="material-symbols-outlined" style="font-size: 16px;">edit</span></button>
+                         <button class="delete-btn btn-danger" onclick="deleteMatch(${matches.indexOf(m)}); event.stopPropagation();" title="Sil"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>
                        </div>
                     </div>
                   </div>
@@ -2439,14 +3142,13 @@
       const playerStats = players
         .map((p) => ({
           name: p.name,
-          goals:
-            Object.values(p.pastData).reduce(
-              (sum, season) => sum + season.g,
-              0,
-            ) +
-            Object.values(p.typeStats).reduce((sum, type) => sum + type.g, 0),
+          num: p.num,
+          goals: seasonOptions.reduce((sum, s) => {
+            const d = p.pastData && p.pastData[s] ? p.pastData[s] : { g: 0 };
+            return sum + (Number(d.g) || 0);
+          }, 0),
         }))
-        .sort((a, b) => b.goals - a.goals)
+        .sort((a, b) => (b.goals - a.goals) || (a.num - b.num))
         .slice(0, 5);
 
       if (playerStats.length === 0 || playerStats[0].goals === 0) {
@@ -2475,14 +3177,13 @@
       const playerStats = players
         .map((p) => ({
           name: p.name,
-          assists:
-            Object.values(p.pastData).reduce(
-              (sum, season) => sum + season.a,
-              0,
-            ) +
-            Object.values(p.typeStats).reduce((sum, type) => sum + type.a, 0),
+          num: p.num,
+          assists: seasonOptions.reduce((sum, s) => {
+            const d = p.pastData && p.pastData[s] ? p.pastData[s] : { a: 0 };
+            return sum + (Number(d.a) || 0);
+          }, 0),
         }))
-        .sort((a, b) => b.assists - a.assists)
+        .sort((a, b) => (b.assists - a.assists) || (a.num - b.num))
         .slice(0, 5);
 
       if (playerStats.length === 0 || playerStats[0].assists === 0) {
@@ -2550,14 +3251,17 @@
 
         const commentsHtml =
           comments.length === 0
-            ? `<div style="font-size:12px;color:var(--text-gray);">Hələ şərh yoxdur</div>`
+            ? `<div style="font-size:12px;color:var(--text-gray);">Hələ Şərh yoxdur</div>`
             : comments
                 .map(
                   (c) => `
         <div style="padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:6px;">
           <div style="font-size:11px;color:var(--text-gray);display:flex;justify-content:space-between;">
             <span>${c.user}</span>
-            <span>${new Date(c.timestamp).toLocaleString("az-AZ")}</span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span>${new Date(c.timestamp).toLocaleString("az-AZ")}</span>
+              ${isAdmin ? `<button onclick="deletePlayerComment(${c.id}, ${playerId})" class="main-btn" style="padding:2px 8px;font-size:11px;line-height:1.2;">Sil</button>` : ""}
+            </span>
           </div>
           <div style="font-size:13px;margin-top:3px;">${c.comment}</div>
         </div>`
@@ -2571,7 +3275,7 @@
             <div style="font-size:13px;font-weight:600;">
               Reytinq
               <span style="font-size:11px;color:var(--text-gray);margin-left:4px;">
-                (${count} səs)
+                (${count} s?s)
               </span>
             </div>
             <div style="font-size:18px;font-weight:700;color:#ffd700;">
@@ -2588,24 +3292,24 @@
 
         <div class="stat-card" style="margin-bottom:0;">
           <div style="font-size:13px;font-weight:600;margin-bottom:6px;">
-            Badge-lər
+            Badge-l?r
           </div>
           <div>${badgesHtml}</div>
         </div>
 
         <div class="stat-card" style="margin-bottom:0;">
           <div style="font-size:13px;font-weight:600;margin-bottom:6px;">
-            Şərhlər
+            ??rhl?r
           </div>
           <div id="player-comments" style="max-height:200px;overflow-y:auto;margin-bottom:8px;">
             ${commentsHtml}
           </div>
           <div id="comment-form-container">
-            <textarea id="comment-input" rows="2" placeholder="Şərhini yaz..."
+            <textarea id="comment-input" rows="2" placeholder="rhini yaz..."
               style="width:100%;border-radius:8px;border:1px solid #333;
                 background:#000;padding:6px 8px;font-size:12px;color:#fff;resize:none;"></textarea>
             <button id="comment-send-btn" class="main-btn" style="margin-top:6px;width:100%;padding:6px 0;font-size:13px;">
-              Şərh göndər
+              ??rh g?nd?r
             </button>
           </div>
         </div>
@@ -2641,7 +3345,7 @@
           sendBtn.addEventListener("click", async () => {
             const text = commentInput.value.trim();
             if (!text) {
-              showToast("Şərh boş ola bilməz", "error");
+              showToast("Şərh boş ola bilm?z", "error");
               return;
             }
             try {
@@ -2652,7 +3356,7 @@
               });
               const data = await res.json();
               if (!data.success) {
-                showToast(data.message || "Şərh xətası", "error");
+                showToast(data.message || "rh xətası", "error");
                 return;
               }
               commentInput.value = "";
@@ -2665,6 +3369,27 @@
         }
       } catch (e) {
         console.error(e);
+      }
+    }
+
+    async function deletePlayerComment(commentId, playerId) {
+      if (!isAdmin) {
+        showToast("Bu əməliyyat yalnız admin üçündür", "error");
+        return;
+      }
+      try {
+        const res = await fetch(`/api/players/comments/${commentId}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showToast(data.message || "Şərh silinm?di", "error");
+          return;
+        }
+        showToast("rh silindi", "success");
+        loadPlayerDetailExtras(playerId);
+      } catch {
+        showToast("Server xətası", "error");
       }
     }
 
@@ -2732,19 +3457,19 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 5px;">
           <div style="display: flex; flex-direction: column;">
             <span style="font-size: 10px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px;">Yaş</span>
-            <span style="font-weight: 700; font-size: 15px;">${p.age || '—'}</span>
+            <span style="font-weight: 700; font-size: 15px;">${p.age || 'â€”'}</span>
           </div>
           <div style="display: flex; flex-direction: column;">
             <span style="font-size: 10px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px;">Ayaq</span>
-            <span style="font-weight: 700; font-size: 15px;">${p.preferred_foot || '—'}</span>
+            <span style="font-weight: 700; font-size: 15px;">${p.preferred_foot || 'â€”'}</span>
           </div>
           <div style="display: flex; flex-direction: column;">
             <span style="font-size: 10px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px;">Boy (cm)</span>
-            <span style="font-weight: 700; font-size: 15px;">${p.height || '—'}</span>
+            <span style="font-weight: 700; font-size: 15px;">${p.height || 'â€”'}</span>
           </div>
           <div style="display: flex; flex-direction: column;">
-            <span style="font-size: 10px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px;">Çəki (kg)</span>
-            <span style="font-weight: 700; font-size: 15px;">${p.weight || '—'}</span>
+            <span style="font-size: 10px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px;">ki (kg)</span>
+            <span style="font-weight: 700; font-size: 15px;">${p.weight || 'â€”'}</span>
           </div>
         </div>
       </div>
@@ -3085,11 +3810,11 @@
           body: JSON.stringify(payload)
         });
         if (res.ok) {
-          showToast("Profil statistikaları yadda saxlanıldı ✓", "success");
+          showToast("Profil statistikalar? yadda saxlan?ld? âœ“", "success");
           isEditMode = false;
           viewProfile(currentPlayerIndex);
           document.getElementById("edit-header-btn").innerHTML = '<span class="material-symbols-outlined">edit</span>';
-          document.getElementById("edit-header-btn").title = "Redaktə et";
+          document.getElementById("edit-header-btn").title = "Redakte et";
         } else {
           showToast("Xəta", "error");
         }
@@ -3099,7 +3824,7 @@
 
     function toggleEdit() {
       if (currentPage === "player-profile") {
-        // Profil görünüşündəki edit düyməsi:
+        // Profil g?r?n?nd?ki edit d?ym?si:
         // Məlumatları "edit-page" xüsusi redaktə ekranında açırıq
         if (typeof openEditPage === "function") {
           openEditPage(currentPlayerIndex);
@@ -3119,7 +3844,7 @@
       if (!select) return;
 
       // Mövcud options-u təmizlə, "ALL" saxla
-      select.innerHTML = `<option value="ALL">Bütün mövsümlər</option>`;
+      select.innerHTML = `<option value="ALL">Bütün mövsüml?r</option>`;
       seasonOptions.forEach((s) => {
         const opt = document.createElement("option");
         opt.value = s;
@@ -3285,7 +4010,7 @@
         try {
           const res = await fetch(`/api/matches/${m.id}`, { method: 'DELETE' });
           if (res.ok) {
-            showToast("Matç silindi ✓", "success");
+            showToast("Matç silindi âœ“", "success");
             fetchAllData();
           } else {
             const data = await res.json();
@@ -3312,7 +4037,7 @@
       const assistInput = document.getElementById("event_assist_manual").value.trim();
 
       if (!playerInput) {
-        showToast("Oyunçu adını daxil edin!", "error");
+        showToast("Oyunçu adın? daxil edin!", "error");
         return;
       }
 
@@ -3320,7 +4045,7 @@
       const awayName = document.getElementById("match_input_away").value;
       const team = teamLabel === homeName ? "home" : "away";
 
-      // Adı siyahıdakı oyunçulardan biri ilə uyğunlaşdır (əgər varsa)
+      // Ad? siyah?dak? oyun?ulardan biri il? uy?unla?d?r (?g?r varsa)
       const foundPlayer = players.find(
         (p) => p.name.toLowerCase() === playerInput.toLowerCase()
       );
@@ -3395,7 +4120,7 @@
 
         season: document.getElementById("m_season").value,
         mvp: document.getElementById("match_mvp").value,
-        // Bütün event məlumatını backend-ə keçirik (player_id ilə birlikdə)
+        // Bütün event m?lumat?n? backend-? ke?irik (player_id il? birlikd?)
         events: [...tempEvents],
       };
 
@@ -3416,7 +4141,7 @@
         const data = await res.json();
 
         if (data.success) {
-          showToast(isEditMode ? "Matç yeniləndi! ✓" : "Matç uğurla saxlanıldı! ✓", "success");
+          showToast(isEditMode ? "Matç yenil?ndi! âœ“" : "Matç u?urla saxlan?ld?! âœ“", "success");
           isEditMode = false;
           currentMatchId = null;
           fetchAllData(); // key: refresh all data from backend
@@ -3432,12 +4157,17 @@
 
     function renderMatches() {
       const list = document.getElementById("match-list");
+      const seasonFilter = document.getElementById("match-season-filter");
 
       if (matches.length === 0) {
+        if (seasonFilter) {
+          seasonFilter.innerHTML = '<option value="ALL">Bütün sezonlar</option>';
+          seasonFilter.value = "ALL";
+        }
         list.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">sports_soccer</span></div>
-              <div class="empty-state-text">Hələ matç yoxdur</div>
+              <div class="empty-state-text">Hələ mat? yoxdur</div>
               <div style="margin-top: 15px;">
                 <button class="main-btn" style="max-width: 200px; margin: 0 auto;" onclick="showMatchForm()">
                   <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">add_circle</span> Yeni Matç
@@ -3448,14 +4178,39 @@
         return;
       }
 
-      matches.sort((a, b) => new Date(b.date) - new Date(a.date));
-      list.innerHTML = matches
+      const seasons = Array.from(new Set(matches.map((m) => m.season).filter(Boolean)));
+      seasons.sort((a, b) => b.localeCompare(a));
+
+      if (seasonFilter) {
+        const prev = seasonFilter.value || "ALL";
+        seasonFilter.innerHTML = ['<option value="ALL">Bütün sezonlar</option>']
+          .concat(seasons.map((s) => `<option value="${s}">${s}</option>`))
+          .join("");
+        seasonFilter.value = seasons.includes(prev) || prev === "ALL" ? prev : "ALL";
+      }
+
+      const selectedSeason = seasonFilter ? seasonFilter.value : "ALL";
+      const visibleMatches = [...matches]
+        .filter((m) => selectedSeason === "ALL" || m.season === selectedSeason)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      if (visibleMatches.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon"><span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-green); opacity: 0.3;">filter_alt_off</span></div>
+              <div class="empty-state-text">Seçilmiş sezon üçün matç tapılmadı</div>
+            </div>
+          `;
+        return;
+      }
+
+      list.innerHTML = visibleMatches
         .map(
-          (m, idx) => `
-                <div class="match-card" onclick="viewMatch(${idx})" style="cursor: pointer;">
+          (m) => `
+                <div class="match-card" onclick="viewMatch(${matches.indexOf(m)})" style="cursor: pointer;">
                   <div class="card-header">
                     <small style="color:var(--primary-green)">${m.type} (${m.season})</small>
-                    <button class="btn-danger" onclick="deleteMatch(${idx}, event)"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">delete</span> Sil</button>
+                    <button class="btn-danger" onclick="deleteMatch(${matches.indexOf(m)}, event)"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">delete</span> Sil</button>
                   </div>
                   <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; font-weight: bold; margin: 10px 0; font-size: 18px;">
                     <span style="text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.home}</span>
@@ -3484,8 +4239,8 @@
           <!-- Match Header -->
           <div style="background: linear-gradient(135deg, var(--card-gray) 0%, var(--bg-dark) 100%); padding: 20px; border-radius: 16px; margin-bottom: 18px; box-shadow: var(--shadow);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12px; color:var(--text-gray);">
-              <span>${match.type} • ${match.season}</span>
-              <span>📅 ${new Date(match.date).toLocaleString("az-AZ")}</span>
+              <span>${match.type} â€¢ ${match.season}</span>
+              <span>ðŸ“… ${new Date(match.date).toLocaleString("az-AZ")}</span>
             </div>
             <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
               <div style="flex:1; text-align:left;">
@@ -3590,12 +4345,13 @@
               </div>
               <div>
                 <div style="font-size:16px; font-weight:600; color:var(--gold);">${match.mvp || "Seçilmədi"}</div>
-                <div style="font-size:11px; color:var(--text-gray);">Ən yaxşı oyunçu</div>
+                <div style="font-size:11px; color:var(--text-gray);">Ən yaxı oyunçu</div>
               </div>
             </div>
           </div>
         `;
-      document.getElementById("match-modal").style.display = "block";
+      document.getElementById("match-modal").dataset.mode = "match";
+      document.getElementById("match-modal").style.display = "flex";
     }
 
     function closeMatchModal() {
@@ -3674,7 +4430,7 @@
       const performanceStats = [
         { name: "Qollar", key: "goals" },
         { name: "Asistlər", key: "assists" },
-        { name: "Oynadığı Matçlar", key: "matches" },
+        { name: "Oynadı Matçlar", key: "matches" },
         { name: "Qol/Matç", key: "avg" },
       ];
 
@@ -3767,12 +4523,12 @@
         assists,
         matches: matchesPlayed,
         avg,
-        Hız: player.stats?.Hız || 0,
-        Şut: player.stats?.Şut || 0,
-        Pas: player.stats?.Pas || 0,
-        Dribling: player.stats?.Dribling || 0,
-        Defans: player.stats?.Defans || 0,
-        Fizik: player.stats?.Fizik || 0,
+        "Hız": player.stats?.["Hız"] || 0,
+        "Şut": player.stats?.["Şut"] || 0,
+        "Pas": player.stats?.["Pas"] || 0,
+        "Dribling": player.stats?.["Dribling"] || 0,
+        "Defans": player.stats?.["Defans"] || 0,
+        "Fizik": player.stats?.["Fizik"] || 0,
       };
     }
 
@@ -3780,8 +4536,6 @@
       fetchAllData();
       changePage("ana-sayfa", "Əsas");
 
-      // Setup Dream Team
-      updateFormationOptions();
     };
 
     // Dream Team Logic
@@ -3851,112 +4605,251 @@
       const size = document.getElementById('team-size-select').value;
       const select = document.getElementById('formation-select');
       select.innerHTML = formationConfig[size].map(f => `<option value="${f.val}">${f.text}</option>`).join('');
+      const badge = document.getElementById("squad-meta-badge");
+      if (badge) badge.textContent = `${size}v${size} â€¢ ${select.value}`;
       changeFormation();
     }
 
-    function changeFormation() {
-      currentFormation = document.getElementById('formation-select').value;
-      const container = document.getElementById('formation-layer');
-      container.innerHTML = '';
+    function selectSlot(id) {
+      selectedSlotId = id;
+      selectPlayerForDreamTeam();
+    }
 
-      if (formations[currentFormation]) {
-        formations[currentFormation].forEach(pos => {
-          const html = `
-                  <div class="player-spot" id="slot-${pos.id}" style="top: ${pos.top}%; left: ${pos.left}%" onclick="selectSlot('${pos.id}')">
-                     <div class="player-icon">
-                       <span style="font-size: 20px; opacity: 0.5;">+</span>
-                     </div>
-                     <div class="player-spot-name">${pos.label || 'Seç'}</div>
-                  </div>
-                `;
-          container.insertAdjacentHTML('beforeend', html);
-        });
+    function downloadSquadImage() {
+      const element = document.getElementById('squad-capture-area');
+      const captureScale = Math.max(2, Math.min(4, window.devicePixelRatio || 2));
+
+      html2canvas(element, {
+        backgroundColor: '#070c09',
+        scale: captureScale,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Arena9-DreamTeam-${new Date().toISOString().split('T')[0]}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+        showToast('Sekil yuklendi', 'success');
+      }).catch(err => {
+        console.error(err);
+        showToast('Xeta bas verdi', 'error');
+      });
+    }
+
+    const dreamTeamState = {
+      assignments: {},
+    };
+    const DREAM_TEAM_STORAGE_KEY = "arena9_dream_team_state_v1";
+
+    function saveDreamTeamState() {
+      try {
+        localStorage.setItem(
+          DREAM_TEAM_STORAGE_KEY,
+          JSON.stringify({
+            formation: currentFormation,
+            assignments: dreamTeamState.assignments,
+            subs: document.querySelectorAll("#substitutes-container .player-spot").length,
+          })
+        );
+      } catch (e) {
+        console.error("Dream Team save error:", e);
       }
     }
 
+    function getPlayerInitials(name) {
+      const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return "P";
+      if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
 
-    function selectSlot(id) {
-      selectedSlotId = id;
-      selectPlayerForDreamTeam(); // Opens the comparison modal logic or similar
+    function getDreamAvatarHtml(player, size = 40) {
+      const initials = getPlayerInitials(player?.name || "");
+      const photo = (player?.photo_url || "").trim();
+      if (photo) {
+        return `<img src="${photo}" alt="${player?.name || "player"}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;display:block;" onerror="this.outerHTML='<div style=&quot;width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(31,249,86,.15);border:1px solid rgba(31,249,86,.45);color:#1ff956;font-weight:800;font-size:${Math.max(
+          12,
+          Math.floor(size * 0.38)
+        )}px;&quot;>${initials}</div>';">`;
+      }
+      return `<div style="width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(31,249,86,.15);border:1px solid rgba(31,249,86,.45);color:#1ff956;font-weight:800;font-size:${Math.max(
+        12,
+        Math.floor(size * 0.38)
+      )}px;">${initials}</div>`;
+    }
+
+    function getDreamTeamPlayerKey(player) {
+      if (!player) return null;
+      return player.id != null ? `id:${player.id}` : `num:${player.num}|name:${player.name}`;
+    }
+
+    function getDreamTeamAssignedSlot(playerKey, ignoreSlotId = null) {
+      if (!playerKey) return null;
+      for (const [slotId, assignedKey] of Object.entries(dreamTeamState.assignments)) {
+        if (slotId !== ignoreSlotId && assignedKey === playerKey) return slotId;
+      }
+      return null;
+    }
+
+    function renderDreamTeamPlayer(slotId, player) {
+      const slot = document.getElementById(`slot-${slotId}`);
+      if (!slot || !player) return;
+      slot.classList.add("filled");
+      slot.querySelector(".player-icon").innerHTML = getDreamAvatarHtml(player, 48);
+      slot.querySelector(".player-spot-name").innerText = player.name;
+    }
+
+    function pruneDreamTeamState() {
+      Object.keys(dreamTeamState.assignments).forEach((slotId) => {
+        if (!document.getElementById(`slot-${slotId}`)) {
+          delete dreamTeamState.assignments[slotId];
+        }
+      });
+    }
+
+    function changeFormation() {
+      currentFormation = document.getElementById("formation-select").value;
+      const badge = document.getElementById("squad-meta-badge");
+      if (badge) {
+        const size = document.getElementById("team-size-select")?.value || "5";
+        badge.textContent = `${size}v${size} â€¢ ${currentFormation}`;
+      }
+      const container = document.getElementById("formation-layer");
+      container.innerHTML = "";
+
+      if (formations[currentFormation]) {
+        formations[currentFormation].forEach((pos) => {
+          const html = `
+            <div class="player-spot" id="slot-${pos.id}" style="top: ${pos.top}%; left: ${pos.left}%" onclick="selectSlot('${pos.id}')">
+              <div class="player-icon">
+                <span style="font-size: 20px; opacity: 0.5;">+</span>
+              </div>
+              <div class="player-spot-name">${pos.label || "Seç"}</div>
+            </div>
+          `;
+          container.insertAdjacentHTML("beforeend", html);
+        });
+      }
+
+      if (formations[currentFormation]) {
+        formations[currentFormation].forEach((pos) => {
+          const key = dreamTeamState.assignments[pos.id];
+          if (!key) return;
+          const player = players.find((p) => getDreamTeamPlayerKey(p) === key);
+          if (player) renderDreamTeamPlayer(pos.id, player);
+          else delete dreamTeamState.assignments[pos.id];
+        });
+      }
+
+      pruneDreamTeamState();
+      saveDreamTeamState();
+      selectedSlotId = null;
     }
 
     function selectPlayerForDreamTeam() {
-      // Reuse the comparison modal logic, but hijack the click handler
-      currentCompareSide = 'dream_team'; // Special flag
+      currentCompareSide = "dream_team";
+      document.getElementById("match-modal").dataset.mode = "dream-team";
       const modalContent = `
-           <div style="max-height: 400px; overflow-y: auto;">
-             ${players.map((p, i) => `
-               <div onclick="fillDreamTeamSlot(${i})" style="padding: 12px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                 <div style="width: 40px; height: 40px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold;">${p.num}</div>
-                 <div>
-                   <div style="font-weight: bold;">${p.name}</div>
-                   <div style="font-size: 12px; color: #888;">Nömrə: ${p.num}</div>
-                 </div>
-               </div>
-             `).join("")}
-           </div>
-          `;
+        <div style="max-height: 400px; overflow-y: auto;">
+          ${players
+            .map((p, i) => {
+              const inUse = getDreamTeamAssignedSlot(getDreamTeamPlayerKey(p), selectedSlotId);
+              return `
+                <div onclick="${inUse ? "" : `fillDreamTeamSlot(${i})`}" style="padding: 12px; border-bottom: 1px solid #333; cursor: ${inUse ? "not-allowed" : "pointer"}; opacity: ${inUse ? 0.5 : 1}; display: flex; align-items: center; gap: 10px;">
+                  ${getDreamAvatarHtml(p, 40)}
+                  <div>
+                    <div style="font-weight: bold;">${p.name}</div>
+                    <div style="font-size: 12px; color: #888;">Nömrə: ${p.num}${inUse ? " â€¢ Seçilib" : ""}</div>
+                  </div>
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+      `;
       document.getElementById("modal-title").innerText = "Mövqe üçün oyunçu seç";
       document.getElementById("modal-content").innerHTML = modalContent;
       document.getElementById("match-modal").style.display = "flex";
     }
 
     function fillDreamTeamSlot(idx) {
-      const p = players[idx];
-      const slot = document.getElementById(`slot-${selectedSlotId}`);
-      if (slot) {
-        slot.classList.add('filled');
-        slot.querySelector('.player-icon').innerHTML = `<img src="${p.photo_url || ''}" style="width:100%; height:100%; border-radius:50%; object-cover;" onerror="this.src='https://via.placeholder.com/50'">`;
-        slot.querySelector('.player-spot-name').innerText = p.name;
+      const player = players[idx];
+      const playerKey = getDreamTeamPlayerKey(player);
+      const occupiedSlot = getDreamTeamAssignedSlot(playerKey, selectedSlotId);
+      if (occupiedSlot) {
+        showToast("Bu oyun?u art?q hey?td? se?ilib.", "error");
+        return;
       }
+
+      const slot = document.getElementById(`slot-${selectedSlotId}`);
+      if (!slot) return;
+
+      dreamTeamState.assignments[selectedSlotId] = playerKey;
+      renderDreamTeamPlayer(selectedSlotId, player);
+      saveDreamTeamState();
       closeMatchModal();
     }
 
-    let substituteCount = 0;
-
     function addSubstituteSlot() {
-      substituteCount++;
+      substituteCount = document.querySelectorAll("#substitutes-container .player-spot").length;
+      substituteCount += 1;
       const id = `sub-${substituteCount}`;
       const html = `
         <div class="player-spot" id="slot-${id}" style="position: relative; width: 60px; height: 60px; transform: none; margin: 5px;" onclick="selectSlot('${id}')">
-           <div class="player-icon">
-             <span style="font-size: 20px; opacity: 0.5;">+</span>
-           </div>
-           <div class="player-spot-name">SUB ${substituteCount}</div>
+          <div class="player-icon">
+            <span style="font-size: 20px; opacity: 0.5;">+</span>
+          </div>
+          <div class="player-spot-name">SUB ${substituteCount}</div>
         </div>
       `;
-      document.getElementById('substitutes-container').insertAdjacentHTML('beforeend', html);
+      document.getElementById("substitutes-container").insertAdjacentHTML("beforeend", html);
+      saveDreamTeamState();
     }
 
-    function downloadSquadImage() {
-      const element = document.getElementById('squad-capture-area');
+    function resetDreamTeam() {
+      if (!confirm("Dream Team sifirlansin?")) return;
+      dreamTeamState.assignments = {};
+      const subs = document.getElementById("substitutes-container");
+      if (subs) subs.innerHTML = "";
+      changeFormation();
+      saveDreamTeamState();
+      showToast("Dream Team sifirlandi", "success");
+    }
 
-      // Temporary styling for better capture
-      const originalBg = element.style.background;
-      element.style.background = "#1a3c2a";
-      element.style.padding = "20px";
+    function restoreDreamTeamState() {
+      try {
+        const raw = localStorage.getItem(DREAM_TEAM_STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
 
-      html2canvas(element, {
-        backgroundColor: "#1a3c2a",
-        scale: 2, // High resolution
-        useCORS: true // Attempt to load cross-origin images if any
-      }).then(canvas => {
-        // Revert styling
-        element.style.background = originalBg;
-        element.style.padding = "10px";
+        if (saved && saved.assignments && typeof saved.assignments === "object") {
+          dreamTeamState.assignments = saved.assignments;
+        }
 
-        // Trigger download
-        const link = document.createElement('a');
-        link.download = `Arena9-DreamTeam-${new Date().toISOString().split('T')[0]}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-        showToast("Şəkil yüklənir... 📸", "success");
-      }).catch(err => {
-        console.error(err);
-        element.style.background = originalBg;
-        element.style.padding = "10px";
-        showToast("Xəta baş verdi!", "error");
-      });
+        const select = document.getElementById("formation-select");
+        if (select && saved?.formation && formations[saved.formation]) {
+          select.value = saved.formation;
+          currentFormation = saved.formation;
+        }
+
+        const subsContainer = document.getElementById("substitutes-container");
+        if (subsContainer) {
+          subsContainer.innerHTML = "";
+          const subsCount = Math.max(0, Number(saved?.subs || 0));
+          for (let i = 0; i < subsCount; i += 1) {
+            addSubstituteSlot();
+          }
+        }
+
+        changeFormation();
+      } catch (e) {
+        console.error("Dream Team restore error:", e);
+      }
+    }
+
+    function closeMatchModal() {
+      document.getElementById("match-modal").style.display = "none";
+      document.getElementById("match-modal").dataset.mode = "";
+      selectedSlotId = null;
     }
 
   </script>
@@ -3988,7 +4881,7 @@
               align-items: center;
             ">
           <h2 id="modal-title" style="margin: 0; color: var(--primary-green); margin-right: 10px">
-            Matç Detalları
+            Matç Detallar?
           </h2>
           <button onclick="closeMatchModal()" style="
                 background: var(--danger-red);
@@ -3999,7 +4892,7 @@
                 cursor: pointer;
               ">
             <span class="material-symbols-outlined"
-              style="font-size: 18px; vertical-align: middle; margin-right: 4px;">close</span> Bağla
+              style="font-size: 18px; vertical-align: middle; margin-right: 4px;">close</span> Ba?la
           </button>
         </div>
         <div id="modal-content" style="padding: 24px"></div>
@@ -4009,3 +4902,13 @@
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
