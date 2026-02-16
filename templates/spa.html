@@ -4359,23 +4359,26 @@
 
       document.getElementById("match_input_home").value = m.home;
       document.getElementById("match_input_away").value = m.away;
-      document.getElementById("match_input_date").value = m.date;
+      document.getElementById("match_input_date").value = (m.date || "").slice(0, 16);
 
 
-      document.getElementById("match_season").value = m.season;
+      const seasonInput = document.getElementById("m_season") || document.getElementById("match_season");
+      if (seasonInput) seasonInput.value = m.season;
       document.getElementById("match_mvp").value = m.mvp || '';
 
       // Load events
       tempEvents = m.events.map(e => ({
         team: e.team,
         player: e.player,
-        assist: e.assist
+        assist: e.assist,
+        player_id: e.player_id || null,
+        assist_id: e.assist_id || null
       }));
 
       s1 = m.s1;
       s2 = m.s2;
       updateScoreDisplay();
-      renderEventList();
+      if (typeof renderTempEvents === "function") renderTempEvents();
       updateTeamOptions();
     }
 
@@ -4738,6 +4741,14 @@
                 <div style="font-size:11px; color:var(--text-gray);">Ən yaxı oyunçu</div>
               </div>
             </div>
+            ${isAdmin ? `
+              <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+                <button class="main-btn" onclick="closeMatchModal(); editMatch(${idx})" style="max-width: 180px;">
+                  <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle; margin-right:4px;">edit</span>
+                  Redaktə
+                </button>
+              </div>
+            ` : ""}
           </div>
         `;
       document.getElementById("match-modal").dataset.mode = "match";
