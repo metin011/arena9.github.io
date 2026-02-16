@@ -606,6 +606,18 @@
       font-size: 16px;
     }
 
+    .player-profile-link {
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: rgba(31, 249, 86, 0.45);
+      text-underline-offset: 2px;
+      transition: color 0.2s ease;
+    }
+
+    .player-profile-link:hover {
+      color: var(--primary-green);
+    }
+
     .home-hero-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -3084,6 +3096,41 @@
       return count > 0 ? Math.round(t / count) : 75;
     }
 
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function findPlayerIndex(name, playerId = null) {
+      if (playerId !== null && playerId !== undefined) {
+        const idMatch = players.findIndex((p) => Number(p.id) === Number(playerId));
+        if (idMatch !== -1) return idMatch;
+      }
+      const normalized = (name || "").trim().toLowerCase();
+      if (!normalized) return -1;
+      return players.findIndex((p) => (p.name || "").trim().toLowerCase() === normalized);
+    }
+
+    function openPlayerProfileFromLink(playerId, name, event) {
+      if (event) event.stopPropagation();
+      const idx = findPlayerIndex(name, playerId);
+      if (idx === -1) return;
+      viewProfile(idx);
+    }
+
+    function renderPlayerLink(name, playerId = null) {
+      const safeName = escapeHtml(name);
+      const idx = findPlayerIndex(name, playerId);
+      if (idx === -1) return `<span>${safeName}</span>`;
+      const idArg = playerId !== null && playerId !== undefined ? Number(playerId) : "null";
+      const nameArg = String(name || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+      return `<span class="player-profile-link" onclick="openPlayerProfileFromLink(${idArg}, '${nameArg}', event)">${safeName}</span>`;
+    }
+
 
     function renderPlayers() {
       const list = document.getElementById("full-player-list");
@@ -3232,7 +3279,7 @@
 
             <div class="black-stripe"></div>
             <div class="player-name-ribbon">
-              <div class="name">${mvpName}</div>
+              <div class="name">${renderPlayerLink(mvpName, mvpPlayer?.id)}</div>
             </div>
 
             <div class="efootball-logo">
@@ -3294,7 +3341,7 @@
                     </div>
                   </div>
                   <div class="match-details">
-                    <div>MVP: ${m.mvp || '-'}</div>
+                    <div>MVP: ${m.mvp ? renderPlayerLink(m.mvp) : '-'}</div>
                     <!-- Events list simplified -->
                     <div class="match-footer">
                        <span class="match-date-info">ID: ${m.id}</span>
@@ -3315,6 +3362,7 @@
       const list = document.getElementById("top-goals-list");
       const playerStats = players
         .map((p) => ({
+          id: p.id,
           name: p.name,
           num: p.num,
           goals: seasonOptions.reduce((sum, s) => {
@@ -3332,17 +3380,20 @@
       }
 
       list.innerHTML = playerStats
-        .map(
-          (p, idx) => `
-            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        .map((p, idx) => {
+          const playerIdx = findPlayerIndex(p.name, p.id);
+          const rowClick = playerIdx !== -1 ? `onclick="viewProfile(${playerIdx})"` : "";
+          const rowCursor = playerIdx !== -1 ? "pointer" : "default";
+          return `
+            <div ${rowClick} style="display: flex; align-items: center; margin-bottom: 8px; cursor: ${rowCursor};">
               <div style="width: 24px; height: 24px; background: var(--primary-green); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">${idx + 1}</div>
               <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 14px;">${p.name}</div>
+                <div style="font-weight: 600; font-size: 14px;">${renderPlayerLink(p.name, p.id)}</div>
               </div>
               <div style="font-size: 16px; font-weight: bold; color: var(--gold);">${p.goals}</div>
             </div>
-          `,
-        )
+          `;
+        })
         .join("");
     }
 
@@ -3350,6 +3401,7 @@
       const list = document.getElementById("top-assists-list");
       const playerStats = players
         .map((p) => ({
+          id: p.id,
           name: p.name,
           num: p.num,
           assists: seasonOptions.reduce((sum, s) => {
@@ -3367,17 +3419,20 @@
       }
 
       list.innerHTML = playerStats
-        .map(
-          (p, idx) => `
-            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        .map((p, idx) => {
+          const playerIdx = findPlayerIndex(p.name, p.id);
+          const rowClick = playerIdx !== -1 ? `onclick="viewProfile(${playerIdx})"` : "";
+          const rowCursor = playerIdx !== -1 ? "pointer" : "default";
+          return `
+            <div ${rowClick} style="display: flex; align-items: center; margin-bottom: 8px; cursor: ${rowCursor};">
               <div style="width: 24px; height: 24px; background: var(--primary-green); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">${idx + 1}</div>
               <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 14px;">${p.name}</div>
+                <div style="font-weight: 600; font-size: 14px;">${renderPlayerLink(p.name, p.id)}</div>
               </div>
               <div style="font-size: 16px; font-weight: bold; color: var(--gold);">${p.assists}</div>
             </div>
-          `,
-        )
+          `;
+        })
         .join("");
     }
 
@@ -4058,7 +4113,7 @@
             else if (type === "mvp") total = (d.mvp ?? d.m ?? 0);
           }
 
-          return { name: p.name, val: total, num: p.num };
+          return { id: p.id, name: p.name, val: total, num: p.num };
         })
         .filter((p) => p.val > 0)
         .sort((a, b) => b.val - a.val);
@@ -4074,18 +4129,21 @@
       }
 
       document.getElementById("stats-list").innerHTML = sorted
-        .map(
-          (p, i) => `
-                <div class="rank-item">
+        .map((p, i) => {
+          const playerIdx = findPlayerIndex(p.name, p.id);
+          const rowClick = playerIdx !== -1 ? `onclick="viewProfile(${playerIdx})"` : "";
+          const rowCursor = playerIdx !== -1 ? "pointer" : "default";
+          return `
+                <div class="rank-item" ${rowClick} style="cursor:${rowCursor};">
                   <span class="rank-num">#${i + 1}</span>
                   <div style="flex:1">
-                    <div style="font-weight:bold">${p.name}</div>
+                    <div style="font-weight:bold">${renderPlayerLink(p.name, p.id)}</div>
                     <div style="font-size:11px; color:#666">Nömrə: ${p.num}</div>
                   </div>
                   <div style="font-weight:bold; color:var(--primary-green); font-size:16px;">${p.val}</div>
                 </div>
-              `,
-        )
+              `;
+        })
         .join("");
     }
 
@@ -4453,7 +4511,7 @@
                             (e) => `
                               <div style="display:flex; align-items:center; gap:6px; font-size:13px; margin-bottom:3px;">
                                 <span class="material-symbols-outlined" style="font-size:16px; color:var(--primary-green);">sports_soccer</span>
-                                <span>${e.player}${e.assist ? ` <span style="color:var(--text-gray); font-size:11px;">(A: ${e.assist})</span>` : ""}</span>
+                                <span>${renderPlayerLink(e.player, e.player_id)}${e.assist ? ` <span style="color:var(--text-gray); font-size:11px;">(A: ${renderPlayerLink(e.assist, e.assist_id)})</span>` : ""}</span>
                               </div>
                             `
                           )
@@ -4469,7 +4527,7 @@
                           .map(
                             (e) => `
                               <div style="display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:13px; margin-bottom:3px;">
-                                <span>${e.player}${e.assist ? ` <span style="color:var(--text-gray); font-size:11px;">(A: ${e.assist})</span>` : ""}</span>
+                                <span>${renderPlayerLink(e.player, e.player_id)}${e.assist ? ` <span style="color:var(--text-gray); font-size:11px;">(A: ${renderPlayerLink(e.assist, e.assist_id)})</span>` : ""}</span>
                                 <span class="material-symbols-outlined" style="font-size:16px; color:var(--danger-red);">sports_soccer</span>
                               </div>
                             `
@@ -4497,7 +4555,7 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.03); font-size:12px;">
                           <div style="display:flex; align-items:center; gap:6px;">
                             <span class="material-symbols-outlined" style="font-size:16px; color:var(--primary-green);">sports_soccer</span>
-                            <span>${e.player}${e.assist ? ` (A: ${e.assist})` : ""}</span>
+                            <span>${renderPlayerLink(e.player, e.player_id)}${e.assist ? ` (A: ${renderPlayerLink(e.assist, e.assist_id)})` : ""}</span>
                           </div>
                           <span style="color:var(--text-gray);">${e.team === "home" ? match.home : match.away}</span>
                         </div>
@@ -4518,7 +4576,7 @@
                 <span class="material-symbols-outlined" style="color:#000; font-size:24px;">star</span>
               </div>
               <div>
-                <div style="font-size:16px; font-weight:600; color:var(--gold);">${match.mvp || "Seçilmədi"}</div>
+                <div style="font-size:16px; font-weight:600; color:var(--gold);">${match.mvp ? renderPlayerLink(match.mvp) : "Seçilmədi"}</div>
                 <div style="font-size:11px; color:var(--text-gray);">Ən yaxı oyunçu</div>
               </div>
             </div>
