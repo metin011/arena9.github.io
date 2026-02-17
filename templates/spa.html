@@ -642,6 +642,23 @@
       box-shadow: 0 0 22px rgba(31, 249, 86, 0.18);
     }
 
+    .potw-admin-btn {
+      border: 1px solid rgba(31, 249, 86, 0.45);
+      background: rgba(31, 249, 86, 0.08);
+      color: var(--primary-green);
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .potw-admin-btn:hover {
+      background: rgba(31, 249, 86, 0.16);
+    }
+
     .card-container {
       display: flex;
       justify-content: center;
@@ -649,15 +666,59 @@
       width: 100%;
     }
 
+    .potw-light-sweep {
+      position: absolute;
+      top: -40%;
+      left: -65%;
+      width: 55%;
+      height: 190%;
+      z-index: 14;
+      pointer-events: none;
+      background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.08) 35%, rgba(255, 255, 255, 0.32) 50%, rgba(255, 255, 255, 0.08) 65%, transparent 100%);
+      transform: rotate(8deg);
+      animation: potwSweep 4.6s linear infinite;
+      mix-blend-mode: screen;
+    }
+
+    .potw-ring {
+      position: absolute;
+      inset: -2px;
+      z-index: 6;
+      pointer-events: none;
+      border-radius: 2px;
+      background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 255, 255, 0.06) 50deg, var(--potw-neon-soft) 92deg, transparent 140deg, transparent 220deg, rgba(255, 255, 255, 0.06) 280deg, transparent 360deg);
+      animation: potwOrbit 4.5s linear infinite;
+      opacity: 0.52;
+    }
+
     .card-frame {
       position: relative;
       width: 300px;
       height: 430px;
+      --potw-neon: #1ff956;
+      --potw-neon-soft: rgba(31, 249, 86, 0.75);
       background: #0a0a0a;
-      border: 3px solid rgba(31, 249, 86, 0.65);
+      border: 3px solid var(--potw-neon-soft);
       overflow: hidden;
       box-shadow: 0 0 18px rgba(31, 249, 86, 0.18), 0 12px 22px rgba(0, 0, 0, 0.35);
       font-family: 'Oswald', 'Arial Black', sans-serif;
+      animation: potwCardPulse 3.6s ease-in-out infinite;
+    }
+
+    .potw-theme-green {
+      --potw-neon: #1ff956;
+      --potw-neon-soft: rgba(31, 249, 86, 0.75);
+    }
+
+    .potw-theme-yellow {
+      --potw-neon: #ffd84d;
+      --potw-neon-soft: rgba(255, 216, 77, 0.78);
+    }
+
+    .potw-theme-purple,
+    .potw-theme-pink {
+      --potw-neon: #b14dff;
+      --potw-neon-soft: rgba(177, 77, 255, 0.82);
     }
 
     .bg-gray-left {
@@ -693,7 +754,7 @@
       font-size: 22px;
       line-height: 0.9;
       letter-spacing: 0;
-      color: #1ff956;
+      color: var(--potw-neon);
       text-shadow: 0 0 8px rgba(31, 249, 86, 0.25), 0 3px 7px rgba(0, 0, 0, 0.35);
       font-weight: 900;
       user-select: none;
@@ -713,7 +774,7 @@
       transform: rotate(-6deg);
       font-size: 12px;
       line-height: 1;
-      color: rgba(31, 249, 86, 0.9);
+      color: var(--potw-neon-soft);
       font-weight: 900;
       letter-spacing: 1px;
       user-select: none;
@@ -731,7 +792,7 @@
       transform: rotate(-6deg);
       font-size: 14px;
       line-height: 0.9;
-      color: rgba(31, 249, 86, 0.86);
+      color: var(--potw-neon-soft);
       font-weight: 900;
       letter-spacing: 0.5px;
       user-select: none;
@@ -754,7 +815,16 @@
       height: 40px;
       position: relative;
       filter: drop-shadow(2px 3px 0 rgba(16, 120, 54, 0.55));
+      animation: chevronPulse 1.9s ease-in-out infinite;
     }
+
+    .chevron-container .chevron:nth-child(2) { animation-delay: 0.15s; }
+    .chevron-container .chevron:nth-child(3) { animation-delay: 0.3s; }
+    .chevron-container .chevron:nth-child(4) { animation-delay: 0.45s; }
+    .chevron-container .chevron:nth-child(5) { animation-delay: 0.6s; }
+    .chevron-container .chevron:nth-child(6) { animation-delay: 0.75s; }
+    .chevron-container .chevron:nth-child(7) { animation-delay: 0.9s; }
+    .chevron-container .chevron:nth-child(8) { animation-delay: 1.05s; }
 
     .chevron::before,
     .chevron::after {
@@ -762,7 +832,7 @@
       position: absolute;
       width: 35px;
       height: 10px;
-      background: rgba(31, 249, 86, 0.85);
+      background: var(--potw-neon-soft);
     }
 
     .chevron::before {
@@ -838,11 +908,14 @@
 
     .card-rating-block .rating {
       font-size: 54px;
+      animation: ratingGlow 2.4s ease-in-out infinite;
     }
 
     .card-rating-block .position {
       font-size: 34px;
       margin-top: 4px;
+      animation: ratingGlow 2.4s ease-in-out infinite;
+      animation-delay: 0.2s;
     }
 
     .player-name-ribbon {
@@ -853,7 +926,7 @@
       z-index: 12;
       transform: rotate(-6deg);
       background: rgba(0, 0, 0, 0.5);
-      border-left: 3px solid rgba(31, 249, 86, 0.75);
+      border-left: 3px solid var(--potw-neon-soft);
       padding: 6px 10px 4px;
     }
 
@@ -866,6 +939,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      animation: textNeon 2.8s ease-in-out infinite;
     }
 
     .potw-player-photo {
@@ -961,7 +1035,7 @@
       width: 220px;
       height: 72px;
       background: #000;
-      border: 2px solid rgba(31, 249, 86, 0.55);
+      border: 2px solid var(--potw-neon-soft);
       border-radius: 20px 20px 0 0;
       z-index: 10;
       display: flex;
@@ -976,13 +1050,16 @@
       top: 0;
       width: 100%;
       height: 5px;
-      background: rgba(31, 249, 86, 0.7);
-      box-shadow: 0 0 10px rgba(31, 249, 86, 0.4);
+      background: var(--potw-neon-soft);
+      box-shadow: 0 0 10px var(--potw-neon-soft);
+      animation: panelScan 1.8s ease-in-out infinite;
     }
 
     .hexagon-logo {
       margin-top: 5px;
       filter: drop-shadow(0 0 4px rgba(31, 249, 86, 0.45));
+      animation: hexSpin 5s linear infinite, hexPulse 2s ease-in-out infinite;
+      transform-origin: center;
     }
 
     .stars-row {
@@ -991,6 +1068,7 @@
       letter-spacing: 2px;
       margin-top: 2px;
       line-height: 1;
+      animation: starsTwinkle 1.6s ease-in-out infinite;
     }
 
     .outer-border {
@@ -999,9 +1077,10 @@
       left: 0;
       right: 0;
       bottom: 0;
-      border: 6px solid rgba(31, 249, 86, 0.5);
+      border: 6px solid var(--potw-neon-soft);
       pointer-events: none;
       z-index: 20;
+      animation: borderGlow 2.6s ease-in-out infinite;
     }
 
     .card-frame::before {
@@ -1011,7 +1090,7 @@
       left: 0;
       width: 100px;
       height: 30px;
-      background: rgba(31, 249, 86, 0.7);
+      background: var(--potw-neon-soft);
       clip-path: polygon(0 100%, 100% 100%, 0 0);
       z-index: 15;
     }
@@ -1023,9 +1102,18 @@
       right: 0;
       width: 100px;
       height: 30px;
-      background: rgba(31, 249, 86, 0.7);
+      background: var(--potw-neon-soft);
       clip-path: polygon(0 100%, 100% 100%, 100% 0);
       z-index: 15;
+    }
+
+    .player-photo-overlay::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.14), transparent 44%);
+      animation: potwShimmer 3s ease-in-out infinite;
+      pointer-events: none;
     }
 
     .mvp-boost-rating {
@@ -1055,6 +1143,7 @@
       background: rgba(31, 249, 86, 0.72);
       text-transform: uppercase;
       letter-spacing: 0.4px;
+      animation: boostTagPulse 1.8s ease-in-out infinite;
     }
 
     .potw-meta {
@@ -1074,6 +1163,73 @@
       font-weight: 900;
       line-height: 0.85;
       text-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+    }
+
+    @keyframes potwCardPulse {
+      0%, 100% { box-shadow: 0 0 16px color-mix(in srgb, var(--potw-neon) 26%, transparent), 0 12px 22px rgba(0, 0, 0, 0.35); transform: translateY(0); }
+      50% { box-shadow: 0 0 28px color-mix(in srgb, var(--potw-neon) 40%, transparent), 0 14px 28px rgba(0, 0, 0, 0.45); transform: translateY(-2px); }
+    }
+
+    @keyframes potwSweep {
+      0% { left: -68%; opacity: 0; }
+      8% { opacity: 1; }
+      34% { left: 108%; opacity: 0; }
+      100% { left: 108%; opacity: 0; }
+    }
+
+    @keyframes potwOrbit {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes potwShimmer {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.52; }
+    }
+
+    @keyframes chevronPulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(2px 3px 0 color-mix(in srgb, var(--potw-neon) 45%, #000)); }
+      50% { transform: scale(1.04); filter: drop-shadow(0 0 8px color-mix(in srgb, var(--potw-neon) 70%, #000)); }
+    }
+
+    @keyframes ratingGlow {
+      0%, 100% { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 0 transparent; }
+      50% { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 14px color-mix(in srgb, var(--potw-neon) 60%, transparent); }
+    }
+
+    @keyframes textNeon {
+      0%, 100% { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 0 transparent; }
+      50% { text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 8px color-mix(in srgb, var(--potw-neon) 50%, transparent); }
+    }
+
+    @keyframes panelScan {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes hexSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes hexPulse {
+      0%, 100% { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--potw-neon) 45%, transparent)); }
+      50% { filter: drop-shadow(0 0 9px color-mix(in srgb, var(--potw-neon) 80%, transparent)); }
+    }
+
+    @keyframes starsTwinkle {
+      0%, 100% { opacity: 0.82; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes borderGlow {
+      0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--potw-neon) 26%, transparent); opacity: 0.8; }
+      50% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--potw-neon) 55%, transparent), 0 0 14px color-mix(in srgb, var(--potw-neon) 40%, transparent); opacity: 1; }
+    }
+
+    @keyframes boostTagPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 transparent; }
+      50% { transform: scale(1.05); box-shadow: 0 0 10px color-mix(in srgb, var(--potw-neon) 55%, transparent); }
     }
 
     .rating-box {
@@ -2064,14 +2220,20 @@
 
         <!-- Latest Match MVP -->
         <div class="home-panel mvp-boost-card">
-          <h3 style="
-                color: var(--gold);
-                margin: 0 0 16px 0;
-                font-size: 18px;
-                font-weight: 700;
-              ">
-            <span class="material-symbols-outlined emoji-icon" style="color: var(--gold);">star</span> Son Seçilən MVP
-          </h3>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px;">
+            <h3 style="
+                  color: var(--gold);
+                  margin: 0;
+                  font-size: 18px;
+                  font-weight: 700;
+                ">
+              <span class="material-symbols-outlined emoji-icon" style="color: var(--gold);">star</span> Son Seçilən MVP
+            </h3>
+            <button class="potw-admin-btn admin-only" onclick="openPotwEditor()">
+              <span class="material-symbols-outlined" style="font-size:16px;">tune</span>
+              Redaktə
+            </button>
+          </div>
           <div id="latest-mvp-card"></div>
         </div>
       </div>
@@ -2409,6 +2571,63 @@
       </div>
     </div>
 
+    <div id="potw-editor-page" class="page">
+      <h2 style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        <span class="material-symbols-outlined" style="color: var(--primary-green);">tune</span>
+        POTW Redaktə
+      </h2>
+      <div class="stat-card" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="form-group">
+          <label>Oyunçu</label>
+          <select id="potw-player-select"></select>
+        </div>
+        <div class="form-group">
+          <label>Mövqe</label>
+          <select id="potw-position-select">
+            <option value="GK">GK</option>
+            <option value="CB">CB</option>
+            <option value="LB">LB</option>
+            <option value="RB">RB</option>
+            <option value="CDM">CDM</option>
+            <option value="CM">CM</option>
+            <option value="CAM">CAM</option>
+            <option value="LW">LW</option>
+            <option value="RW">RW</option>
+            <option value="ST">ST</option>
+            <option value="CF">CF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Boost Növü</label>
+          <select id="potw-boost-type">
+            <option value="GEN">GEN</option>
+            <option value="Şut">Şut</option>
+            <option value="Pas">Pas</option>
+            <option value="Hız">Hız</option>
+            <option value="Dribling">Dribling</option>
+            <option value="Defans">Defans</option>
+            <option value="Fizik">Fizik</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Boost Dəyəri</label>
+          <input type="number" id="potw-boost-value" value="2" min="-10" max="10">
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Kart Rəngi</label>
+          <select id="potw-color-select">
+            <option value="green">Yaşıl</option>
+            <option value="yellow">Sarı</option>
+            <option value="purple">Mor</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button class="main-btn" onclick="savePotwSettings()">Yadda Saxla</button>
+        <button class="btn-secondary" onclick="changePage('ana-sayfa', 'Əsas')">Geri</button>
+      </div>
+    </div>
+
     <div id="add-match-page" class="page">
       <h2 style="display: flex; align-items: center; gap: 10px;">
         <span class="material-symbols-outlined" style="color: var(--primary-green);">post_add</span> Yeni Matç Əlavə Et
@@ -2715,6 +2934,14 @@
     let players = [];
     let matches = [];
     let isAdmin = false; // Set via API
+    const POTW_SETTINGS_KEY = "arena9_potw_settings_v1";
+    let potwSettings = {
+      player_id: null,
+      position: "CF",
+      boost_type: "GEN",
+      boost_value: 2,
+      color: "green",
+    };
     let tempEvents = [];
     let s1 = 0,
       s2 = 0;
@@ -2742,6 +2969,7 @@
         const auth = await authRes.json();
 
         isAdmin = auth.is_admin;
+        loadPotwSettings();
         updateAdminUI();
 
         renderRecentMatches();
@@ -2757,6 +2985,73 @@
         console.error("API Error:", e);
         showToast("Server xətası!", "error");
       }
+    }
+
+    function loadPotwSettings() {
+      try {
+        const raw = localStorage.getItem(POTW_SETTINGS_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        if (saved && saved.color === "pink") saved.color = "purple";
+        potwSettings = {
+          ...potwSettings,
+          ...saved,
+          boost_value: Number(saved.boost_value ?? potwSettings.boost_value) || 0,
+        };
+      } catch (e) {
+        console.error("POTW settings load error:", e);
+      }
+    }
+
+    function openPotwEditor() {
+      if (!isAdmin) return;
+      renderPotwEditorPage();
+      changePage("potw-editor-page", "POTW Redaktə");
+    }
+
+    function renderPotwEditorPage() {
+      const playerSelect = document.getElementById("potw-player-select");
+      if (!playerSelect) return;
+
+      const options = players
+        .slice()
+        .sort((a, b) => (a.num || 0) - (b.num || 0))
+        .map((p) => `<option value="${p.id}">#${p.num || "-"} ${p.name}</option>`)
+        .join("");
+      playerSelect.innerHTML = options || `<option value="">Oyunçu yoxdur</option>`;
+
+      if (!potwSettings.player_id && players[0]) potwSettings.player_id = players[0].id;
+      if (playerSelect && potwSettings.player_id) playerSelect.value = String(potwSettings.player_id);
+      const positionSelect = document.getElementById("potw-position-select");
+      if (positionSelect) positionSelect.value = potwSettings.position || "CF";
+      const boostTypeSelect = document.getElementById("potw-boost-type");
+      if (boostTypeSelect) boostTypeSelect.value = potwSettings.boost_type || "GEN";
+      const boostValueInput = document.getElementById("potw-boost-value");
+      if (boostValueInput) boostValueInput.value = Number(potwSettings.boost_value || 0);
+      const colorSelect = document.getElementById("potw-color-select");
+      if (colorSelect) colorSelect.value = potwSettings.color || "green";
+    }
+
+    function savePotwSettings() {
+      if (!isAdmin) return;
+      const playerSelect = document.getElementById("potw-player-select");
+      const positionSelect = document.getElementById("potw-position-select");
+      const boostTypeSelect = document.getElementById("potw-boost-type");
+      const boostValueInput = document.getElementById("potw-boost-value");
+      const colorSelect = document.getElementById("potw-color-select");
+
+      potwSettings = {
+        player_id: Number(playerSelect?.value || 0) || null,
+        position: (positionSelect?.value || "CF").toUpperCase(),
+        boost_type: boostTypeSelect?.value || "GEN",
+        boost_value: Math.max(-10, Math.min(10, Number(boostValueInput?.value || 0))),
+        color: colorSelect?.value || "green",
+      };
+
+      localStorage.setItem(POTW_SETTINGS_KEY, JSON.stringify(potwSettings));
+      renderLatestMvpCard();
+      showToast("POTW ayarları yadda saxlanıldı", "success");
+      changePage("ana-sayfa", "Əsas");
     }
 
     function updateAdminUI() {
@@ -2949,9 +3244,14 @@
       "/istatistikler": { id: "istatistikler", title: "Statistika" },
       "/muqayise": { id: "muqayise", title: "Müqayisə" },
       "/dream-team": { id: "dream-team", title: "Dream Team" },
+      "/potw-editor": { id: "potw-editor-page", title: "POTW Redaktə" },
     };
 
     function changePage(pageId, title, pushState = true) {
+      if (pageId === "potw-editor-page" && !isAdmin) {
+        pageId = "ana-sayfa";
+        title = "Əsas";
+      }
       currentPage = pageId;
 
       document
@@ -3018,6 +3318,7 @@
         else if (pageId === "istatistikler") url = "/istatistikler";
         else if (pageId === "muqayise") url = "/muqayise";
         else if (pageId === "dream-team") url = "/dream-team";
+        else if (pageId === "potw-editor-page") url = "/potw-editor";
 
         if (location.pathname !== url) {
           history.pushState({ pageId, title }, title, url);
@@ -3061,6 +3362,7 @@
       }
       if (pageId === "add-player-page") renderAddPlayerStats();
       if (pageId === "muqayise") renderComparison();
+      if (pageId === "potw-editor-page") renderPotwEditorPage();
 
       if (historyStack[historyStack.length - 1] !== pageId)
         historyStack.push(pageId);
@@ -3118,6 +3420,8 @@
           return "Yeni Oyunçu";
         case "add-match-page":
           return "Yeni Matç";
+        case "potw-editor-page":
+          return "POTW Redaktə";
         default:
           return "Əsas";
       }
@@ -3371,40 +3675,46 @@
       const container = document.getElementById("latest-mvp-card");
       if (!container) return;
 
-      if (matches.length === 0) {
+      if (players.length === 0) {
         container.innerHTML =
-          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hele matc tapilmayib</div>';
+          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ oyunçu yoxdur</div>';
         return;
       }
 
-      const latestMvpMatch = [...matches].filter((m) => (m?.mvp || "").trim()).sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-      const mvpName = (latestMvpMatch?.mvp || "").trim();
-      if (!mvpName) {
-        container.innerHTML =
-          '<div style="text-align: center; color: var(--text-gray); padding: 20px;">Hələ MVP seçilməyib</div>';
-        return;
+      if (!potwSettings.player_id) {
+        potwSettings.player_id = players[0].id;
       }
 
-      const mvpPlayer = players.find((p) => (p.name || "").trim().toLowerCase() === mvpName.toLowerCase());
-      const baseRating = mvpPlayer ? getOverall(mvpPlayer.stats) : 75;
-      const boostedRating = Math.min(99, baseRating + 2);
-      const cardPosition = (mvpPlayer?.position || "CF").toUpperCase();
-      const playerPhoto = mvpPlayer?.photo_url
-        ? `<img src="${mvpPlayer.photo_url}" alt="${mvpName}" onerror="this.remove(); this.parentElement.innerHTML='<div class=&quot;player-photo-fallback&quot;>${mvpName}</div>';">`
-        : `<div class="player-photo-fallback">${mvpName}</div>`;
+      const selectedPlayer = players.find((p) => Number(p.id) === Number(potwSettings.player_id)) || players[0];
+      if (!selectedPlayer) return;
+
+      const playerName = selectedPlayer.name || "Oyunçu";
+      const baseRating = getOverall(selectedPlayer.stats);
+      const boostValue = Number(potwSettings.boost_value || 0);
+      const boostedRating = Math.max(40, Math.min(99, baseRating + boostValue));
+      const cardPosition = (potwSettings.position || selectedPlayer.position || "CF").toUpperCase();
+      const boostType = potwSettings.boost_type || "GEN";
+      const theme = potwSettings.color || "green";
+      const boostPillColor = theme === "yellow" ? "#ffd84d" : theme === "purple" ? "#b14dff" : "#1ff956";
+      const latestSeason = ([...matches].sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.season) || "25/26";
+      const playerPhoto = selectedPlayer.photo_url
+        ? `<img src="${selectedPlayer.photo_url}" alt="${playerName}" onerror="this.remove(); this.parentElement.innerHTML='<div class=&quot;player-photo-fallback&quot;>${playerName}</div>';">`
+        : `<div class="player-photo-fallback">${playerName}</div>`;
       container.innerHTML = `
         <div class="card-container">
-          <div class="card-frame">
+          <div class="card-frame potw-theme-${theme}">
             <div class="bg-gray-left"></div>
             <div class="bg-white-center"></div>
             <div class="player-photo-layer">
               ${playerPhoto}
             </div>
             <div class="player-photo-overlay"></div>
+            <div class="potw-ring"></div>
+            <div class="potw-light-sweep"></div>
 
             <div class="text-potw-main">PLAYERS/WEEK</div>
             <div class="text-potw-sub">OF THE</div>
-            <div class="text-season">${latestMvpMatch.season || "24-25"}</div>
+            <div class="text-season">${latestSeason}</div>
             <div class="card-rating-block">
               <div class="rating">${boostedRating}</div>
               <div class="position">${cardPosition}</div>
@@ -3423,7 +3733,7 @@
 
             <div class="black-stripe"></div>
             <div class="player-name-ribbon">
-              <div class="name">${renderPlayerLink(mvpName, mvpPlayer?.id)}</div>
+              <div class="name">${renderPlayerLink(playerName, selectedPlayer.id)}</div>
             </div>
 
             <div class="efootball-logo">
@@ -3435,10 +3745,10 @@
 
             <div class="bottom-panel">
               <div class="panel-top-glow"></div>
-              <div class="hexagon-logo">
+              <div class="hexagon-logo" style="color:${boostPillColor};">
                 <svg viewBox="0 0 100 100" width="24" height="24" aria-hidden="true">
-                  <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="#00ff00" stroke-width="5"></path>
-                  <rect x="30" y="45" width="40" height="10" fill="#00ff00"></rect>
+                  <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" stroke-width="5"></path>
+                  <rect x="30" y="45" width="40" height="10" fill="currentColor"></rect>
                 </svg>
               </div>
               <div class="stars-row">
@@ -3450,9 +3760,9 @@
           </div>
         </div>
         <div class="potw-meta">
-          <div style="font-size:12px; color:#9ca3af;">${latestMvpMatch.home} ${latestMvpMatch.s1}-${latestMvpMatch.s2} ${latestMvpMatch.away}</div>
+          <div style="font-size:12px; color:#9ca3af;">Manual POTW • ${latestSeason}</div>
           <div class="mvp-boost-rating">
-            <span class="mvp-boost-plus">+2 boost</span>
+            <span class="mvp-boost-plus" style="background:${boostPillColor}; border-color:${boostPillColor};">${boostType} ${boostValue >= 0 ? "+" : ""}${boostValue}</span>
           </div>
           <div style="font-size:11px; color:#9ca3af; margin-top:2px;">Normal: ${baseRating} -> MVP: ${boostedRating}</div>
         </div>
