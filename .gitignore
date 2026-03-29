@@ -9,3 +9,4 @@ ENV/
 *.db
 instance/
 .env
+node_modules/
