@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file as flask_send_file
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file as flask_send_file, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -10,15 +10,21 @@ import csv
 import io
 import uuid
 import re
+import tempfile
 from sqlalchemy import or_, func, desc
 
-app = Flask(__name__)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+IS_VERCEL = bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+RUNTIME_DIR = os.path.join(tempfile.gettempdir(), 'arena9') if IS_VERCEL else os.path.join(BASE_DIR, 'instance')
+os.makedirs(RUNTIME_DIR, exist_ok=True)
+
+app = Flask(__name__, instance_path=RUNTIME_DIR)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 from datetime import timedelta
 app.permanent_session_lifetime = timedelta(days=31)
 
 # File Upload Configuration
-UPLOAD_FOLDER = 'static/uploads'
+UPLOAD_FOLDER = os.path.join(RUNTIME_DIR, 'uploads') if IS_VERCEL else os.path.join(BASE_DIR, 'static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
@@ -26,7 +32,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
 # PostgreSQL için DATABASE_URL düzəlişi (Render.com postgres:// -> postgresql:// dəyişdirir)
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///football_stats.db')
+default_sqlite_path = os.path.join(RUNTIME_DIR, 'football_stats.db')
+database_url = os.environ.get('DATABASE_URL', f"sqlite:///{default_sqlite_path}")
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 
@@ -347,6 +354,11 @@ def api_upload():
         return jsonify({'success': False, 'message': 'Faylı saxlamaq mümkün olmadı'}), 500
     except Exception as e:
         return jsonify({'success': False, 'message': f'Server xətası: {str(e)}'}), 500
+
+
+@app.route('/static/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/api/players', methods=['GET', 'POST'])
